@@ -1,0 +1,21 @@
+{% load rung %}
+{% comment %}
+A centered dialog. Pass id, title, body (a template to include), confirm_label, and
+confirm_action. Optional: form_id (the id of the form the confirm button submits), state
+(Alpine x-data), ready (an Alpine expression that must be true before the confirm
+button works), and open (show the dialog as soon as the page loads).
+{% endcomment %}
+<dialog id="{{ id }}" class="dialog" aria-labelledby="{{ id }}-title" {% if open %}x-init="$el.showModal()"{% endif %}
+        @keydown.enter="if ($event.target.tagName !== 'BUTTON' && !$event.shiftKey) { $event.preventDefault(); $refs.confirm.click() }"
+        x-data="{{ state|default:'{}' }}">
+  <div class="flex items-start justify-between gap-4 border-b border-border px-6 py-4">
+    <h2 id="{{ id }}-title" class="text-lg">{{ title }}</h2>
+    <button type="button" class="btn btn-quiet -mr-2 px-2" @click="$el.closest('dialog').close()">{% icon "x" %}<span class="sr-only">Close dialog</span></button>
+  </div>
+  <div class="px-6 py-5 text-sm">{% include body %}</div>
+  <div class="flex flex-col-reverse gap-2 border-t border-border px-6 py-4 sm:flex-row sm:justify-end">
+    <button type="button" class="btn btn-secondary" @click="$el.closest('dialog').close()">Cancel</button>
+    <button type="submit" class="btn btn-primary" x-ref="confirm" name="action" value="{{ confirm_action }}"
+            {% if form_id %}form="{{ form_id }}"{% endif %} {% if ready %}:disabled="!({{ ready }})"{% endif %}>{{ confirm_label }}</button>
+  </div>
+</dialog>

@@ -1,0 +1,66 @@
+{% load static rung %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Claims coach{% endblock %} | RUNG</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon.png' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <script src="{% static 'js/alpine.min.js' %}" defer></script>
+</head>
+<body class="min-h-screen" x-data="{ menu: false }" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <a href="#main" class="btn btn-primary sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50">Skip to content</a>
+
+  {% block shell %}
+  <div class="lg:pl-60">
+    {% include "core/partials/demo_banner.html" %}
+
+    <aside class="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-border bg-card lg:flex" aria-label="Sidebar">
+      <a href="{% url 'home' %}" class="flex items-center gap-3 px-5 py-5">
+        <img src="{% static 'img/rung_logo.png' %}" alt="" class="h-9 w-9">
+        <span class="text-xl font-bold tracking-wide text-navy">RUNG</span>
+      </a>
+      <nav class="flex flex-1 flex-col gap-1 px-3 pb-4" aria-label="Main">
+        {% include "core/partials/nav.html" %}
+      </nav>
+    </aside>
+
+    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-card px-4 sm:px-6 lg:px-8">
+      <button type="button" class="btn btn-secondary px-3 lg:hidden" @click="menu = !menu" :aria-expanded="menu.toString()" aria-controls="mobile-menu">
+        {% icon "menu" "size-5" %}<span class="sr-only">Menu</span>
+      </button>
+      <a href="{% url 'home' %}" class="flex items-center gap-2 lg:hidden">
+        <img src="{% static 'img/rung_logo.png' %}" alt="" class="h-9 w-9">
+        <span class="text-lg font-bold tracking-wide text-navy">RUNG</span>
+      </a>
+      <div class="ml-auto flex items-center gap-3">
+        <span class="hidden items-center gap-2 text-sm font-medium text-navy sm:flex">
+          {% icon "user" %}{{ user.get_full_name|default:user.username }}
+        </span>
+        <span class="badge badge-info">{{ role|capfirst }}</span>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-quiet">{% icon "log-out" %}<span class="hidden sm:inline">Sign out</span><span class="sr-only sm:hidden">Sign out</span></button>
+        </form>
+      </div>
+    </header>
+
+    <nav id="mobile-menu" class="flex flex-col gap-1 border-b border-border bg-card px-3 py-3 lg:hidden" aria-label="Main" x-cloak x-show="menu" x-transition.duration.200ms @keydown.escape.window="menu = false">
+      {% include "core/partials/nav.html" %}
+    </nav>
+
+    <main id="main" class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  {% endblock %}
+
+  <div id="toasts" class="pointer-events-none fixed right-4 bottom-4 z-50 flex w-[min(92vw,22rem)] flex-col gap-2" aria-live="polite">
+    {% for message in messages %}{% include "core/partials/toast.html" %}{% endfor %}
+  </div>
+</body>
+</html>

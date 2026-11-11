@@ -1,0 +1,8 @@
+{% load rung %}
+{% for item in nav_items %}
+<a href="{{ item.url }}" class="nav-item" {% if item.active %}aria-current="page"{% endif %}>
+  {% icon item.icon "size-5" %}
+  <span class="flex-1">{{ item.label }}</span>
+  {% if item.count %}<span class="badge {% if item.active %}badge-neutral{% else %}badge-level{% endif %}" aria-label="{{ item.count }} open">{{ item.count }}</span>{% endif %}
+</a>
+{% endfor %}

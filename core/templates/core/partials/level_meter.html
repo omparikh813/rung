@@ -1,0 +1,13 @@
+{# level: full, guided, or minimal. The meter fills as the worker needs less help. #}
+<div role="img" aria-label="Help level: {% if level == 'minimal' %}Minimal, step 3 of 3{% elif level == 'guided' %}Guided, step 2 of 3{% else %}Full help, step 1 of 3{% endif %}">
+  <div class="flex gap-1.5">
+    <div class="meter-step"><span></span></div>
+    <div class="meter-step">{% if level == "guided" or level == "minimal" %}<span></span>{% endif %}</div>
+    <div class="meter-step">{% if level == "minimal" %}<span></span>{% endif %}</div>
+  </div>
+  <div class="mt-1.5 flex justify-between text-xs text-muted" aria-hidden="true">
+    <span class="{% if level == 'full' or not level %}font-semibold text-navy{% endif %}">Full</span>
+    <span class="{% if level == 'guided' %}font-semibold text-navy{% endif %}">Guided</span>
+    <span class="{% if level == 'minimal' %}font-semibold text-navy{% endif %}">Minimal</span>
+  </div>
+</div>
