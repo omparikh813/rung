@@ -151,6 +151,26 @@
     @apply animate-pulse-once;
   }
 
+  /* Message panels. Body text stays dark so it passes 4.5:1 on the tinted background. */
+  .alert {
+    @apply flex items-start gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium text-text;
+  }
+  .alert-error {
+    @apply border-destructive/40 bg-destructive-soft;
+  }
+  .alert-error > svg {
+    @apply text-destructive;
+  }
+  .alert-warning {
+    @apply border-warning/40 bg-warning-soft;
+  }
+  .alert-warning > svg {
+    @apply text-warning;
+  }
+  .alert-info {
+    @apply border-border bg-primary-soft text-navy;
+  }
+
   /* Badges */
   .badge {
     @apply inline-flex items-center gap-1 rounded-full border border-transparent px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap;
@@ -168,7 +188,7 @@
     @apply bg-warning-soft text-warning;
   }
   .badge-danger {
-    @apply bg-destructive-soft text-destructive;
+    @apply border-destructive/40 bg-white text-destructive;
   }
   .badge-level {
     @apply bg-primary text-on-primary;

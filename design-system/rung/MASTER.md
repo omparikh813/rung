@@ -47,7 +47,8 @@ The skill's colors are replaced by these tokens, taken from the logo. They live 
 | `--color-destructive` | `#DC2626` | Denied and errors |
 
 Two soft tints support the status colors: `--color-warning-soft` `#FFFBEB` and
-`--color-destructive-soft` `#FEF2F2`.
+`--color-destructive-soft` `#FEF2F2`. Red text on the red tint is only 4.4:1, so text
+on `--color-destructive-soft` stays in `--color-text` with a red icon and border.
 
 ### Color balance
 
@@ -64,7 +65,7 @@ Every status badge shows a word and an icon, never color alone.
 | Status | Text | Background | Icon |
 |--------|------|------------|------|
 | New | `#475569` | `#FFFFFF` with border | circle-dot |
-| Denied | `#DC2626` | `#FEF2F2` | circle-x |
+| Denied | `#DC2626` | `#FFFFFF` with red border | circle-x |
 | Needs Fix | `#B45309` | `#FFFBEB` | triangle-alert |
 | Ready | `#187A56` | `#E9F8F2` | circle-check |
 | Waiting on Specialist | `#176F9C` | `#E8F5FC` | clock |

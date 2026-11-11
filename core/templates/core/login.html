@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+{% load static rung %}
+{% block title %}Sign in{% endblock %}
+{% block shell %}
+{% include "core/partials/demo_banner.html" %}
+<main id="main" class="mx-auto flex w-full max-w-md flex-col px-4 py-10 sm:py-16">
+  <div class="card px-6 py-10 sm:px-10">
+  <img src="{% static 'img/rung_logo.png' %}" alt="RUNG logo" class="mx-auto h-[120px] w-[120px]">
+  <h1 class="mt-8 text-center text-3xl font-bold tracking-wide">RUNG</h1>
+  <p class="mt-2 text-center text-muted">Expert billing help, built into the work.</p>
+
+  <form method="post" class="mt-8 flex flex-col gap-4" x-data="{ busy: false }" @submit="busy = true" :class="busy && 'is-busy'">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="alert alert-error" role="alert">
+      {% icon "circle-x" "mt-0.5 size-4" %}<span>{{ form.non_field_errors.0 }}</span>
+    </div>
+    {% endif %}
+    <div>
+      <label class="label" for="{{ form.username.id_for_label }}">Username</label>
+      {{ form.username }}
+    </div>
+    <div>
+      <label class="label" for="{{ form.password.id_for_label }}">Password</label>
+      {{ form.password }}
+    </div>
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn btn-primary mt-2">Sign in</button>
+  </form>
+  </div>
+
+  {% if show_demo_hint %}
+  <div class="mt-6 rounded-xl bg-primary-soft p-4 text-sm text-navy">
+    <p class="flex items-center gap-2 font-semibold">{% icon "info" %}Demo accounts</p>
+    <ul class="mt-2 space-y-1">
+      <li><span class="code font-medium">maria</span> signs in as a Worker</li>
+      <li><span class="code font-medium">dan</span> signs in as a Specialist</li>
+    </ul>
+  </div>
+  {% endif %}
+</main>
+{% endblock %}
