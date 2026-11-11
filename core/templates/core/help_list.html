@@ -2,35 +2,35 @@
 {% load rung %}
 {% block title %}Help Requests{% endblock %}
 {% block content %}
-<h1 class="text-2xl">Help Requests</h1>
-<p class="mt-1 text-muted">Claims you sent to a specialist. <span class="code font-semibold text-primary-strong">{{ open_count }}</span> open.</p>
+{% include "core/partials/page_hero.html" with eyebrow="Help Requests" title="A specialist has your back" subtitle="Every claim you sent to a specialist, with their answer once it is resolved." tiles=tiles shape="cross" %}
 
-<div class="card mt-6">
-  {% if requests %}
-  <div class="overflow-x-auto">
-    <table class="table">
-      <thead><tr><th scope="col">Claim ID</th><th scope="col">Your question</th><th scope="col">Status</th><th scope="col">Date</th><th scope="col">Specialist's note</th></tr></thead>
-      <tbody>
-        {% for item in requests %}
-        <tr>
-          <td><a class="link code whitespace-nowrap" href="{% url 'claim' item.claim_pk %}">{{ item.claim_id }}</a></td>
-          <td class="min-w-48">{{ item.question }}</td>
-          <td>{% include "core/partials/request_badge.html" with status=item.status %}</td>
-          <td class="whitespace-nowrap text-muted">{{ item.created_at|date:"M j, g:i A" }}</td>
-          <td class="min-w-48">
-            {% if item.status == "resolved" %}
-            <p class="text-xs font-semibold text-forest">{{ item.outcome }}</p>
-            <p>{{ item.resolution_note }}</p>
-            <a class="link mt-1 inline-flex items-center gap-1 text-xs" href="{% url 'claim' item.claim_pk %}">Back to the claim{% icon "chevron-right" "size-3" %}</a>
-            {% else %}<span class="text-muted">Waiting on a specialist</span>{% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
-  {% include "core/partials/empty_state.html" with icon="life-buoy" title="No help requests yet" text="When you use Ask a specialist on a claim, the request and the specialist's answer will appear here." %}
-  {% endif %}
+{% if requests %}
+<div class="mt-6 grid gap-5 lg:grid-cols-2">
+  {% for item in requests %}
+  <article class="card card-lift animate-slide-in p-5" style="animation-delay: {% widthratio forloop.counter0 1 70 %}ms">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <a class="link code text-lg" href="{% url 'claim' item.claim_pk %}">{{ item.claim_id }}</a>
+      <div class="flex items-center gap-2">
+        {% include "core/partials/request_badge.html" with status=item.status %}
+        <span class="text-xs text-muted">{{ item.created_at|date:"M j, g:i A" }}</span>
+      </div>
+    </div>
+    <p class="mt-4 text-xs font-bold tracking-wide text-muted uppercase">You asked</p>
+    <p class="mt-1 rounded-2xl rounded-tl-sm bg-pastel-sky p-4 leading-relaxed font-medium text-forest">{{ item.question }}</p>
+    {% if item.status == "resolved" %}
+    <p class="mt-4 text-right text-xs font-bold tracking-wide text-muted uppercase">Specialist's note</p>
+    <div class="mt-1 ml-6 rounded-2xl rounded-tr-sm bg-linear-to-br from-primary-soft to-mint p-4 text-forest">
+      <p class="text-sm font-bold">{{ item.outcome }}</p>
+      <p class="mt-1 leading-relaxed">{{ item.resolution_note }}</p>
+      <a class="link mt-2 inline-flex items-center gap-1 text-sm" href="{% url 'claim' item.claim_pk %}">Back to the claim<span class="arrow">{% icon "arrow-right" %}</span></a>
+    </div>
+    {% else %}
+    <p class="mt-4 flex items-center gap-2 text-sm font-semibold text-info"><span class="animate-spin [animation-duration:3s]">{% icon "loader-circle" %}</span>Waiting on a specialist</p>
+    {% endif %}
+  </article>
+  {% endfor %}
 </div>
+{% else %}
+<div class="card mt-6">{% include "core/partials/empty_state.html" with icon="life-buoy" title="No help requests yet" text="When you use Ask a specialist on a claim, the request and the specialist's answer will appear here." %}</div>
+{% endif %}
 {% endblock %}
