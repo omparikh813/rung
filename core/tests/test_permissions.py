@@ -40,7 +40,7 @@ class LoginTests(RoleTestCase):
         response = self.client.get(reverse("login"))
         self.assertContains(response, "Expert billing help, built into the work.")
         self.assertContains(response, "Demo data only. Do not enter real patient information.")
-        self.assertContains(response, "rung_logo.png")
+        self.assertContains(response, "rung_mark.png")
 
     @override_settings(DEBUG=True)
     def test_debug_hint_lists_usernames_but_no_password(self):

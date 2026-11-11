@@ -11,7 +11,7 @@
     {% include "core/partials/shapes/cross.html" with class="floaty top-64 right-40 w-14 animate-float-slow" %}
     {% include "core/partials/shapes/molecule.html" with class="floaty right-6 bottom-10 w-28 animate-float-slow" %}
     <a href="{% url 'home' %}" class="group relative flex items-center gap-3">
-      <span class="flex size-11 items-center justify-center rounded-xl bg-white shadow-md transition duration-300 group-hover:-rotate-6"><img src="{% static 'img/rung_logo.png' %}" alt="" class="h-9 w-9"></span>
+      <img src="{% static 'img/rung_mark.png' %}" alt="" class="size-11 drop-shadow-sm transition duration-300 group-hover:-rotate-6">
       <span class="text-2xl font-extrabold tracking-wide">RUNG</span>
     </a>
     <div class="relative max-w-sm">
@@ -27,7 +27,7 @@
 
   <section class="mx-auto w-full max-w-md animate-slide-in">
     <div class="card px-6 py-10 shadow-lg sm:px-10">
-      <img src="{% static 'img/rung_logo.png' %}" alt="RUNG logo" class="mx-auto h-[120px] w-[120px]">
+      <img src="{% static 'img/rung_mark.png' %}" alt="RUNG logo" class="mx-auto h-[120px] w-[120px]">
       <h1 class="mt-6 text-center text-4xl font-extrabold tracking-wide">RUNG</h1>
       <p class="mt-2 text-center text-muted">Expert billing help, built into the work.</p>
 
