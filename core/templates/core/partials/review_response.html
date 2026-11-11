@@ -4,4 +4,5 @@
 {% for group in groups %}{% for item in group.fields %}
 <div id="hint-{{ item.field.name }}" hx-swap-oob="true">{% include "core/partials/field_hint.html" with errors=item.field.errors hint=item.hint %}</div>
 {% endfor %}{% endfor %}
-<div id="claim-history" class="mt-2" hx-swap-oob="true">{% include "core/partials/history.html" %}</div>
+<div id="claim-steps" hx-swap-oob="true">{% include "core/partials/claim_steps.html" with status=claim.work_status %}</div>
+<div id="claim-history" class="mt-3" hx-swap-oob="true">{% include "core/partials/history.html" %}</div>

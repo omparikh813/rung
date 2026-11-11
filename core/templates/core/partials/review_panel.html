@@ -18,12 +18,12 @@
     {% if cards %}
     <p class="text-sm text-text">{{ review.result_json.summary }}</p>
     {% else %}
-    <div class="flex items-start gap-2 rounded-lg bg-success-soft px-3 py-2.5 text-sm font-medium text-success-strong">
-      {% icon "circle-check" "mt-0.5 size-4" %}
+    <div class="flex animate-pop items-start gap-3 rounded-2xl bg-linear-to-br from-success-soft to-mint px-4 py-4 text-sm font-semibold text-success-strong">
+      <span class="icon-tile size-9 bg-white">{% icon "circle-check" "size-5" %}</span>
       <div><p>No issues found. This claim is ready to submit.</p>{% if review.result_json.summary %}<p class="mt-1 font-normal text-text">{{ review.result_json.summary }}</p>{% endif %}</div>
     </div>
     {% endif %}
-    {% if stale %}
+    {% if stale and editable %}
     <p class="alert alert-info">{% icon "info" "mt-0.5 size-4" %}<span>The claim changed after this check. Use Re-check claim to update it.</span></p>
     {% endif %}
     {% if review.result_json.escalate %}

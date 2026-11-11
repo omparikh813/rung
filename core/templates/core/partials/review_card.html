@@ -1,0 +1,16 @@
+{% load rung %}
+{# The AI review card: a green header with Re-check, then the review panel. #}
+<section class="card overflow-hidden">
+  <div class="flex items-center justify-between gap-3 bg-linear-to-r from-forest to-primary px-5 py-4">
+    <h2 class="flex items-center gap-2 text-base font-bold text-white">{% icon "sparkles" "size-5" %}AI review</h2>
+    {% if editable %}
+    <button type="button" class="btn min-h-9 border-white/30 bg-white/15 px-3 py-1 text-white hover:bg-white/25" hx-post="{% url 'claim_review' claim.pk %}" hx-include="#claim-form" hx-target="#review-panel" hx-swap="outerHTML" hx-indicator="#review-wrap" hx-disabled-elt="this">
+      {% icon "refresh-cw" %}Re-check claim
+    </button>
+    {% endif %}
+  </div>
+  <div id="review-wrap" class="p-5">
+    <div class="review-loading">{% include "core/partials/review_skeleton.html" %}</div>
+    {% include "core/partials/review_panel.html" %}
+  </div>
+</section>
