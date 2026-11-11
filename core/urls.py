@@ -1,7 +1,7 @@
 from django.contrib.auth.views import LogoutView
 from django.urls import path
 
-from .views import auth, help_requests, library, passport, queue, workspace
+from .views import auth, help_requests, library, passport, queue, upload, workspace
 
 urlpatterns = [
     path("", auth.home, name="home"),
@@ -19,4 +19,6 @@ urlpatterns = [
     path("library/<int:pk>/delete/", library.library_delete, name="library_delete"),
     path("passport/", passport.passport, name="passport"),
     path("passport/<str:username>/", passport.passport, name="passport_user"),
+    path("upload/", upload.upload, name="upload"),
+    path("upload/template/", upload.upload_template, name="upload_template"),
 ]
