@@ -1,5 +1,7 @@
 {% extends "core/base.html" %}
 {% block title %}No access{% endblock %}
 {% block content %}
+<div class="card">
 {% include "core/partials/empty_state.html" with icon="info" title="You do not have access to this page" text="This page belongs to a different role. Use the menu to go back to your own pages." %}
+</div>
 {% endblock %}
