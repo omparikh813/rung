@@ -1,0 +1,323 @@
+{% extends "core/base.html" %}
+{% load static rung %}
+{% block title %}Expert billing help, built into the work{% endblock %}
+{% block shell %}
+<div class="bg-white">
+{% include "core/partials/demo_banner.html" %}
+
+<header class="sticky top-0 z-40 border-b transition duration-300" x-data="{ scrolled: false }" @scroll.window.passive="scrolled = window.scrollY > 12"
+        :class="scrolled ? 'border-border/70 bg-white/80 shadow-sm backdrop-blur-md' : 'border-transparent bg-white/0'">
+  <div class="mx-auto flex h-18 max-w-7xl items-center gap-6 px-4 sm:px-6 lg:px-8">
+    <a href="#top" class="group flex items-center gap-3">
+      <span class="flex size-11 items-center justify-center rounded-xl bg-white shadow-md transition duration-300 group-hover:-rotate-6 group-hover:scale-105"><img src="{% static 'img/rung_logo.png' %}" alt="" class="h-9 w-9"></span>
+      <span class="text-2xl font-extrabold tracking-wide text-forest">RUNG</span>
+    </a>
+    <nav class="ml-auto hidden items-center gap-1 md:flex" aria-label="Sections">
+      <a class="btn btn-quiet text-forest" href="#how">How it works</a>
+      <a class="btn btn-quiet text-forest" href="#who">Who it is for</a>
+      <a class="btn btn-quiet text-forest" href="#mission">Mission</a>
+      <a class="btn btn-quiet text-forest" href="#faq">Questions</a>
+      <a class="btn btn-quiet text-forest" href="#contact">Contact</a>
+    </nav>
+    <a class="btn btn-primary ml-auto md:ml-2" href="{% url 'login' %}">Sign in<span class="arrow">{% icon "arrow-right" %}</span></a>
+  </div>
+</header>
+
+<main id="main">
+  {# ---------- Hero ---------- #}
+  <section id="top" class="relative isolate -mt-18 overflow-hidden bg-linear-to-br from-white via-primary-soft to-mint pt-18">
+    <span class="blob -top-24 right-0 size-[30rem] bg-lime/40" aria-hidden="true"></span>
+    <span class="blob bottom-0 -left-24 size-[26rem] bg-success/20" aria-hidden="true"></span>
+    <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 pt-14 pb-16 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:px-8 lg:pt-20 lg:pb-24">
+      <div class="animate-slide-in">
+        <p class="eyebrow inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 shadow-sm">{% icon "sparkle" %}A claims coach for medical billing</p>
+        <h1 class="mt-6 text-5xl leading-[1.05] font-extrabold sm:text-6xl xl:text-7xl">Expert billing help, <span class="marker">built into the work.</span></h1>
+        <p class="mt-6 max-w-xl text-lg leading-relaxed text-muted">RUNG coaches new billing workers through real claims. It checks each claim against the clinical note and the payer's rules, explains what to fix in plain words, and steps back as skill grows.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a class="btn btn-primary btn-lg" href="{% url 'login' %}">Sign in to RUNG<span class="arrow">{% icon "arrow-right" "size-5" %}</span></a>
+          <a class="btn btn-secondary btn-lg" href="#how">See how it works</a>
+        </div>
+        <ul class="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-forest">
+          <li class="flex items-center gap-2"><span class="text-primary">{% icon "circle-check" "size-5" %}</span>Checks against your payer rules</li>
+          <li class="flex items-center gap-2"><span class="text-primary">{% icon "circle-check" "size-5" %}</span>Help that fades as you improve</li>
+          <li class="flex items-center gap-2"><span class="text-primary">{% icon "circle-check" "size-5" %}</span>A specialist in one click</li>
+        </ul>
+      </div>
+
+      {# The hero illustration: a claim card with the AI review and help level floating over it. Decorative. #}
+      <div class="relative mx-auto h-[27rem] w-full max-w-md animate-pop sm:h-[30rem] sm:max-w-lg" aria-hidden="true">
+        <div class="absolute top-6 left-0 w-[17rem] -rotate-3 rounded-3xl bg-white p-5 shadow-lg sm:left-6 sm:w-80">
+          <div class="flex items-center justify-between">
+            <span class="code font-semibold text-forest">CLM-1012</span>
+            <span class="badge badge-warning">{% icon "triangle-alert" "size-3.5" %}Needs Fix</span>
+          </div>
+          <p class="mt-1 text-xs text-muted">Summit Health PPO</p>
+          <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+            <div><p class="font-semibold text-muted">CPT (line 1)</p><p class="code mt-1 rounded-lg border border-border px-2 py-1.5 text-forest">99213</p></div>
+            <div><p class="font-semibold text-muted">Modifiers</p><p class="code mt-1 rounded-lg border border-l-4 border-warning bg-warning-soft px-2 py-1.5 text-warning">&nbsp;</p></div>
+            <div><p class="font-semibold text-muted">CPT (line 2)</p><p class="code mt-1 rounded-lg border border-border px-2 py-1.5 text-forest">20610</p></div>
+            <div><p class="font-semibold text-muted">Diagnosis</p><p class="code mt-1 rounded-lg border border-border px-2 py-1.5 text-forest">M17.11</p></div>
+          </div>
+          <div class="mt-4 space-y-2"><div class="h-2 w-3/4 rounded bg-sage-soft"></div><div class="h-2 w-1/2 rounded bg-sage-soft"></div></div>
+        </div>
+
+        <div class="glass floaty top-44 right-0 w-64 p-4 sm:top-48 sm:w-72" style="--tilt: 2deg">
+          <p class="flex items-center gap-2 text-sm font-bold text-forest"><span class="icon-tile size-8">{% icon "sparkles" %}</span>AI review</p>
+          <p class="mt-2 text-sm leading-snug text-text">A visit on the same day as an injection needs <span class="code font-semibold">25</span> when the visit was separate.</p>
+          <p class="mt-2 text-xs font-semibold text-primary-strong">Source: CPT coding convention</p>
+        </div>
+
+        <div class="glass floaty bottom-0 left-2 w-56 animate-float-slow p-4 sm:left-10" style="--tilt: -3deg">
+          <p class="text-xs font-bold tracking-wide text-muted uppercase">Modifiers</p>
+          <div class="mt-2 flex gap-1.5"><div class="meter-step"><span></span></div><div class="meter-step"><span></span></div><div class="meter-step"></div></div>
+          <p class="mt-2 flex items-center gap-1.5 text-sm font-bold text-forest">{% icon "trending-up" %}Help is now Guided</p>
+        </div>
+
+        {% include "core/partials/shapes/capsule.html" with class="floaty -top-2 right-6 w-28 drop-shadow-lg" %}
+        {% include "core/partials/shapes/cross.html" with class="floaty top-28 -left-4 w-14 animate-float-slow drop-shadow-md sm:-left-8" %}
+        {% include "core/partials/shapes/molecule.html" with class="floaty right-2 bottom-10 w-24 animate-float-slow drop-shadow-md" %}
+      </div>
+    </div>
+    {% include "core/partials/wave.html" with class="-mb-px text-forest" %}
+  </section>
+
+  {# ---------- Numbers ---------- #}
+  <section class="relative isolate overflow-hidden bg-forest text-white">
+    <span class="bg-type -bottom-6 left-1/2 -translate-x-1/2 text-white/5" aria-hidden="true">RUNG</span>
+    <div class="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+      <div class="reveal" x-intersect.once="$el.classList.add('is-visible')">
+        <p class="code text-6xl font-semibold text-lime">{% include "core/partials/count_up.html" with value=6 on_view=True %}</p>
+        <p class="mt-2 font-bold">skill areas tracked</p>
+        <p class="mt-1 text-sm text-white/70">From eligibility to filing rules, each with its own help level.</p>
+      </div>
+      <div class="reveal" style="--delay: 100ms" x-intersect.once="$el.classList.add('is-visible')">
+        <p class="code text-6xl font-semibold text-lime">{% include "core/partials/count_up.html" with value=3 on_view=True %}</p>
+        <p class="mt-2 font-bold">levels of help</p>
+        <p class="mt-1 text-sm text-white/70">Full, Guided, then Minimal, as a worker proves they can do it.</p>
+      </div>
+      <div class="reveal" style="--delay: 200ms" x-intersect.once="$el.classList.add('is-visible')">
+        <p class="code text-6xl font-semibold text-lime">{% include "core/partials/count_up.html" with value=30 on_view=True %}</p>
+        <p class="mt-2 font-bold">practice claims in this demo</p>
+        <p class="mt-1 text-sm text-white/70">Realistic claims with real code sets and fictional patients.</p>
+      </div>
+      <div class="reveal" style="--delay: 300ms" x-intersect.once="$el.classList.add('is-visible')">
+        <p class="code text-6xl font-semibold text-lime">{% include "core/partials/count_up.html" with value=1 on_view=True %}</p>
+        <p class="mt-2 font-bold">click to reach a specialist</p>
+        <p class="mt-1 text-sm text-white/70">The full case goes with it: claim, note, and AI review.</p>
+      </div>
+    </div>
+    {% include "core/partials/wave.html" with class="-mb-px text-white" %}
+  </section>
+
+  {# ---------- How it works ---------- #}
+  <section id="how" class="relative isolate overflow-hidden bg-white">
+    <span class="bg-type bottom-2 -left-4 text-primary-soft/70" aria-hidden="true">climb</span>
+    <div class="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:px-8 lg:py-28">
+      <div class="reveal lg:sticky lg:top-28 lg:self-start" x-intersect.once="$el.classList.add('is-visible')">
+        <p class="eyebrow">How it works</p>
+        <h2 class="mt-3 text-4xl leading-tight font-extrabold sm:text-5xl">Every claim is a <span class="marker">rung</span> on the ladder.</h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">A new worker does real work from day one. RUNG stands beside them, then steps back one rung at a time.</p>
+        {% include "core/partials/shapes/molecule.html" with class="mt-8 hidden w-32 animate-float-slow lg:block" %}
+      </div>
+      <ol class="relative flex flex-col gap-6 before:absolute before:top-4 before:bottom-4 before:left-7 before:w-1 before:rounded-full before:bg-mint">
+        <li class="reveal relative flex gap-5" x-intersect.once="$el.classList.add('is-visible')">
+          <span class="code z-10 flex size-14 shrink-0 items-center justify-center rounded-2xl bg-forest text-xl font-semibold text-lime shadow-md">1</span>
+          <div class="card card-lift flex-1 bg-pastel-mint p-6">
+            <h3 class="flex items-center gap-2 text-xl">{% icon "clipboard-check" "size-6" %}Start from the real claim</h3>
+            <p class="mt-2 text-muted">RUNG opens with the claim, the provider's note, and the payer's rules already in front of it. There is no blank prompt to fill in.</p>
+          </div>
+        </li>
+        <li class="reveal relative flex gap-5 lg:ml-10" x-intersect.once="$el.classList.add('is-visible')">
+          <span class="code z-10 flex size-14 shrink-0 items-center justify-center rounded-2xl bg-forest text-xl font-semibold text-lime shadow-md">2</span>
+          <div class="card card-lift flex-1 bg-pastel-butter p-6">
+            <h3 class="flex items-center gap-2 text-xl">{% icon "scan-search" "size-6" %}See what to fix, and why</h3>
+            <p class="mt-2 text-muted">The review points to the exact field, explains the problem in plain words, and names the rule it came from. Clean claims are simply marked ready.</p>
+          </div>
+        </li>
+        <li class="reveal relative flex gap-5" x-intersect.once="$el.classList.add('is-visible')">
+          <span class="code z-10 flex size-14 shrink-0 items-center justify-center rounded-2xl bg-forest text-xl font-semibold text-lime shadow-md">3</span>
+          <div class="card card-lift flex-1 bg-pastel-sky p-6">
+            <h3 class="flex items-center gap-2 text-xl">{% icon "trending-up" "size-6" %}Get less help as you improve</h3>
+            <p class="mt-2 text-muted">Three correct claims in a row in a skill area and the help steps down. A miss brings it back. The Skill Passport shows the climb.</p>
+          </div>
+        </li>
+        <li class="reveal relative flex gap-5 lg:ml-10" x-intersect.once="$el.classList.add('is-visible')">
+          <span class="code z-10 flex size-14 shrink-0 items-center justify-center rounded-2xl bg-forest text-xl font-semibold text-lime shadow-md">4</span>
+          <div class="card card-lift flex-1 bg-pastel-lavender p-6">
+            <h3 class="flex items-center gap-2 text-xl">{% icon "life-buoy" "size-6" %}Bring in a specialist when it takes one</h3>
+            <p class="mt-2 text-muted">One click sends the full case. The specialist's fix is saved to a shared Case Library, so the next worker sees it on a similar claim.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  {# ---------- Help that fades: a small interactive demo ---------- #}
+  <section class="relative isolate overflow-hidden bg-sage-soft">
+    <span class="blob top-10 left-1/3 size-96 bg-lime/30" aria-hidden="true"></span>
+    <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
+      <div class="reveal" x-intersect.once="$el.classList.add('is-visible')">
+        <p class="eyebrow">Help that fades</p>
+        <h2 class="mt-3 text-4xl leading-tight font-extrabold sm:text-5xl">The same issue, <span class="marker">three ways.</span></h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">A general chatbot gives the same help forever. RUNG gives less help in each skill area as the worker proves they can do it. Try the three levels.</p>
+        <ul class="mt-6 space-y-3 text-sm font-semibold text-forest">
+          <li class="flex items-start gap-3"><span class="icon-tile size-9 bg-white">{% icon "book-open-check" %}</span><span class="mt-1.5">Full help explains the problem and gives the exact fix.</span></li>
+          <li class="flex items-start gap-3"><span class="icon-tile size-9 bg-white">{% icon "message-circle-question-mark" %}</span><span class="mt-1.5">Guided asks one question that leads to the fix.</span></li>
+          <li class="flex items-start gap-3"><span class="icon-tile size-9 bg-white">{% icon "target" %}</span><span class="mt-1.5">Minimal names only the field. The answer is one click away if needed.</span></li>
+        </ul>
+      </div>
+      <div class="reveal card p-6 shadow-lg sm:p-8" x-data="{ level: 'full' }" x-intersect.once="$el.classList.add('is-visible')">
+        <div class="flex gap-2 rounded-2xl bg-sage-soft p-1.5" role="tablist" aria-label="Help level">
+          <button type="button" role="tab" class="btn flex-1" :class="level === 'full' ? 'bg-forest text-white shadow-md' : 'text-forest hover:bg-white'" :aria-selected="(level === 'full').toString()" @click="level = 'full'">Full</button>
+          <button type="button" role="tab" class="btn flex-1" :class="level === 'guided' ? 'bg-forest text-white shadow-md' : 'text-forest hover:bg-white'" :aria-selected="(level === 'guided').toString()" @click="level = 'guided'">Guided</button>
+          <button type="button" role="tab" class="btn flex-1" :class="level === 'minimal' ? 'bg-forest text-white shadow-md' : 'text-forest hover:bg-white'" :aria-selected="(level === 'minimal').toString()" @click="level = 'minimal'">Minimal</button>
+        </div>
+        <div class="mt-5 flex gap-1.5" aria-hidden="true">
+          <div class="h-2.5 flex-1 rounded-full bg-primary"></div>
+          <div class="h-2.5 flex-1 rounded-full transition duration-500" :class="level === 'full' ? 'bg-primary-soft' : 'bg-primary'"></div>
+          <div class="h-2.5 flex-1 rounded-full transition duration-500" :class="level === 'minimal' ? 'bg-primary' : 'bg-primary-soft'"></div>
+        </div>
+        <div class="mt-5 min-h-44 rounded-2xl border border-warning/40 bg-warning-soft p-5" aria-live="polite">
+          <p class="flex flex-wrap items-center gap-2"><span class="badge badge-level" x-text="level === 'full' ? 'Full help' : level === 'guided' ? 'Guided' : 'Minimal'">Full help</span><span class="font-bold text-forest">Modifiers</span><span class="badge badge-neutral">Sample</span></p>
+          <p class="mt-3 leading-relaxed" x-show="level === 'full'" x-transition.opacity.duration.300ms>Modifiers (line 1): an office visit on the same day as a joint injection needs modifier <span class="code font-semibold">25</span> when the visit was a separate, significant service. The note shows a separate blood pressure evaluation, so add <span class="code font-semibold">25</span>. Source: CPT coding convention.</p>
+          <p class="mt-3 leading-relaxed" x-cloak x-show="level === 'guided'" x-transition.opacity.duration.300ms>Modifiers (line 1): the note describes a blood pressure evaluation and a knee injection in the same visit. What tells the payer that the visit was a separate service?</p>
+          <p class="code mt-3" x-cloak x-show="level === 'minimal'" x-transition.opacity.duration.300ms>Modifiers: modifiers_1</p>
+          <p class="mt-3 flex items-center gap-1.5 text-sm font-semibold text-primary-strong" x-cloak x-show="level !== 'full'">{% icon "eye" %}Show answer is there if the worker needs it</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ---------- Who it is for ---------- #}
+  <section id="who" class="bg-white">
+    <div class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div class="reveal max-w-2xl" x-intersect.once="$el.classList.add('is-visible')">
+        <p class="eyebrow">Who it is for</p>
+        <h2 class="mt-3 text-4xl leading-tight font-extrabold sm:text-5xl">Built for the people who <span class="marker">get claims paid.</span></h2>
+      </div>
+      <div class="mt-10 grid gap-6 lg:grid-cols-12">
+        <article class="reveal card card-lift relative overflow-hidden bg-pastel-mint p-8 lg:col-span-7" x-intersect.once="$el.classList.add('is-visible')">
+          {% include "core/partials/shapes/capsule.html" with class="floaty -right-6 -bottom-4 w-40 opacity-80" %}
+          <span class="icon-tile size-14 bg-white">{% icon "graduation-cap" "size-7" %}</span>
+          <h3 class="mt-5 text-2xl sm:text-3xl">For billing workers</h3>
+          <p class="mt-2 text-lg font-semibold text-forest">Learn the job while doing the job.</p>
+          <ul class="mt-5 space-y-3 text-text">
+            <li class="flex gap-3"><span class="mt-0.5 text-primary">{% icon "circle-check" "size-5" %}</span>Every flag is explained in plain words, with the rule it came from.</li>
+            <li class="flex gap-3"><span class="mt-0.5 text-primary">{% icon "circle-check" "size-5" %}</span>A Skill Passport shows your accuracy, streaks, and help level in six skill areas.</li>
+            <li class="flex gap-3"><span class="mt-0.5 text-primary">{% icon "circle-check" "size-5" %}</span>You are never stuck. A specialist is always one click away.</li>
+          </ul>
+          <div class="glass relative mt-8 max-w-sm p-5" aria-hidden="true">
+            <p class="flex items-center gap-2 text-sm font-bold text-forest">{% icon "award" %}Skill Passport <span class="badge badge-neutral">Sample</span></p>
+            <div class="mt-4 space-y-3 text-xs font-semibold text-forest">
+              <div><p class="flex justify-between"><span>Modifiers</span><span>Minimal</span></p><div class="mt-1.5 flex gap-1.5"><div class="meter-step"><span></span></div><div class="meter-step"><span></span></div><div class="meter-step"><span></span></div></div></div>
+              <div><p class="flex justify-between"><span>Matching codes to the note</span><span>Guided</span></p><div class="mt-1.5 flex gap-1.5"><div class="meter-step"><span></span></div><div class="meter-step"><span></span></div><div class="meter-step"></div></div></div>
+              <div><p class="flex justify-between"><span>Filing rules</span><span>Full help</span></p><div class="mt-1.5 flex gap-1.5"><div class="meter-step"><span></span></div><div class="meter-step"></div><div class="meter-step"></div></div></div>
+            </div>
+          </div>
+        </article>
+        <article class="reveal card card-lift relative overflow-hidden border-forest bg-linear-to-br from-forest to-forest-deep p-8 text-white lg:col-span-5 lg:mt-12" style="--delay: 120ms" x-intersect.once="$el.classList.add('is-visible')">
+          {% include "core/partials/shapes/shield.html" with class="floaty -top-3 right-6 w-20 opacity-90" %}
+          <span class="icon-tile size-14 bg-lime text-forest">{% icon "building-2" "size-7" %}</span>
+          <h3 class="mt-5 text-2xl text-white sm:text-3xl">For clinic owners</h3>
+          <p class="mt-2 text-lg font-semibold text-lime">Get new hires productive, and keep what your team learns.</p>
+          <ul class="mt-5 space-y-3 text-white/90">
+            <li class="flex gap-3"><span class="mt-0.5 text-lime">{% icon "circle-check" "size-5" %}</span>Claims are checked against your payer rules before they go out.</li>
+            <li class="flex gap-3"><span class="mt-0.5 text-lime">{% icon "circle-check" "size-5" %}</span>Specialists see only the hard cases, with the full case attached.</li>
+            <li class="flex gap-3"><span class="mt-0.5 text-lime">{% icon "circle-check" "size-5" %}</span>Every specialist fix becomes training in a shared Case Library.</li>
+            <li class="flex gap-3"><span class="mt-0.5 text-lime">{% icon "circle-check" "size-5" %}</span>Every change to a claim is logged: who made it, and when.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="reveal card mt-10 overflow-hidden" x-intersect.once="$el.classList.add('is-visible')">
+        <div class="grid grid-cols-2 bg-sage-soft text-sm font-bold text-forest">
+          <p class="px-5 py-4">A general chatbot</p>
+          <p class="flex items-center gap-2 bg-forest px-5 py-4 text-white">{% icon "sparkle" %}RUNG</p>
+        </div>
+        <dl class="divide-y divide-border text-sm">
+          <div class="grid grid-cols-2"><dt class="px-5 py-3.5 text-muted">Starts from a blank prompt</dt><dd class="bg-primary-soft/60 px-5 py-3.5 font-semibold text-forest">Starts from the worker's actual claim, clinical note, and payer rules</dd></div>
+          <div class="grid grid-cols-2"><dt class="px-5 py-3.5 text-muted">Answers from general knowledge</dt><dd class="bg-primary-soft/60 px-5 py-3.5 font-semibold text-forest">Answers only from the rule table, the claim, and the company's own resolved cases</dd></div>
+          <div class="grid grid-cols-2"><dt class="px-5 py-3.5 text-muted">Gives the same help forever</dt><dd class="bg-primary-soft/60 px-5 py-3.5 font-semibold text-forest">Gives less help in each skill area as the worker improves</dd></div>
+          <div class="grid grid-cols-2"><dt class="px-5 py-3.5 text-muted">Cannot bring in a person</dt><dd class="bg-primary-soft/60 px-5 py-3.5 font-semibold text-forest">Sends the full case to a specialist with one click</dd></div>
+          <div class="grid grid-cols-2"><dt class="px-5 py-3.5 text-muted">Forgets after each chat</dt><dd class="bg-primary-soft/60 px-5 py-3.5 font-semibold text-forest">Saves every specialist fix where future workers will see it</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  {# ---------- Mission ---------- #}
+  <section id="mission" class="relative isolate overflow-hidden bg-linear-to-br from-forest to-forest-deep text-white">
+    {% include "core/partials/wave.html" with class="-mt-px rotate-180 text-white" %}
+    <span class="blob top-0 right-0 size-[28rem] bg-primary/50" aria-hidden="true"></span>
+    <span class="bg-type bottom-0 -left-6 text-white/5" aria-hidden="true">mission</span>
+    {% include "core/partials/shapes/cross.html" with class="floaty top-24 right-[12%] hidden w-16 md:block" %}
+    <div class="reveal mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 lg:py-28" x-intersect.once="$el.classList.add('is-visible')">
+      <span class="mx-auto flex size-14 items-center justify-center rounded-2xl bg-lime text-forest">{% icon "quote" "size-7" %}</span>
+      <p class="eyebrow mt-6 text-lime">Our mission</p>
+      <p class="mt-5 text-3xl leading-snug font-extrabold tracking-tight sm:text-4xl lg:text-5xl">To let a new billing worker do <span class="text-lime">expert work on day one</span>, and need less help every week after.</p>
+      <p class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/80">We put expert guidance inside the claim itself, fade it as skill grows, and bring in a specialist only when a claim truly needs one. Clinics get paid correctly, workers get a real path up, and what the team learns stays with the team.</p>
+    </div>
+    {% include "core/partials/wave.html" with class="-mb-px text-white" %}
+  </section>
+
+  {# ---------- Questions ---------- #}
+  <section id="faq" class="bg-white">
+    <div class="mx-auto grid max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:px-8 lg:py-28">
+      <div class="reveal" x-intersect.once="$el.classList.add('is-visible')">
+        <p class="eyebrow">Questions</p>
+        <h2 class="mt-3 text-4xl leading-tight font-extrabold sm:text-5xl">Good to <span class="marker">know.</span></h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">Short answers about this demo and how RUNG handles claims.</p>
+      </div>
+      <div class="flex flex-col gap-3" x-data="{ open: 1 }">
+        {% for item in faqs %}
+        <div class="reveal card overflow-hidden transition duration-300 hover:shadow-md" style="--delay: {% widthratio forloop.counter0 1 70 %}ms" x-intersect.once="$el.classList.add('is-visible')" :class="open === {{ forloop.counter }} && 'border-primary bg-primary-soft/40'">
+          <h3>
+            <button type="button" class="flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left text-lg font-bold text-forest" @click="open = open === {{ forloop.counter }} ? 0 : {{ forloop.counter }}" :aria-expanded="(open === {{ forloop.counter }}).toString()" aria-controls="faq-{{ forloop.counter }}">
+              <span>{{ item.question }}</span>
+              <span class="icon-tile size-9 transition duration-300" :class="open === {{ forloop.counter }} && 'rotate-180 bg-forest text-lime'">
+                <span x-show="open !== {{ forloop.counter }}">{% icon "plus" %}</span>
+                <span x-cloak x-show="open === {{ forloop.counter }}">{% icon "minus" %}</span>
+              </span>
+            </button>
+          </h3>
+          <div id="faq-{{ forloop.counter }}" {% if not forloop.first %}x-cloak{% endif %} x-show="open === {{ forloop.counter }}" x-collapse.duration.300ms>
+            <p class="px-5 pb-5 leading-relaxed text-muted">{{ item.answer }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {# ---------- Contact ---------- #}
+  <section id="contact" class="bg-white px-4 pb-20 sm:px-6 lg:px-8">
+    <div class="reveal relative isolate mx-auto grid max-w-7xl gap-8 overflow-hidden rounded-[2rem] bg-linear-to-br from-primary-soft via-mint to-lime/60 p-8 sm:p-12 lg:grid-cols-2" x-intersect.once="$el.classList.add('is-visible')">
+      {% include "core/partials/shapes/molecule.html" with class="floaty -top-6 right-1/2 hidden w-28 opacity-70 lg:block" %}
+      <div>
+        <p class="eyebrow">Get started</p>
+        <h2 class="mt-3 text-4xl leading-tight font-extrabold sm:text-5xl">Ready to take the first rung?</h2>
+        <p class="mt-4 max-w-md text-lg leading-relaxed text-forest/80">Sign in with a demo account to work a claim, or get in touch to talk about your billing team.</p>
+        <a class="btn btn-primary btn-lg mt-7" href="{% url 'login' %}">Sign in to RUNG<span class="arrow">{% icon "arrow-right" "size-5" %}</span></a>
+      </div>
+      <div class="glass p-6 sm:p-8">
+        <h3 class="text-xl">Contact</h3>
+        <p class="mt-1 text-sm text-muted">Placeholder details. Replace them before sharing this page.</p>
+        <ul class="mt-5 space-y-4 font-semibold text-forest">
+          <li><a class="group flex items-center gap-3" href="mailto:{{ contact.email }}"><span class="icon-tile bg-white">{% icon "mail" "size-5" %}</span><span class="group-hover:underline">{{ contact.email }}</span></a></li>
+          <li><a class="group flex items-center gap-3" href="tel:{{ contact.phone_link }}"><span class="icon-tile bg-white">{% icon "phone" "size-5" %}</span><span class="group-hover:underline">{{ contact.phone }}</span></a></li>
+          <li class="flex items-center gap-3"><span class="icon-tile bg-white">{% icon "map-pin" "size-5" %}</span><span>{{ contact.address }}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="bg-forest-deep text-white/70">
+  <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm sm:flex-row sm:px-6 lg:px-8">
+    <p class="flex items-center gap-3 font-bold text-white"><span class="flex size-9 items-center justify-center rounded-lg bg-white"><img src="{% static 'img/rung_logo.png' %}" alt="" class="h-7 w-7"></span>RUNG</p>
+    <p>A demo with fictional data. RUNG does not send claims to payers.</p>
+    <a class="font-semibold text-lime hover:underline" href="{% url 'login' %}">Sign in</a>
+  </div>
+</footer>
+</div>
+{% endblock %}
