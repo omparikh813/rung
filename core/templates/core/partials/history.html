@@ -1,9 +1,9 @@
 {% if history %}
-<ol class="divide-y divide-border">
+<ol class="timeline">
   {% for event in history %}
   <li class="flex flex-col gap-0.5 py-2.5 text-sm sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
     <span>
-      <span class="font-medium text-navy">{{ event.user.first_name|default:event.user.username|default:"RUNG" }}</span>
+      <span class="font-medium text-forest">{{ event.user.first_name|default:event.user.username|default:"RUNG" }}</span>
       {% if event.action == "edit" %}changed {{ event.label }} from <span class="code">{{ event.old_value|default:"empty" }}</span> to <span class="code">{{ event.new_value|default:"empty" }}</span>.
       {% elif event.action == "check" %}ran the AI review. {{ event.new_value }}.
       {% elif event.action == "answer_shown" %}showed an answer{% if event.label %} for {{ event.label }}{% endif %}.

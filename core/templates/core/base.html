@@ -7,41 +7,50 @@
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="{% static 'css/output.css' %}">
+  <noscript><style>.reveal { opacity: 1; transform: none; }</style></noscript>
   <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <script src="{% static 'js/alpine-intersect.min.js' %}" defer></script>
+  <script src="{% static 'js/alpine-collapse.min.js' %}" defer></script>
   <script src="{% static 'js/alpine.min.js' %}" defer></script>
 </head>
-<body class="min-h-screen" x-data="{ menu: false }" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body class="app-backdrop min-h-screen" x-data="{ menu: false }" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   <a href="#main" class="btn btn-primary sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50">Skip to content</a>
 
   {% block shell %}
-  <div class="lg:pl-60">
+  <div class="lg:pl-64">
     {% include "core/partials/demo_banner.html" %}
 
-    <aside class="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-border bg-card lg:flex" aria-label="Sidebar">
-      <a href="{% url 'home' %}" class="flex items-center gap-3 px-5 py-5">
-        <img src="{% static 'img/rung_logo.png' %}" alt="" class="h-9 w-9">
-        <span class="text-xl font-bold tracking-wide text-navy">RUNG</span>
+    <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-hidden bg-linear-to-b from-forest to-forest-deep lg:flex" aria-label="Sidebar">
+      <span class="blob -top-16 -left-10 size-56 bg-primary/40" aria-hidden="true"></span>
+      <span class="blob -right-16 bottom-24 size-48 bg-lime/15" aria-hidden="true"></span>
+      <a href="{% url 'home' %}" class="group relative flex items-center gap-3 px-5 py-6">
+        <span class="flex size-11 items-center justify-center rounded-xl bg-white shadow-md transition duration-300 group-hover:-rotate-6 group-hover:scale-105"><img src="{% static 'img/rung_logo.png' %}" alt="" class="h-9 w-9"></span>
+        <span class="text-2xl font-extrabold tracking-wide text-white">RUNG</span>
       </a>
-      <nav class="flex flex-1 flex-col gap-1 px-3 pb-4" aria-label="Main">
+      <nav class="relative flex flex-1 flex-col gap-1.5 px-3 pb-4" aria-label="Main">
         {% include "core/partials/nav.html" %}
       </nav>
+      <div class="relative m-3 rounded-2xl border border-white/15 bg-white/10 p-4 text-white backdrop-blur-sm">
+        <p class="flex items-center gap-2 text-sm font-bold">{% icon "sparkle" %}One rung at a time</p>
+        <p class="mt-1 text-xs leading-relaxed text-white/75">Help fades as you improve. A specialist is always one click away.</p>
+      </div>
     </aside>
 
-    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-card px-4 sm:px-6 lg:px-8">
+    <header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border/70 bg-white/75 px-4 backdrop-blur-md sm:px-6 lg:px-8">
       <button type="button" class="btn btn-secondary px-3 lg:hidden" @click="menu = !menu" :aria-expanded="menu.toString()" aria-controls="mobile-menu">
         {% icon "menu" "size-5" %}<span class="sr-only">Menu</span>
       </button>
       <a href="{% url 'home' %}" class="flex items-center gap-2 lg:hidden">
-        <img src="{% static 'img/rung_logo.png' %}" alt="" class="h-9 w-9">
-        <span class="text-lg font-bold tracking-wide text-navy">RUNG</span>
+        <span class="flex size-10 items-center justify-center rounded-xl bg-white shadow-sm"><img src="{% static 'img/rung_logo.png' %}" alt="" class="h-9 w-9"></span>
+        <span class="text-lg font-extrabold tracking-wide text-forest">RUNG</span>
       </a>
       <div class="ml-auto flex items-center gap-3">
-        <span class="hidden items-center gap-2 text-sm font-medium text-navy sm:flex">
-          {% icon "user" %}{{ user.get_full_name|default:user.username }}
+        <span class="hidden items-center gap-2 text-sm font-semibold text-forest sm:flex">
+          <span class="flex size-8 items-center justify-center rounded-full bg-primary-soft text-primary-strong">{% icon "user" %}</span>{{ user.get_full_name|default:user.username }}
         </span>
-        <span class="badge badge-info">{{ role|capfirst }}</span>
+        <span class="badge badge-level">{{ role|capfirst }}</span>
         <form method="post" action="{% url 'logout' %}">
           {% csrf_token %}
           <button type="submit" class="btn btn-quiet">{% icon "log-out" %}<span class="hidden sm:inline">Sign out</span><span class="sr-only sm:hidden">Sign out</span></button>
@@ -49,7 +58,7 @@
       </div>
     </header>
 
-    <nav id="mobile-menu" class="flex flex-col gap-1 border-b border-border bg-card px-3 py-3 lg:hidden" aria-label="Main" x-cloak x-show="menu" x-transition.duration.200ms @keydown.escape.window="menu = false">
+    <nav id="mobile-menu" class="flex flex-col gap-1.5 bg-forest px-3 py-3 lg:hidden" aria-label="Main" x-cloak x-show="menu" x-collapse.duration.250ms @keydown.escape.window="menu = false">
       {% include "core/partials/nav.html" %}
     </nav>
 

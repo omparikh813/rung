@@ -7,6 +7,14 @@ with one click. Every specialist fix is saved to a shared Case Library.
 
 All data is fictional. Do not enter real patient information.
 
+The public home page is at `/`. It explains RUNG to billing workers and clinic
+owners and links to the sign in page. Its contact details are placeholders in
+`core/views/auth.py` (`CONTACT`); replace them before sharing the site.
+
+The look of the app follows `design-system/rung/MASTER.md` (version 2: greens,
+rounded cards, illustrations). Where it differs from Section 5 of the PRD, the
+design system file wins.
+
 ## Setup
 
 Requires Python 3.12.

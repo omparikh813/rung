@@ -1,0 +1,21 @@
+{% load rung %}
+{# The banner at the top of a claim: ID, status, who and when, and the progress tracker. #}
+<section class="page-hero mt-3 animate-slide-in">
+  <span class="blob -top-20 right-10 size-72 bg-lime/50" aria-hidden="true"></span>
+  <div class="relative flex flex-wrap items-center justify-between gap-6">
+    <div class="min-w-0">
+      <p class="eyebrow">{{ eyebrow }}</p>
+      <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <h1 class="code">{{ claim.claim_id }}</h1>
+        <span id="claim-status">{% include "core/partials/status_badge.html" with status=claim.work_status %}</span>
+        {% if help_request %}{% include "core/partials/request_badge.html" with status=help_request.status %}{% endif %}
+      </div>
+      <p class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-semibold text-muted">
+        <span class="inline-flex items-center gap-1.5">{% icon "building-2" %}{{ claim.payer_name }}</span>
+        <span class="inline-flex items-center gap-1.5">{% icon "user" %}{{ claim.patient_last }}, {{ claim.patient_first }}</span>
+        <span class="inline-flex items-center gap-1.5">{% icon "calendar-clock" %}Service on <span class="code">{{ claim.date_of_service|date:"Y-m-d" }}</span></span>
+      </p>
+    </div>
+    <div id="claim-steps">{% include "core/partials/claim_steps.html" with status=claim.work_status %}</div>
+  </div>
+</section>

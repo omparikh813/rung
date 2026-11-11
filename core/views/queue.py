@@ -41,6 +41,21 @@ def queue(request):
     # Lowest days left first. Claims with no deadline go last.
     rows.sort(key=lambda claim: (claim.days_left is None, claim.days_left or 0, claim.pk))
 
-    context = {"tabs": tabs, "current": current, "query": query, "claims": rows, "open_count": tabs[0]["count"]}
+    counts = {tab["key"]: tab["count"] for tab in tabs}
+    total = len(statuses)
+    context = {
+        "tabs": tabs,
+        "current": current,
+        "query": query,
+        "claims": rows,
+        "open_count": counts["open"],
+        "done_percent": round(100 * counts["done"] / total) if total else None,
+        "tiles": [
+            {"icon": "inbox", "label": "Open claims", "value": counts["open"]},
+            {"icon": "triangle-alert", "label": "Need a fix", "value": counts["needs_fix"]},
+            {"icon": "clock", "label": "With a specialist", "value": counts["waiting"]},
+            {"icon": "circle-check", "label": "Done", "value": counts["done"]},
+        ],
+    }
     template = "core/partials/queue_table.html" if request.headers.get("HX-Request") else "core/queue.html"
     return render(request, template, context)

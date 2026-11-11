@@ -52,8 +52,13 @@ def help_list(request):
         }
         for item in requests
     ]
+    open_count = sum(row["status"] == RequestStatus.OPEN for row in rows)
+    tiles = [
+        {"icon": "clock", "label": "Open", "value": open_count},
+        {"icon": "circle-check", "label": "Resolved", "value": len(rows) - open_count},
+    ]
     template = "core/help_inbox.html" if is_specialist else "core/help_list.html"
-    return render(request, template, {"requests": rows, "open_count": sum(r["status"] == RequestStatus.OPEN for r in rows)})
+    return render(request, template, {"requests": rows, "open_count": open_count, "tiles": tiles})
 
 
 def case_entry_start(claim):

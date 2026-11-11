@@ -2,8 +2,7 @@
 {% load rung %}
 {% block title %}Case Library{% endblock %}
 {% block content %}
-<h1 class="text-2xl">Case Library</h1>
-<p class="mt-1 text-muted">Fixes from this company's specialists. Every resolved help request can become training for the next worker.</p>
+{% include "core/partials/page_hero.html" with eyebrow="Case Library" title="What your specialists know" subtitle="Fixes from this company's specialists. Every resolved help request can become training for the next worker." tiles=tiles shape="molecule" %}
 
 <form class="card mt-6 grid gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_14rem_14rem]" method="get" action="{% url 'library' %}"
       hx-get="{% url 'library' %}" hx-target="#library-results" hx-trigger="input changed delay:250ms from:#library-search, search from:#library-search, change from:select" hx-push-url="true">

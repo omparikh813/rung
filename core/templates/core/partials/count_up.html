@@ -1,3 +1,3 @@
-{# value: a whole number that counts up from zero when the page loads. #}
+{# value: a whole number that counts up from zero. With on_view it starts when scrolled into view, otherwise on load. #}
 <span x-data="{ target: {{ value }}, shown: 0 }" x-text="shown"
-      x-init="if (target === 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { shown = target } else { const step = Math.max(1, Math.ceil(target / 15)); const timer = setInterval(() => { shown = Math.min(target, shown + step); if (shown >= target) clearInterval(timer) }, 18) }">{{ value }}</span>
+      {% if on_view %}x-intersect.once{% else %}x-init{% endif %}="if (target === 0 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { shown = target } else { const step = Math.max(1, Math.ceil(target / 24)); const timer = setInterval(() => { shown = Math.min(target, shown + step); if (shown >= target) clearInterval(timer) }, 28) }">{{ value }}</span>

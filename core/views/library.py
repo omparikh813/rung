@@ -37,7 +37,13 @@ def library(request):
         entries = entries.filter(category=category)
     if payer:
         entries = entries.filter(payer_name=payer)
+    everything = CaseEntry.objects.all()
     context = {
+        "tiles": [
+            {"icon": "library", "label": "Saved fixes", "value": everything.count()},
+            {"icon": "target", "label": "Skill areas covered", "value": everything.values("category").distinct().count()},
+            {"icon": "building-2", "label": "Payers covered", "value": everything.exclude(payer_name="").values("payer_name").distinct().count()},
+        ],
         "entries": entries,
         "query": query,
         "category": category,

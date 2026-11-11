@@ -68,9 +68,10 @@ class LoginTests(RoleTestCase):
         self.assertRedirects(response, reverse("login"))
         self.assertNotIn("_auth_user_id", self.client.session)
 
-    def test_home_needs_a_login(self):
+    def test_home_page_is_public(self):
         response = self.client.get(reverse("home"))
-        self.assertRedirects(response, f"{reverse('login')}?next=/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "core/home.html")
 
     def test_user_without_a_role_gets_403(self):
         self.client.force_login(make_user("nobody", role=""))

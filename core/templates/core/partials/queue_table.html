@@ -23,6 +23,7 @@
           <th scope="col">Status</th>
           <th scope="col">Days left to file</th>
           <th scope="col">Open issues</th>
+          <th scope="col"><span class="sr-only">Open</span></th>
         </tr>
       </thead>
       <tbody>
@@ -45,6 +46,7 @@
             {% elif claim.open_issues %}<span class="badge badge-warning">{{ claim.open_issues }}</span>
             {% else %}<span class="code text-muted">0</span>{% endif %}
           </td>
+          <td class="text-primary-strong"><span class="arrow">{% icon "arrow-right" %}</span></td>
         </tr>
         {% endfor %}
       </tbody>

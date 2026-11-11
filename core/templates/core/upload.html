@@ -2,20 +2,23 @@
 {% load rung %}
 {% block title %}Upload Claims{% endblock %}
 {% block content %}
-<div class="flex flex-wrap items-end justify-between gap-4">
-  <div>
-    <h1 class="text-2xl">Upload Claims</h1>
-    <p class="mt-1 text-muted">Add claims from one CSV file. You will see a preview before anything is imported.</p>
-  </div>
-  <a class="btn btn-secondary" href="{% url 'upload_template' %}">{% icon "download" %}Download template</a>
-</div>
+{% url 'upload_template' as template_url %}
+{% include "core/partials/page_hero.html" with eyebrow="Upload Claims" title="Bring your claims in" subtitle="Add claims from one CSV file. You will see a preview before anything is imported." action_url=template_url action_label="Download template" action_icon="download" shape="cross" %}
+
+<ol class="mt-5 flex flex-wrap items-center gap-2" aria-label="Upload steps">
+  <li class="step" data-state="{% if preview or summary %}done{% else %}current{% endif %}"><span class="step-number">1</span>Choose a file</li>
+  <li class="text-sage" aria-hidden="true">{% icon "chevron-right" %}</li>
+  <li class="step" data-state="{% if preview %}current{% elif summary %}done{% else %}todo{% endif %}"><span class="step-number">2</span>Check the preview</li>
+  <li class="text-sage" aria-hidden="true">{% icon "chevron-right" %}</li>
+  <li class="step" data-state="{% if summary %}done{% else %}todo{% endif %}"><span class="step-number">3</span>Import</li>
+</ol>
 
 {% if summary %}
-<div class="card mt-6 flex flex-wrap items-center justify-between gap-4 border-jade bg-jade-soft p-5">
+<div class="card mt-6 flex animate-pop flex-wrap items-center justify-between gap-4 border-success bg-linear-to-br from-success-soft to-mint p-5">
   <div class="flex items-start gap-3">
-    <span class="text-jade-strong">{% icon "circle-check" "mt-0.5 size-6" %}</span>
+    <span class="text-success-strong">{% icon "circle-check" "mt-0.5 size-6" %}</span>
     <div>
-      <p class="font-semibold text-navy">Upload complete</p>
+      <p class="font-semibold text-forest">Upload complete</p>
       <p class="mt-1 text-sm"><span class="code font-semibold">{{ summary.imported }}</span> claim{{ summary.imported|pluralize }} imported and assigned to you. <span class="code font-semibold">{{ summary.skipped }}</span> row{{ summary.skipped|pluralize }} skipped.</p>
     </div>
   </div>
@@ -26,12 +29,14 @@
 <form method="post" enctype="multipart/form-data" class="card mt-6 p-5" x-data="{ over: false, name: '', busy: false }" @submit="busy = true" @pageshow.window="busy = false" :class="busy && 'is-busy'">
   {% csrf_token %}
   <h2 class="card-title">Step 1: choose a file</h2>
-  <label for="upload-file" class="mt-4 flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center transition duration-200 focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-primary hover:bg-primary-soft"
-         :class="over ? 'border-primary bg-primary-soft' : 'border-primary/50'"
+  <label for="upload-file" class="group relative mt-4 flex cursor-pointer flex-col items-center gap-2 overflow-hidden rounded-3xl border-2 border-dashed px-6 py-14 text-center transition duration-300 focus-within:outline-3 focus-within:outline-offset-2 focus-within:outline-primary hover:bg-primary-soft"
+         :class="over ? 'scale-[1.01] border-primary bg-primary-soft shadow-md' : 'border-primary/50 bg-linear-to-br from-white to-primary-soft/60'"
          @dragover.prevent="over = true" @dragleave.prevent="over = false"
          @drop.prevent="over = false; $refs.file.files = $event.dataTransfer.files; name = $refs.file.files.length ? $refs.file.files[0].name : ''">
-    <span class="flex size-12 items-center justify-center rounded-full bg-primary-soft text-primary-strong">{% icon "file-up" "size-6" %}</span>
-    <span class="font-semibold text-navy" x-text="name || 'Drop a CSV file here, or click to choose one'">Drop a CSV file here, or click to choose one</span>
+    {% include "core/partials/shapes/capsule.html" with class="floaty top-6 left-[12%] hidden w-20 opacity-70 sm:block" %}
+    {% include "core/partials/shapes/molecule.html" with class="floaty right-[12%] bottom-4 hidden w-20 animate-float-slow opacity-70 sm:block" %}
+    <span class="flex size-16 items-center justify-center rounded-2xl bg-forest text-lime shadow-md transition duration-300 group-hover:-translate-y-1 group-hover:scale-105" :class="over && '-translate-y-1 scale-110'">{% icon "file-up" "size-8" %}</span>
+    <span class="mt-2 text-lg font-bold text-forest" x-text="name || 'Drop a CSV file here, or click to choose one'">Drop a CSV file here, or click to choose one</span>
     <span class="text-sm text-muted">One CSV file with the columns from the template. Dates use YYYY-MM-DD.</span>
     <input id="upload-file" type="file" name="file" accept=".csv,text/csv" class="sr-only" x-ref="file" @change="name = $event.target.files.length ? $event.target.files[0].name : ''">
   </label>
@@ -46,7 +51,7 @@
   <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5">
     <div>
       <h2 class="card-title">Step 2: check the preview and import</h2>
-      <p class="mt-1 text-sm text-muted"><span class="code">{{ file_name }}</span>: <span class="font-semibold text-jade-strong">{{ valid_count }} valid</span>, <span class="font-semibold {% if invalid_count %}text-destructive{% else %}text-muted{% endif %}">{{ invalid_count }} with errors</span>. Only valid rows are imported.</p>
+      <p class="mt-1 text-sm text-muted"><span class="code">{{ file_name }}</span>: <span class="font-semibold text-success-strong">{{ valid_count }} valid</span>, <span class="font-semibold {% if invalid_count %}text-destructive{% else %}text-muted{% endif %}">{{ invalid_count }} with errors</span>. Only valid rows are imported.</p>
     </div>
     <form method="post" x-data="{ busy: false }" @submit="busy = true" @pageshow.window="busy = false" :class="busy && 'is-busy'">
       {% csrf_token %}

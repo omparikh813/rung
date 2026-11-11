@@ -1,11 +1,11 @@
 {% load rung %}
 {# message: a Django message. Tags: success, error, info, or "level" for a help level drop. #}
-<div class="pointer-events-auto card flex animate-slide-in items-start gap-3 border-l-4 px-4 py-3 shadow-md {% if 'error' in message.tags %}border-l-destructive{% elif 'level' in message.tags or 'success' in message.tags %}border-l-jade{% else %}border-l-primary{% endif %}"
+<div class="pointer-events-auto card flex animate-pop items-start gap-3 border-l-4 px-4 py-3 shadow-lg {% if 'error' in message.tags %}border-l-destructive{% elif 'level' in message.tags or 'success' in message.tags %}border-l-success{% else %}border-l-primary{% endif %}"
      role="status" x-data="{ show: true }" x-init="setTimeout(() => show = false, 4000)" x-show="show" x-transition.opacity.duration.200ms>
   {% if 'error' in message.tags %}<span class="mt-0.5 text-destructive">{% icon "circle-x" "size-5" %}</span>
-  {% elif 'level' in message.tags %}<span class="mt-0.5 text-jade-strong">{% icon "trending-up" "size-5" %}</span>
-  {% elif 'success' in message.tags %}<span class="mt-0.5 text-jade-strong">{% icon "circle-check" "size-5" %}</span>
+  {% elif 'level' in message.tags %}<span class="mt-0.5 text-success-strong">{% icon "trending-up" "size-5" %}</span>
+  {% elif 'success' in message.tags %}<span class="mt-0.5 text-success-strong">{% icon "circle-check" "size-5" %}</span>
   {% else %}<span class="mt-0.5 text-primary-strong">{% icon "info" "size-5" %}</span>{% endif %}
-  <p class="flex-1 text-sm font-medium text-navy">{{ message }}</p>
+  <p class="flex-1 text-sm font-medium text-forest">{{ message }}</p>
   <button type="button" class="btn btn-quiet -my-1 -mr-2 px-2" @click="show = false">{% icon "x" %}<span class="sr-only">Dismiss</span></button>
 </div>

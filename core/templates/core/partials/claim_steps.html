@@ -1,0 +1,13 @@
+{% load rung %}
+{# status: the claim's work status. Shows where the claim is: check it, fix it, submit it. #}
+{% if status == "waiting" %}
+<p class="step" data-state="current">{% icon "clock" %}With a specialist</p>
+{% else %}
+<ol class="flex flex-wrap items-center gap-2" aria-label="Where this claim is">
+  <li class="step" data-state="{% if status == 'new' or status == 'denied' %}current{% else %}done{% endif %}"><span class="step-number">1</span>Check</li>
+  <li class="text-sage" aria-hidden="true">{% icon "chevron-right" %}</li>
+  <li class="step" data-state="{% if status == 'needs_fix' %}current{% elif status == 'new' or status == 'denied' %}todo{% else %}done{% endif %}"><span class="step-number">2</span>Fix</li>
+  <li class="text-sage" aria-hidden="true">{% icon "chevron-right" %}</li>
+  <li class="step" data-state="{% if status == 'ready' %}current{% elif status == 'submitted' or status == 'closed' %}done{% else %}todo{% endif %}"><span class="step-number">3</span>{% if status == "closed" %}Closed{% elif status == "submitted" %}Submitted{% else %}Submit{% endif %}</li>
+</ol>
+{% endif %}
