@@ -23,7 +23,7 @@
     <aside class="flex flex-col gap-6" aria-label="Request and resolution">
       <section class="card p-5">
         <h2 class="card-title flex items-center gap-2">{% icon "message-circle-question-mark" "size-5" %}{{ help_request.worker.first_name|default:help_request.worker.username }}'s question</h2>
-        <p class="mt-3 rounded-lg bg-primary-soft p-4 leading-relaxed whitespace-pre-line text-navy">{{ help_request.question }}</p>
+        <p class="mt-3 rounded-lg bg-primary-soft p-4 leading-relaxed whitespace-pre-line text-forest">{{ help_request.question }}</p>
         <p class="mt-2 text-xs text-muted">Asked {{ help_request.created_at|timesince }} ago</p>
       </section>
 
@@ -60,7 +60,7 @@
 
         <div class="mt-4">{% include "core/partials/form_field.html" with field=resolution.resolution_note hint="" %}</div>
 
-        <label class="mt-4 flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium text-navy" for="{{ resolution.save_to_library.id_for_label }}">
+        <label class="mt-4 flex min-h-11 cursor-pointer items-center gap-3 text-sm font-medium text-forest" for="{{ resolution.save_to_library.id_for_label }}">
           <input type="checkbox" name="{{ resolution.save_to_library.html_name }}" id="{{ resolution.save_to_library.id_for_label }}" class="size-5 cursor-pointer accent-primary-strong" x-model="save" {% if resolution.save_to_library.value %}checked{% endif %}>
           Save to Case Library
         </label>
@@ -82,7 +82,7 @@
       {% else %}
       <section class="card p-5">
         <h2 class="card-title flex items-center gap-2">{% icon "circle-check" "size-5" %}Resolution</h2>
-        <p class="mt-3 text-sm font-semibold text-navy">{{ help_request.get_outcome_display }}</p>
+        <p class="mt-3 text-sm font-semibold text-forest">{{ help_request.get_outcome_display }}</p>
         <p class="mt-1 text-sm whitespace-pre-line">{{ help_request.resolution_note }}</p>
         <p class="mt-2 text-xs text-muted">Resolved by {{ help_request.specialist.first_name|default:help_request.specialist.username|default:"a specialist" }} on {{ help_request.resolved_at|date:"M j, g:i A" }}</p>
       </section>

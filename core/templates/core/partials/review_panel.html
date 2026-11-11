@@ -18,7 +18,7 @@
     {% if cards %}
     <p class="text-sm text-text">{{ review.result_json.summary }}</p>
     {% else %}
-    <div class="flex items-start gap-2 rounded-lg bg-jade-soft px-3 py-2.5 text-sm font-medium text-jade-strong">
+    <div class="flex items-start gap-2 rounded-lg bg-success-soft px-3 py-2.5 text-sm font-medium text-success-strong">
       {% icon "circle-check" "mt-0.5 size-4" %}
       <div><p>No issues found. This claim is ready to submit.</p>{% if review.result_json.summary %}<p class="mt-1 font-normal text-text">{{ review.result_json.summary }}</p>{% endif %}</div>
     </div>

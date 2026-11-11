@@ -10,9 +10,9 @@
     <span class="badge badge-info">{{ entry.get_category_display }}</span>
   </div>
   <dl class="mt-4 grid gap-4 text-sm sm:grid-cols-3">
-    <div><dt class="text-xs text-muted">Payer</dt><dd class="font-medium text-navy">{{ entry.payer_name|default:"Any payer" }}</dd></div>
-    <div><dt class="text-xs text-muted">Codes</dt><dd class="code font-medium text-navy">{{ entry.codes|default:"None listed" }}</dd></div>
-    <div><dt class="text-xs text-muted">Denial code</dt><dd class="code font-medium text-navy">{{ entry.denial_code|default:"None" }}</dd></div>
+    <div><dt class="text-xs text-muted">Payer</dt><dd class="font-medium text-forest">{{ entry.payer_name|default:"Any payer" }}</dd></div>
+    <div><dt class="text-xs text-muted">Codes</dt><dd class="code font-medium text-forest">{{ entry.codes|default:"None listed" }}</dd></div>
+    <div><dt class="text-xs text-muted">Denial code</dt><dd class="code font-medium text-forest">{{ entry.denial_code|default:"None" }}</dd></div>
   </dl>
 
   <h2 class="mt-6 text-base">Problem</h2>
@@ -20,7 +20,7 @@
   <h2 class="mt-5 text-base">Fix</h2>
   <p class="mt-1 leading-relaxed whitespace-pre-line">{{ entry.fix }}</p>
   {% if entry.tip %}
-  <div class="mt-5 flex items-start gap-2 rounded-lg bg-primary-soft p-4 text-navy">
+  <div class="mt-5 flex items-start gap-2 rounded-lg bg-primary-soft p-4 text-forest">
     {% icon "lightbulb" "mt-0.5 size-5" %}
     <div><h2 class="text-base">Tip for workers</h2><p class="mt-1 whitespace-pre-line">{{ entry.tip }}</p></div>
   </div>

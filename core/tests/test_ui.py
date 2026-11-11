@@ -61,6 +61,6 @@ class DesignTokenTests(SimpleTestCase):
     def test_brand_tokens_are_in_the_tailwind_entry_and_master_file(self):
         css = (settings.BASE_DIR / "static" / "css" / "input.css").read_text().lower()
         master = (settings.BASE_DIR / "design-system" / "rung" / "MASTER.md").read_text().lower()
-        for value in ("#41a9da", "#013055", "#176f9c", "#52c299", "#187a56", "#b45309", "#dc2626"):
+        for value in ("#1b7f5f", "#14664b", "#0c3b2e", "#e3f5ec", "#d8f58b", "#f8faf5", "#b45309", "#dc2626"):
             self.assertIn(value, css)
             self.assertIn(value, master)
