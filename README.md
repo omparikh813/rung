@@ -47,14 +47,38 @@ python manage.py test
 
 The tests never call the AI. They use mocked OpenRouter responses.
 
+## Check the live AI review
+
+With `OPENROUTER_API_KEY` set, sign in as `maria` and open a claim. The review runs
+on first open. These four claims cover the checks the AI does from the payer rules,
+today's date, and the patient's other claims:
+
+| Claim | What the review should flag |
+|-------|-----------------------------|
+| CLM-1024 | The Medicare ID contains the letter O |
+| CLM-1028 | The filing deadline has passed |
+| CLM-1029 | A duplicate of CLM-1005 |
+| CLM-1022 | Coverage was inactive on the date of service |
+
+If the AI cannot be reached, the review panel shows a Try again button and the rest
+of the app keeps working.
+
 ## Layout
 
 | Path | What it holds |
 |------|---------------|
 | `rung/` | Django project: settings and root URLs |
-| `core/` | The only Django app: models, views, templates, tests |
+| `core/` | The only Django app |
+| `core/models.py` | All models and their status and category choices |
+| `core/views/` | One module per screen: auth, queue, workspace, help requests, library, passport, upload |
 | `core/ai.py` | Prompt assembly and the OpenRouter client |
-| `core/skills.py` | Scoring and fading help levels |
+| `core/reviews.py` | Turns a stored AI review into issue cards and flagged fields |
+| `core/skills.py` | Scoring, fading help levels, and Skill Passport numbers |
+| `core/claims.py` | Claim helpers: CSV rows, filing deadlines, audit log, similar cases |
+| `core/uploads.py` | CSV upload parsing and row validation |
+| `core/templates/core/` | Pages, with shared pieces in `partials/` |
+| `core/tests/` | Automated tests |
+| `core/management/commands/` | `seed_demo` and `tailwind` |
 | `prompts/` | The master prompt and the claim review task prompt |
 | `data/` | Sample claims, payer rules, and the upload demo file |
 | `design-system/rung/MASTER.md` | The design system every template follows |
