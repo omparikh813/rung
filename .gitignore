@@ -1,0 +1,7 @@
+.env
+.venv/
+.tools/
+db.sqlite3
+__pycache__/
+*.pyc
+static/css/output.css

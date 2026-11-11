@@ -1,0 +1,20 @@
+payer_name,rule_type,rule,filing_limit_days,source
+Medicare Part B,filing_limit,Claims must be filed within 12 months of the date of service.,365,Medicare (real rule)
+Medicare Part B,modifier,Outpatient physical therapy services need modifier GP.,,Medicare (real rule)
+Medicare Part B,modifier,CLIA waived lab tests done in the office need modifier QW.,,Medicare (real rule)
+Medicare Part B,units,"Timed therapy codes follow the 8 minute rule: 8 to 22 min = 1 unit, 23 to 37 min = 2 units, 38 to 52 min = 3 units.",,Medicare (real rule)
+Medicare Part B,coverage,Routine physicals (99381 to 99397) are not covered. The Annual Wellness Visit uses G0438 or G0439.,,Medicare (real rule)
+Medicare Part B,modifier,A screening colonoscopy that becomes diagnostic or therapeutic is billed with modifier PT and Z12.11 first.,,Medicare (real rule)
+Medicare Part B,member_id,"Medicare IDs are 11 characters and never use the letters S, L, O, I, B, or Z.",,Medicare (real rule)
+Medicare Part B,coordination,"If the patient or spouse is still working and covered by a large employer plan, that plan pays first.",,"Medicare (real rule, simplified)"
+State Medicaid,documentation,Drugs given in the office need the 11 digit NDC on the claim.,,"Medicaid (real rule, simplified)"
+State Medicaid,filing_limit,Claims must be filed within 180 days of the date of service.,180,Demo rule
+Summit Health PPO,prior_auth,"MRI, CT, knee arthroscopy (29881), and sleep studies (95810) need prior authorization.",,Demo rule
+Summit Health PPO,filing_limit,Claims must be filed within 180 days of the date of service.,180,Demo rule
+Bayview Health HMO,referral,Specialist visits need a PCP referral number on the claim.,,Demo rule
+Bayview Health HMO,filing_limit,Claims must be filed within 90 days of the date of service.,90,Demo rule
+Crestline Insurance PPO,modifier,Telehealth visits with place of service 10 need modifier 95.,,Demo rule
+Crestline Insurance PPO,filing_limit,Claims must be filed within 120 days of the date of service.,120,Demo rule
+All payers,modifier,"An office visit on the same day as a minor procedure needs modifier 25 if the visit was a separate, significant service.",,CPT coding convention
+All payers,coding,Injury codes (S and T codes) need a 7th character such as A for the initial encounter.,,ICD-10-CM convention
+All payers,coding,The diagnosis laterality (right or left) must match the procedure modifier (RT or LT).,,ICD-10-CM convention
