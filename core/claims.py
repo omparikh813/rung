@@ -1,12 +1,13 @@
-"""Helpers for working with claims: CSV loading and filing deadlines."""
+"""Helpers for working with claims: CSV loading, filing deadlines, and similar cases."""
 
 import csv
+import re
 from datetime import date
 from decimal import Decimal
 
 from django.conf import settings
 
-from .models import Claim, ClaimStatus, PayerRule
+from .models import CaseEntry, Claim, ClaimStatus, PayerRule
 
 # The answer key. Stored for scoring, never shown to a worker or sent to the AI.
 ANSWER_KEY_FIELDS = [
@@ -80,3 +81,27 @@ def days_left_tone(days):
     if days < 30:
         return "amber"
     return ""
+
+
+def similar_cases(claim, limit=3):
+    """Case Library entries that match this claim, best match first.
+
+    A case matches on the same CPT code, the same payer and diagnosis, or the same denial code.
+    """
+    cpts = {code.upper() for code in (claim.cpt_1, claim.cpt_2) if code}
+    diagnoses = {code.upper() for code in (claim.icd10_primary, claim.icd10_secondary) if code}
+    ranked = []
+    for entry in CaseEntry.objects.select_related("created_by"):
+        codes = set(re.split(r"[^A-Z0-9.]+", entry.codes.upper()))
+        if codes & cpts:
+            rank = 0
+        elif entry.payer_name == claim.payer_name and codes & diagnoses:
+            rank = 1
+        elif claim.denial_code and entry.denial_code.upper() == claim.denial_code.upper():
+            rank = 2
+        else:
+            continue
+        ranked.append((rank, entry))
+    # CaseEntry is ordered newest first, and sorting by rank keeps that order within a rank.
+    ranked.sort(key=lambda pair: pair[0])
+    return [entry for _, entry in ranked[:limit]]
