@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from ..ai import AIError, claim_version_hash, latest_review
-from ..claims import FIELD_GROUPS, claim_history, save_claim_form, visible_claims
+from ..claims import FIELD_GROUPS, claim_history, save_claim_form, similar_cases, visible_claims
 from ..decorators import role_required, user_role
 from ..forms import ClaimForm
 from ..models import ClaimEvent, EventAction, FinalAction, HelpLevel, HelpRequest, RequestStatus, Role, WorkStatus
@@ -65,6 +65,7 @@ def workspace_context(claim, form, *, fade_help=True, review_error=False):
         "review_error": review_error,
         "missing_key": review_error and settings.DEBUG and not os.environ.get("OPENROUTER_API_KEY"),
         "history": claim_history(claim),
+        "similar": similar_cases(claim),
     }
 
 

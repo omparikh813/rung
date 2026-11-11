@@ -1,0 +1,26 @@
+{% load rung %}
+{% if entries %}
+<div class="grid animate-fade-in gap-4 lg:grid-cols-2">
+  {% for entry in entries %}
+  <article class="card relative flex flex-col gap-3 p-5 transition duration-200 hover:shadow-md">
+    <div class="flex flex-wrap items-start justify-between gap-2">
+      <h2 class="card-title"><a class="after:absolute after:inset-0 hover:underline" href="{% url 'library_detail' entry.pk %}">{{ entry.title }}</a></h2>
+      <span class="badge badge-info">{{ entry.get_category_display }}</span>
+    </div>
+    <p class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
+      {% if entry.payer_name %}<span>{{ entry.payer_name }}</span>{% endif %}
+      {% if entry.codes %}<span class="code text-navy">{{ entry.codes }}</span>{% endif %}
+      {% if entry.denial_code %}<span>Denial <span class="code text-navy">{{ entry.denial_code }}</span></span>{% endif %}
+    </p>
+    <p class="line-clamp-2 text-sm"><span class="font-semibold text-navy">Problem:</span> {{ entry.problem }}</p>
+    <p class="text-sm"><span class="font-semibold text-navy">Fix:</span> {{ entry.fix }}</p>
+    {% if entry.tip %}<p class="flex items-start gap-2 rounded-lg bg-primary-soft px-3 py-2 text-sm text-navy">{% icon "lightbulb" "mt-0.5 size-4" %}<span>{{ entry.tip }}</span></p>{% endif %}
+    <p class="mt-auto text-xs text-muted">{{ entry.created_by.first_name|default:entry.created_by.username|default:"A specialist" }}, {{ entry.created_at|date:"M j, Y" }}</p>
+  </article>
+  {% endfor %}
+</div>
+{% elif filtered %}
+<div class="card animate-fade-in">{% include "core/partials/empty_state.html" with icon="search" title="No entries match" text="Try a different search word, or clear the category and payer filters." %}</div>
+{% else %}
+<div class="card animate-fade-in">{% include "core/partials/empty_state.html" with icon="library" title="The Case Library is empty" text="Entries appear here when specialists resolve help requests and save the fix." %}</div>
+{% endif %}

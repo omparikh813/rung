@@ -95,3 +95,19 @@ class ResolutionForm(forms.Form):
 
     def case_entry(self, **extra):
         return CaseEntry(**{name: self.cleaned_data[name] for name in self.LIBRARY_FIELDS}, **extra)
+
+
+class CaseEntryForm(forms.ModelForm):
+    """Edit a Case Library entry. Only the specialist who created it can."""
+
+    class Meta:
+        model = CaseEntry
+        fields = ResolutionForm.LIBRARY_FIELDS
+        widgets = {name: forms.Textarea(attrs={"rows": 3}) for name in ("problem", "fix", "tip")}
+        labels = {"tip": "Tip for workers", "denial_code": "Denial code"}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            css = "input code" if name in ("codes", "denial_code") else "input"
+            field.widget.attrs.update({"class": css, "aria-describedby": f"hint-{name}"})

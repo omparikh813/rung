@@ -1,0 +1,43 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}{{ entry.title }}{% endblock %}
+{% block content %}
+<a class="link inline-flex items-center gap-1 text-sm" href="{% url 'library' %}">{% icon "arrow-left" %}Case Library</a>
+
+<article class="card mt-4 max-w-3xl p-6">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <h1 class="text-2xl">{{ entry.title }}</h1>
+    <span class="badge badge-info">{{ entry.get_category_display }}</span>
+  </div>
+  <dl class="mt-4 grid gap-4 text-sm sm:grid-cols-3">
+    <div><dt class="text-xs text-muted">Payer</dt><dd class="font-medium text-navy">{{ entry.payer_name|default:"Any payer" }}</dd></div>
+    <div><dt class="text-xs text-muted">Codes</dt><dd class="code font-medium text-navy">{{ entry.codes|default:"None listed" }}</dd></div>
+    <div><dt class="text-xs text-muted">Denial code</dt><dd class="code font-medium text-navy">{{ entry.denial_code|default:"None" }}</dd></div>
+  </dl>
+
+  <h2 class="mt-6 text-base">Problem</h2>
+  <p class="mt-1 leading-relaxed whitespace-pre-line">{{ entry.problem }}</p>
+  <h2 class="mt-5 text-base">Fix</h2>
+  <p class="mt-1 leading-relaxed whitespace-pre-line">{{ entry.fix }}</p>
+  {% if entry.tip %}
+  <div class="mt-5 flex items-start gap-2 rounded-lg bg-primary-soft p-4 text-navy">
+    {% icon "lightbulb" "mt-0.5 size-5" %}
+    <div><h2 class="text-base">Tip for workers</h2><p class="mt-1 whitespace-pre-line">{{ entry.tip }}</p></div>
+  </div>
+  {% endif %}
+
+  <p class="mt-6 text-xs text-muted">Saved by {{ entry.created_by.first_name|default:entry.created_by.username|default:"a specialist" }} on {{ entry.created_at|date:"M j, Y" }}</p>
+
+  {% if can_change %}
+  <div class="mt-6 flex flex-wrap gap-2 border-t border-border pt-5">
+    <a class="btn btn-secondary" href="{% url 'library_edit' entry.pk %}">{% icon "pencil" %}Edit</a>
+    <button type="button" class="btn btn-danger" @click="document.getElementById('delete-dialog').showModal()">{% icon "trash-2" %}Delete</button>
+  </div>
+  <form id="delete-form" method="post" action="{% url 'library_delete' entry.pk %}">{% csrf_token %}</form>
+  {% endif %}
+</article>
+
+{% if can_change %}
+{% include "core/partials/dialog.html" with id="delete-dialog" title="Delete this entry?" body="core/partials/dialog_delete.html" confirm_label="Delete entry" confirm_action="delete" form_id="delete-form" %}
+{% endif %}
+{% endblock %}

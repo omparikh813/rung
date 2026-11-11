@@ -1,0 +1,35 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}Case Library{% endblock %}
+{% block content %}
+<h1 class="text-2xl">Case Library</h1>
+<p class="mt-1 text-muted">Fixes from this company's specialists. Every resolved help request can become training for the next worker.</p>
+
+<form class="card mt-6 grid gap-4 p-4 sm:grid-cols-[minmax(0,1fr)_14rem_14rem]" method="get" action="{% url 'library' %}"
+      hx-get="{% url 'library' %}" hx-target="#library-results" hx-trigger="input changed delay:250ms from:#library-search, search from:#library-search, change from:select" hx-push-url="true">
+  <div>
+    <label class="label" for="library-search">Search</label>
+    <div class="relative">
+      <span class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted">{% icon "search" %}</span>
+      <input id="library-search" type="search" name="q" value="{{ query }}" class="input pl-9" placeholder="Title, problem, fix, or code" autocomplete="off">
+    </div>
+  </div>
+  <div>
+    <label class="label" for="library-category">Category</label>
+    <select id="library-category" name="category" class="input">
+      <option value="">All categories</option>
+      {% for value, label in categories %}<option value="{{ value }}" {% if value == category %}selected{% endif %}>{{ label }}</option>{% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="label" for="library-payer">Payer</label>
+    <select id="library-payer" name="payer" class="input">
+      <option value="">All payers</option>
+      {% for name in payers %}<option value="{{ name }}" {% if name == payer %}selected{% endif %}>{{ name }}</option>{% endfor %}
+    </select>
+  </div>
+  <noscript><button type="submit" class="btn btn-secondary">Search</button></noscript>
+</form>
+
+<div id="library-results" class="mt-6">{% include "core/partials/library_cards.html" %}</div>
+{% endblock %}

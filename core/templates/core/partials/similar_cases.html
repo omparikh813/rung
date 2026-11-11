@@ -1,0 +1,20 @@
+{% load rung %}
+{# similar: up to three Case Library entries that match this claim. #}
+<section class="card mt-6 p-5">
+  <h2 class="card-title flex items-center gap-2">{% icon "library" "size-5" %}Similar cases</h2>
+  {% if similar %}
+  <ul class="mt-3 flex flex-col gap-2">
+    {% for entry in similar %}
+    <li>
+      <a class="block cursor-pointer rounded-lg border border-border p-3 text-sm transition duration-200 hover:bg-primary-soft" href="{% url 'library_detail' entry.pk %}">
+        <span class="font-semibold text-primary-strong">{{ entry.title }}</span>
+        <span class="mt-1 line-clamp-2 block text-text">{{ entry.fix }}</span>
+        <span class="mt-1 block text-xs text-muted">{{ entry.get_category_display }}{% if entry.codes %} <span class="code">{{ entry.codes }}</span>{% endif %}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="mt-2 text-sm text-muted">No similar cases yet. Fixes that specialists save for claims like this one will show up here.</p>
+  {% endif %}
+</section>

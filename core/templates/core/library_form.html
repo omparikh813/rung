@@ -1,0 +1,26 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}Edit entry{% endblock %}
+{% block content %}
+<a class="link inline-flex items-center gap-1 text-sm" href="{% url 'library_detail' entry.pk %}">{% icon "arrow-left" %}Back to the entry</a>
+<h1 class="mt-3 text-2xl">Edit Case Library entry</h1>
+
+<form method="post" novalidate class="card mt-6 flex max-w-3xl flex-col gap-4 p-6" x-data="{ busy: false }" @submit="busy = true" @pageshow.window="busy = false" :class="busy && 'is-busy'">
+  {% csrf_token %}
+  <p class="alert alert-info">{% icon "info" "mt-0.5 size-4" %}<span>Never put patient names, member IDs, or dates in an entry.</span></p>
+  {% include "core/partials/form_field.html" with field=form.title hint="" %}
+  <div class="grid gap-4 sm:grid-cols-2">
+    {% include "core/partials/form_field.html" with field=form.category hint="" %}
+    {% include "core/partials/form_field.html" with field=form.payer_name hint="" %}
+    {% include "core/partials/form_field.html" with field=form.codes hint="" %}
+    {% include "core/partials/form_field.html" with field=form.denial_code hint="" %}
+  </div>
+  {% include "core/partials/form_field.html" with field=form.problem hint="" %}
+  {% include "core/partials/form_field.html" with field=form.fix hint="" %}
+  {% include "core/partials/form_field.html" with field=form.tip hint="" %}
+  <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+    <a class="btn btn-secondary" href="{% url 'library_detail' entry.pk %}">Cancel</a>
+    <button type="submit" class="btn btn-primary">{% icon "save" %}Save entry</button>
+  </div>
+</form>
+{% endblock %}
