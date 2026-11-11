@@ -12,8 +12,9 @@ from ..ai import AIError, claim_version_hash, latest_review
 from ..claims import FIELD_GROUPS, claim_history, save_claim_form, visible_claims
 from ..decorators import role_required
 from ..forms import ClaimForm
-from ..models import ClaimEvent, EventAction, Role, WorkStatus
+from ..models import ClaimEvent, EventAction, FinalAction, HelpLevel, Role, WorkStatus
 from ..reviews import field_hints, issue_cards, open_high_confidence, run_review
+from ..skills import PLAIN_NAMES, score_claim
 
 CLOSE_REASONS = [("duplicate", "Duplicate"), ("not_billable", "Not billable"), ("other", "Other")]
 
@@ -86,6 +87,17 @@ def claim(request, pk):
     return redirect("claim", pk=claim.pk)
 
 
+def score_final_action(request, claim, action):
+    """Score the worker's first final action. A toast names the category if the help level dropped."""
+    improved = score_claim(claim, request.user, action)
+    if improved:
+        name = PLAIN_NAMES[improved.category][0]
+        level = HelpLevel(improved.help_level).label
+        messages.add_message(
+            request, messages.SUCCESS, f"{name} improved. Help in this category is now {level}.", extra_tags="level"
+        )
+
+
 def submit_claim(request, claim):
     """Submit is simulated: it only changes the claim status."""
     cards = issue_cards(claim, latest_review(claim))
@@ -94,6 +106,7 @@ def submit_claim(request, claim):
     claim.work_status = WorkStatus.SUBMITTED
     claim.save(update_fields=["work_status", "updated_at"])
     ClaimEvent.objects.create(claim=claim, user=request.user, action=EventAction.SUBMIT)
+    score_final_action(request, claim, FinalAction.SUBMIT)
     messages.success(request, f"{claim.claim_id} submitted.")
     return redirect("queue")
 
@@ -106,6 +119,7 @@ def close_claim(request, claim):
     claim.work_status = WorkStatus.CLOSED
     claim.save(update_fields=["work_status", "updated_at"])
     ClaimEvent.objects.create(claim=claim, user=request.user, action=EventAction.CLOSE, new_value=reason)
+    score_final_action(request, claim, FinalAction.CLOSE)
     messages.success(request, f"{claim.claim_id} closed.")
     return redirect("queue")
 

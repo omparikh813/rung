@@ -9,6 +9,7 @@ from .models import Role
 # that keep the link highlighted. A role's first link is its landing page.
 NAV = [
     ("queue", "My Queue", "list-checks", {Role.WORKER}, ("claim",)),
+    ("passport", "Skill Passport", "award", {Role.WORKER, Role.SPECIALIST}, ("passport_user",)),
 ]
 
 

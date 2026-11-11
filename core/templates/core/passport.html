@@ -1,0 +1,122 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}Skill Passport{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <h1 class="text-2xl">Skill Passport</h1>
+    {% if worker %}<p class="mt-1 text-muted">{{ worker.get_full_name|default:worker.username }}</p>{% endif %}
+  </div>
+  {% if workers %}
+  <div>
+    <label class="label" for="worker-picker">Worker</label>
+    <select id="worker-picker" class="input min-w-48" @change="window.location = $event.target.value">
+      {% for person in workers %}<option value="{% url 'passport_user' person.username %}" {% if person == worker %}selected{% endif %}>{{ person.get_full_name|default:person.username }}</option>{% endfor %}
+    </select>
+  </div>
+  {% endif %}
+</div>
+
+{% if not worker %}
+<div class="card mt-6">{% include "core/partials/empty_state.html" with icon="users" title="No workers yet" text="A Skill Passport appears here once a worker account exists." %}</div>
+{% else %}
+
+<div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="card p-5">
+    <p class="text-sm font-medium text-muted">Claims completed</p>
+    <p class="code mt-2 text-3xl font-semibold text-primary-strong">{% include "core/partials/count_up.html" with value=completed %}</p>
+    <p class="mt-1 text-xs text-muted">Submitted or closed</p>
+  </div>
+  <div class="card flex items-center justify-between gap-4 p-5">
+    <div>
+      <p class="text-sm font-medium text-muted">Overall accuracy</p>
+      <p class="mt-2 text-xs text-muted">Over the last 20 scored claims<br><span class="code">{{ scored }}</span> scored so far</p>
+    </div>
+    {% include "core/partials/accuracy_ring.html" with percent=accuracy size="size-20" %}
+  </div>
+  <div class="card p-5">
+    <p class="text-sm font-medium text-muted">Escalations</p>
+    <p class="code mt-2 text-3xl font-semibold text-primary-strong">{% include "core/partials/count_up.html" with value=escalations %}</p>
+    <p class="mt-1 text-xs text-muted">Claims sent to a specialist</p>
+  </div>
+  <div class="card p-5 {% if ready %}border-jade bg-jade-soft{% endif %}">
+    <p class="text-sm font-medium text-muted">Ready for harder claims</p>
+    {% if ready %}
+    <p class="mt-2 flex items-center gap-2 text-lg font-semibold text-jade-strong">{% icon "circle-check" "size-5" %}Reached</p>
+    {% else %}
+    <p class="mt-2 flex items-center gap-2 text-lg font-semibold text-navy">{% icon "trending-up" "size-5" %}Not yet</p>
+    {% endif %}
+    <ul class="mt-2 space-y-1 text-xs">
+      {% for goal in goals %}
+      <li class="flex items-start gap-1.5 {% if goal.met %}text-jade-strong{% else %}text-muted{% endif %}">
+        {% if goal.met %}{% icon "circle-check" "mt-px size-3.5" %}{% else %}{% icon "circle-dot" "mt-px size-3.5" %}{% endif %}
+        <span>{{ goal.label }} <span class="sr-only">{% if goal.met %}(met){% else %}(not met){% endif %}</span>({{ goal.now }})</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<h2 class="mt-8 text-lg">Skill categories</h2>
+<div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+  {% for item in categories %}
+  <section class="card p-5">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h3 class="card-title">{{ item.name }}</h3>
+        <p class="mt-1 text-xs text-muted">{{ item.about }}</p>
+      </div>
+      {% include "core/partials/accuracy_ring.html" with percent=item.accuracy size="size-14" tone="stroke-jade" %}
+    </div>
+    <div class="mt-4">{% include "core/partials/level_meter.html" with level=item.level %}</div>
+    <dl class="mt-4 flex items-center justify-between gap-4 text-sm">
+      <div><dt class="text-xs text-muted">Help level</dt><dd><span class="badge badge-level">{{ item.level_label }}</span></dd></div>
+      <div><dt class="text-xs text-muted">Attempts</dt><dd class="code font-semibold text-navy">{{ item.attempts }}</dd></div>
+      <div>
+        <dt class="text-xs text-muted">Current streak</dt>
+        <dd class="flex items-center gap-2">
+          <span class="code font-semibold text-navy">{{ item.streak }}</span>
+          <span class="flex gap-1" aria-hidden="true">{% for dot in streak_goal %}<span class="size-2 rounded-full {% if dot < item.streak %}bg-teal{% else %}bg-primary-soft{% endif %}"></span>{% endfor %}</span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  {% endfor %}
+</div>
+
+<h2 class="mt-8 text-lg">Recent activity</h2>
+<div class="card mt-4">
+  {% if activity %}
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead><tr><th scope="col">Claim ID</th><th scope="col">Category</th><th scope="col">What {{ worker.first_name|default:"the worker" }} did</th><th scope="col">Result</th><th scope="col">Date</th></tr></thead>
+      <tbody>
+        {% for row in activity %}
+        <tr>
+          <td class="code whitespace-nowrap">{{ row.claim_id }}</td>
+          <td>{{ row.category }}</td>
+          <td>{{ row.action }}</td>
+          <td>{% if row.correct %}<span class="badge badge-success">{% icon "circle-check" "size-3.5" %}{{ row.result }}</span>{% else %}<span class="badge badge-warning">{% icon "triangle-alert" "size-3.5" %}{{ row.result }}</span>{% endif %}</td>
+          <td class="whitespace-nowrap text-muted">{{ row.date|date:"M j, g:i A" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {% include "core/partials/empty_state.html" with icon="award" title="No scored claims yet" text="Each claim is scored once, when it is submitted, closed, or sent to a specialist. Results will appear here." %}
+  {% endif %}
+</div>
+
+<section class="mt-8 rounded-xl bg-primary-soft p-5 text-sm text-navy">
+  <h2 class="flex items-center gap-2 text-base">{% icon "info" "size-5" %}How this works</h2>
+  <ul class="mt-3 list-disc space-y-1.5 pl-5">
+    <li>Every worker starts with Full help in every category.</li>
+    <li>Three correct claims in a row in a category, without using Show answer, lower the help one step: Full, then Guided, then Minimal.</li>
+    <li>An incorrect claim raises the help one step and resets the streak, so support comes back when it is needed.</li>
+    <li>A correct claim where the answer was shown still counts for accuracy, but it does not add to the streak.</li>
+    <li>Asking a specialist is the right call when a claim really needs one. Each claim is scored once.</li>
+  </ul>
+</section>
+{% endif %}
+{% endblock %}
