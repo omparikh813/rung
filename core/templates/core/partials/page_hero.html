@@ -1,0 +1,42 @@
+{% load rung %}
+{% comment %}
+The banner at the top of an app page. Pass eyebrow, title, subtitle, and optionally
+tiles (a list of icon, label, value), action_url with action_label and action_icon,
+and percent (shown as a progress ring with ring_label).
+{% endcomment %}
+<section class="page-hero animate-slide-in">
+  <span class="blob -top-20 right-10 size-72 bg-lime/50" aria-hidden="true"></span>
+  {% if shape == "cross" %}{% include "core/partials/shapes/cross.html" with class="floaty top-3 right-[44%] hidden w-10 opacity-80 lg:block" %}
+  {% elif shape == "molecule" %}{% include "core/partials/shapes/molecule.html" with class="floaty -top-3 right-[44%] hidden w-20 opacity-80 lg:block" %}
+  {% elif shape == "shield" %}{% include "core/partials/shapes/shield.html" with class="floaty top-3 right-[44%] hidden w-11 opacity-90 lg:block" %}
+  {% else %}{% include "core/partials/shapes/capsule.html" with class="floaty -top-3 right-[44%] hidden w-20 opacity-90 lg:block" %}{% endif %}
+  <div class="relative flex flex-wrap items-center justify-between gap-6">
+    <div class="min-w-0">
+      {% if eyebrow %}<p class="eyebrow">{{ eyebrow }}</p>{% endif %}
+      <h1 class="mt-1">{{ title }}</h1>
+      {% if subtitle %}<p class="mt-2 max-w-xl text-muted">{{ subtitle }}</p>{% endif %}
+    </div>
+    <div class="flex items-center gap-5">
+      {% if percent is not None and ring_label %}
+      <div class="flex items-center gap-3">
+        {% include "core/partials/accuracy_ring.html" with percent=percent size="size-20" label=ring_label %}
+        <p class="max-w-24 text-xs font-semibold text-muted">{{ ring_label }}</p>
+      </div>
+      {% endif %}
+      {% if action_url %}<a class="btn btn-primary btn-lg" href="{{ action_url }}">{% icon action_icon|default:"arrow-right" "size-5" %}{{ action_label }}</a>{% endif %}
+    </div>
+  </div>
+  {% if tiles %}
+  <div class="relative mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    {% for tile in tiles %}
+    <div class="stat-tile">
+      <span class="icon-tile">{% icon tile.icon "size-5" %}</span>
+      <div>
+        <p class="code text-2xl leading-none font-semibold text-forest">{% include "core/partials/count_up.html" with value=tile.value on_view=False %}</p>
+        <p class="mt-1 text-xs font-semibold text-muted">{{ tile.label }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>

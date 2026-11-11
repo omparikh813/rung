@@ -42,3 +42,25 @@ def get_item(mapping, key):
 def field_wrap(name):
     """Grid classes for a claim form field. The date of service gets a row to itself."""
     return "@md:col-span-2 @md:max-w-[calc(50%-0.5rem)]" if name == "date_of_service" else ""
+
+
+CATEGORY_ICONS = {
+    "eligibility": "shield-check",
+    "prior_auth": "badge-check",
+    "code_matching": "scan-search",
+    "modifiers": "zap",
+    "documentation": "file-check-2",
+    "filing_rules": "calendar-clock",
+}
+
+
+@register.filter
+def category_icon(category):
+    """The icon for a skill category."""
+    return CATEGORY_ICONS.get(category, "sparkle")
+
+
+@register.filter
+def category_tone(category):
+    """The pastel background class for a skill category."""
+    return f"tone-{category}" if category in CATEGORY_ICONS else "bg-sage-soft"
