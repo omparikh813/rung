@@ -48,14 +48,16 @@
   <div class="sticky bottom-0 z-10 -mx-4 mt-6 -mb-6 border-t border-border bg-card px-4 py-3 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
     <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center">
       <button type="submit" name="action" value="save" class="btn btn-secondary">{% icon "save" %}Save</button>
+      <button type="button" class="btn btn-secondary" @click="document.getElementById('ask-dialog').showModal()">{% icon "life-buoy" %}Ask a specialist</button>
       <button type="button" class="btn btn-secondary" @click="document.getElementById('close-dialog').showModal()">{% icon "archive" %}Close claim</button>
-      <button type="submit" name="action" value="submit" class="btn btn-primary col-span-2 sm:ml-auto">{% icon "send" %}Submit claim</button>
+      <button type="submit" name="action" value="submit" class="btn btn-primary sm:ml-auto">{% icon "send" %}Submit claim</button>
     </div>
   </div>
   {% endif %}
 </form>
 
 {% if editable %}
+{% include "core/partials/dialog.html" with id="ask-dialog" title="Ask a specialist" body="core/partials/dialog_ask.html" confirm_label="Send request" confirm_action="ask" form_id="claim-form" state="{ question: '' }" ready="question.trim().length > 0" %}
 {% include "core/partials/dialog.html" with id="close-dialog" title="Close claim" body="core/partials/dialog_close.html" confirm_label="Close claim" confirm_action="close" form_id="claim-form" %}
 {% if confirm_issues %}
 {% include "core/partials/dialog.html" with id="submit-dialog" title="Submit with open issues?" body="core/partials/dialog_submit.html" confirm_label="Submit anyway" confirm_action="submit_confirmed" form_id="claim-form" open=True %}

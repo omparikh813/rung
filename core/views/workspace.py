@@ -10,9 +10,9 @@ from django.views.decorators.http import require_POST
 
 from ..ai import AIError, claim_version_hash, latest_review
 from ..claims import FIELD_GROUPS, claim_history, save_claim_form, visible_claims
-from ..decorators import role_required
+from ..decorators import role_required, user_role
 from ..forms import ClaimForm
-from ..models import ClaimEvent, EventAction, FinalAction, HelpLevel, Role, WorkStatus
+from ..models import ClaimEvent, EventAction, FinalAction, HelpLevel, HelpRequest, RequestStatus, Role, WorkStatus
 from ..reviews import field_hints, issue_cards, open_high_confidence, run_review
 from ..skills import PLAIN_NAMES, score_claim
 
@@ -25,6 +25,21 @@ def worker_claim(request, pk):
     if claim.assigned_to_id != request.user.pk:
         raise PermissionDenied
     return claim
+
+
+def reviewable_claim(request, pk):
+    """A claim this user may run checks on, and whether they may change it.
+
+    A worker reaches their own claims. A specialist reaches claims through a help request.
+    """
+    if user_role(request.user) == Role.WORKER:
+        claim = worker_claim(request, pk)
+        return claim, claim.is_open
+    claim = get_object_or_404(visible_claims(), pk=pk)
+    requests = claim.help_requests.all()
+    if not requests.exists():
+        raise PermissionDenied
+    return claim, requests.filter(status=RequestStatus.OPEN).exists()
 
 
 def workspace_context(claim, form, *, fade_help=True, review_error=False):
@@ -64,8 +79,14 @@ def render_workspace(request, claim, form):
     return render(request, "core/workspace.html", context)
 
 
-@role_required(Role.WORKER)
+@role_required(Role.WORKER, Role.SPECIALIST)
 def claim(request, pk):
+    if user_role(request.user) == Role.SPECIALIST:
+        # A specialist works a claim from its help request.
+        help_request = HelpRequest.objects.filter(claim_id=pk).order_by("-created_at").first()
+        if help_request is None:
+            raise PermissionDenied
+        return redirect("help_detail", pk=help_request.pk)
     claim = worker_claim(request, pk)
     if request.method != "POST":
         return render_workspace(request, claim, ClaimForm(instance=claim, read_only=not claim.is_open))
@@ -83,6 +104,8 @@ def claim(request, pk):
     changed = save_claim_form(form, request.user)
     if action in ("submit", "submit_confirmed"):
         return submit_claim(request, claim)
+    if action == "ask":
+        return ask_specialist(request, claim)
     messages.success(request, "Changes saved." if changed else "Nothing to save. No fields were changed.")
     return redirect("claim", pk=claim.pk)
 
@@ -111,6 +134,22 @@ def submit_claim(request, claim):
     return redirect("queue")
 
 
+def ask_specialist(request, claim):
+    """Send the full case to a specialist. Asking is never discouraged."""
+    question = request.POST.get("question", "").strip()
+    if not question:
+        messages.error(request, "Type a question for the specialist before sending.")
+        return redirect("claim", pk=claim.pk)
+    HelpRequest.objects.create(claim=claim, worker=request.user, question=question)
+    claim.work_status = WorkStatus.WAITING
+    claim.help_request_open = True
+    claim.save(update_fields=["work_status", "help_request_open", "updated_at"])
+    ClaimEvent.objects.create(claim=claim, user=request.user, action=EventAction.ESCALATE, new_value=question)
+    score_final_action(request, claim, FinalAction.ESCALATE)
+    messages.success(request, "Request sent. A specialist will pick it up.")
+    return redirect("claim", pk=claim.pk)
+
+
 def close_claim(request, claim):
     reason = dict(CLOSE_REASONS).get(request.POST.get("close_reason"))
     if not reason:
@@ -124,13 +163,13 @@ def close_claim(request, claim):
     return redirect("queue")
 
 
-@role_required(Role.WORKER)
+@role_required(Role.WORKER, Role.SPECIALIST)
 def claim_review(request, pk):
     """The help panel. GET runs the review if needed. POST (Re-check) saves the form first."""
-    claim = worker_claim(request, pk)
-    form = ClaimForm(instance=claim, read_only=not claim.is_open)
+    claim, editable = reviewable_claim(request, pk)
+    form = ClaimForm(instance=claim, read_only=not editable)
     form_error = review_error = False
-    if request.method == "POST" and claim.is_open:
+    if request.method == "POST" and editable:
         form = ClaimForm(request.POST, instance=claim)
         if form.is_valid():
             save_claim_form(form, request.user)
@@ -141,8 +180,9 @@ def claim_review(request, pk):
             run_review(claim, request.user)
         except AIError:
             review_error = True
-    context = workspace_context(claim, form, review_error=review_error)
-    context.update(editable=claim.is_open, form_error=form_error)
+    fade_help = user_role(request.user) == Role.WORKER
+    context = workspace_context(claim, form, fade_help=fade_help, review_error=review_error)
+    context.update(editable=editable, form_error=form_error)
     return render(request, "core/partials/review_response.html", context)
 
 

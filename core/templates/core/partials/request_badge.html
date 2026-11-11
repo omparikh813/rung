@@ -1,0 +1,3 @@
+{% load rung %}
+{% if status == "resolved" %}<span class="badge badge-success">{% icon "circle-check" "size-3.5" %}Resolved</span>
+{% else %}<span class="badge badge-info">{% icon "clock" "size-3.5" %}Open</span>{% endif %}

@@ -3,23 +3,34 @@
 from django.urls import reverse
 
 from .decorators import user_role
-from .models import Role
+from .models import HelpRequest, RequestStatus, Role
 
 # Sidebar links in display order: URL name, label, icon, roles, and the URL names
 # that keep the link highlighted. A role's first link is its landing page.
 NAV = [
     ("queue", "My Queue", "list-checks", {Role.WORKER}, ("claim",)),
+    ("help_list", "Help Requests", "life-buoy", {Role.WORKER, Role.SPECIALIST}, ("help_detail",)),
     ("passport", "Skill Passport", "award", {Role.WORKER, Role.SPECIALIST}, ("passport_user",)),
 ]
 
 
+def open_help_requests(user):
+    """Open requests: all of them for a specialist, their own for a worker."""
+    requests = HelpRequest.objects.filter(status=RequestStatus.OPEN)
+    return requests if user_role(user) == Role.SPECIALIST else requests.filter(worker=user)
+
+
 def nav_for(user, current=""):
     role = user_role(user)
-    return [
-        {"url": reverse(name), "label": label, "icon": icon, "active": current in (name, *also)}
+    links = [
+        {"name": name, "url": reverse(name), "label": label, "icon": icon, "active": current in (name, *also)}
         for name, label, icon, roles, also in NAV
         if role in roles
     ]
+    for link in links:
+        if link["name"] == "help_list":
+            link["count"] = open_help_requests(user).count()
+    return links
 
 
 def rung(request):

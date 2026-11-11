@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
 from .claims import FORM_FIELDS
-from .models import Claim, PayerRule
+from .models import CaseEntry, Category, Claim, Outcome, PayerRule
 
 # Codes, IDs, and amounts use Fira Code so they are easy to compare character by character.
 CODE_FIELDS = {
@@ -52,3 +52,46 @@ class ClaimForm(forms.ModelForm):
                 {"class": "input code" if name in CODE_FIELDS else "input", "aria-describedby": f"hint-{name}"}
             )
             field.disabled = read_only
+
+
+class ResolutionForm(forms.Form):
+    """How a specialist resolves a help request, with an optional Case Library entry."""
+
+    outcome = forms.ChoiceField(choices=Outcome.choices, widget=forms.RadioSelect, initial=Outcome.RETURNED)
+    resolution_note = forms.CharField(
+        label="Resolution note",
+        widget=forms.Textarea(attrs={"rows": 3}),
+        help_text="The worker sees this note in the claim history.",
+    )
+    save_to_library = forms.BooleanField(label="Save to Case Library", required=False, initial=True)
+    title = forms.CharField(max_length=150, required=False)
+    category = forms.ChoiceField(choices=[("", "Choose a category"), *Category.choices], required=False)
+    payer_name = forms.CharField(label="Payer", max_length=100, required=False)
+    codes = forms.CharField(max_length=100, required=False)
+    denial_code = forms.CharField(label="Denial code", max_length=20, required=False)
+    problem = forms.CharField(widget=forms.Textarea(attrs={"rows": 2}), required=False)
+    fix = forms.CharField(widget=forms.Textarea(attrs={"rows": 2}), required=False)
+    tip = forms.CharField(
+        label="Tip for workers", widget=forms.Textarea(attrs={"rows": 2}), required=False, help_text="Optional."
+    )
+
+    LIBRARY_REQUIRED = ["title", "category", "problem", "fix"]
+    LIBRARY_FIELDS = ["title", "category", "payer_name", "codes", "denial_code", "problem", "fix", "tip"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if name not in ("outcome", "save_to_library"):
+                css = "input code" if name in ("codes", "denial_code") else "input"
+                field.widget.attrs.update({"class": css, "aria-describedby": f"hint-{self.add_prefix(name)}"})
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("save_to_library"):
+            for name in self.LIBRARY_REQUIRED:
+                if not cleaned.get(name):
+                    self.add_error(name, "This field is needed to save the entry.")
+        return cleaned
+
+    def case_entry(self, **extra):
+        return CaseEntry(**{name: self.cleaned_data[name] for name in self.LIBRARY_FIELDS}, **extra)
