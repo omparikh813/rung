@@ -134,6 +134,7 @@ def passport(worker):
         name, about = PLAIN_NAMES[category]
         categories.append(
             {
+                "key": category.value,
                 "name": name,
                 "about": about,
                 "level": record.help_level if record else HelpLevel.FULL,
@@ -166,11 +167,19 @@ def passport(worker):
         {"label": f"{settings.RUNG_READY_MIN_MINIMAL} categories at Minimal help", "now": f"{minimal} so far",
          "met": minimal >= settings.RUNG_READY_MIN_MINIMAL},
     ]  # fmt: skip
+    completed = Claim.objects.filter(assigned_to=worker, work_status__in=DONE_STATUSES).count()
+    escalations = HelpRequest.objects.filter(worker=worker).count()
     return {
-        "completed": Claim.objects.filter(assigned_to=worker, work_status__in=DONE_STATUSES).count(),
+        "tiles": [
+            {"icon": "circle-check", "label": "Claims completed", "value": completed},
+            {"icon": "target", "label": "Claims scored", "value": len(attempts)},
+            {"icon": "life-buoy", "label": "Escalations", "value": escalations},
+            {"icon": "award", "label": "Areas at Minimal help", "value": minimal},
+        ],
+        "completed": completed,
         "scored": len(attempts),
         "accuracy": accuracy,
-        "escalations": HelpRequest.objects.filter(worker=worker).count(),
+        "escalations": escalations,
         "categories": categories,
         "activity": activity,
         "goals": goals,
