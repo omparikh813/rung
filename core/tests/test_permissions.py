@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
@@ -6,26 +5,8 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
 from core.decorators import role_required
-from core.models import Profile, Role
-
-PASSWORD = "demo-pass-1"
-
-
-def make_user(username, role):
-    user = get_user_model().objects.create_user(username, password=PASSWORD, first_name=username.title())
-    if role:
-        Profile.objects.create(user=user, role=role)
-    return user
-
-
-class RoleTestCase(TestCase):
-    """Base class with one worker (maria) and one specialist (dan)."""
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.maria = make_user("maria", Role.WORKER)
-        cls.dan = make_user("dan", Role.SPECIALIST)
-
+from core.models import Role
+from core.tests.base import PASSWORD, RoleTestCase, make_user
 
 class RoleRequiredTests(RoleTestCase):
     def setUp(self):

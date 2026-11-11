@@ -3,10 +3,13 @@
 from django.urls import reverse
 
 from .decorators import user_role
+from .models import Role
 
 # Sidebar links in display order: URL name, label, icon, roles, and the URL names
 # that keep the link highlighted. A role's first link is its landing page.
-NAV = []
+NAV = [
+    ("queue", "My Queue", "list-checks", {Role.WORKER}, ()),
+]
 
 
 def nav_for(user, current=""):

@@ -9,15 +9,7 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 
 from core.models import CaseEntry, Category, Claim, PayerRule, Role, WorkStatus
-
-
-# demo_payer_rules.csv holds 19 rules (the PRD text says 20, but its table lists 19).
-RULE_COUNT = 19
-
-
-def seed():
-    with mock.patch.dict("os.environ", {"DEMO_PASSWORD": "demo-pass-1"}):
-        call_command("seed_demo", stdout=StringIO())
+from core.tests.base import PASSWORD, RULE_COUNT, seed
 
 
 class SeedDemoTests(TestCase):
@@ -30,7 +22,7 @@ class SeedDemoTests(TestCase):
         dan = User.objects.get(username="dan")
         self.assertEqual(maria.profile.role, Role.WORKER)
         self.assertEqual(dan.profile.role, Role.SPECIALIST)
-        self.assertTrue(maria.check_password("demo-pass-1"))
+        self.assertTrue(maria.check_password(PASSWORD))
         self.assertEqual(Claim.objects.filter(assigned_to=maria).count(), 30)
 
     def test_can_run_twice_and_resets_the_demo(self):

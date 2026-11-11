@@ -1,0 +1,58 @@
+{% load rung %}
+<div class="animate-fade-in">
+  <input type="hidden" id="queue-tab" name="tab" value="{{ current.key }}">
+  <div class="flex gap-1 overflow-x-auto border-b border-border px-3" role="tablist" aria-label="Claim status">
+    {% for tab in tabs %}
+    <a class="tab" role="tab" aria-selected="{% if tab.key == current.key %}true{% else %}false{% endif %}"
+       href="{% url 'queue' %}?tab={{ tab.key }}" hx-get="{% url 'queue' %}?tab={{ tab.key }}" hx-target="#queue-results" hx-include="#queue-search" hx-push-url="{% url 'queue' %}?tab={{ tab.key }}">
+      {{ tab.label }} <span class="badge badge-neutral">{{ tab.count }}</span>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% if claims %}
+  <div class="overflow-x-auto lg:overflow-visible">
+    <table class="table lg:[&_th]:top-16">
+      <thead>
+        <tr>
+          <th scope="col">Claim ID</th>
+          <th scope="col">Patient</th>
+          <th scope="col">Payer</th>
+          <th scope="col">Date of service</th>
+          <th scope="col">Codes</th>
+          <th scope="col">Status</th>
+          <th scope="col">Days left to file</th>
+          <th scope="col">Open issues</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for claim in claims %}
+        <tr>
+          <td class="code font-medium whitespace-nowrap text-navy">{{ claim.claim_id }}</td>
+          <td class="whitespace-nowrap">{{ claim.patient_last }}, {{ claim.patient_first|slice:":1" }}.</td>
+          <td class="whitespace-nowrap">{{ claim.payer_name }}</td>
+          <td class="code whitespace-nowrap">{{ claim.date_of_service|date:"Y-m-d" }}</td>
+          <td class="code whitespace-nowrap">{{ claim.cpt_1 }}{% if claim.cpt_2 %}, {{ claim.cpt_2 }}{% endif %}</td>
+          <td>{% include "core/partials/status_badge.html" with status=claim.work_status %}</td>
+          <td class="whitespace-nowrap">
+            {% if claim.days_tone == "expired" %}<span class="badge badge-danger">{% icon "circle-x" "size-3.5" %}Expired</span>
+            {% elif claim.days_left is None %}<span class="text-muted" aria-label="Not applicable">&ndash;</span>
+            {% else %}<span class="code font-semibold {% if claim.days_tone == 'red' %}text-destructive{% elif claim.days_tone == 'amber' %}text-warning{% else %}text-text{% endif %}">{{ claim.days_left }}</span>
+              <span class="text-xs text-muted">day{{ claim.days_left|pluralize }}</span>{% endif %}
+          </td>
+          <td>
+            {% if claim.open_issues is None %}<span class="text-xs text-muted">Not checked</span>
+            {% elif claim.open_issues %}<span class="badge badge-warning">{{ claim.open_issues }}</span>
+            {% else %}<span class="code text-muted">0</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% elif query %}
+  {% include "core/partials/empty_state.html" with icon="search" title="No claims match your search" text="Try a different claim ID or patient last name." %}
+  {% else %}
+  {% include "core/partials/empty_state.html" with icon="inbox" title="Nothing here yet" text=current.empty %}
+  {% endif %}
+</div>

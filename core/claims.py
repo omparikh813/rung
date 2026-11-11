@@ -1,10 +1,12 @@
-"""Helpers for working with claims: CSV loading for now, more as screens are added."""
+"""Helpers for working with claims: CSV loading and filing deadlines."""
 
 import csv
 from datetime import date
 from decimal import Decimal
 
-from .models import Claim, ClaimStatus
+from django.conf import settings
+
+from .models import Claim, ClaimStatus, PayerRule
 
 # The answer key. Stored for scoring, never shown to a worker or sent to the AI.
 ANSWER_KEY_FIELDS = [
@@ -51,3 +53,30 @@ def claim_from_row(row, assigned_to=None):
         values[column] = Decimal(values[column]) if values[column] else None
     values["status"] = values["status"] or ClaimStatus.NEW
     return Claim(**values, work_status=values["status"], assigned_to=assigned_to)
+
+
+def filing_limits():
+    """Each payer's filing limit in days, from its filing_limit rule."""
+    rules = PayerRule.objects.filter(filing_limit_days__isnull=False)
+    return {rule.payer_name: rule.filing_limit_days for rule in rules}
+
+
+def days_left_to_file(claim, limits):
+    """The payer's filing limit minus the days since the date of service, counted from DEMO_TODAY."""
+    limit = limits.get(claim.payer_name)
+    if limit is None:
+        return None
+    return limit - (settings.DEMO_TODAY - claim.date_of_service).days
+
+
+def days_left_tone(days):
+    """How to show days left: expired below zero, red under 15, amber under 30."""
+    if days is None:
+        return ""
+    if days < 0:
+        return "expired"
+    if days < 15:
+        return "red"
+    if days < 30:
+        return "amber"
+    return ""

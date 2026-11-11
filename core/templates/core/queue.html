@@ -1,0 +1,23 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}My Queue{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <h1 class="text-2xl">My Queue</h1>
+    <p class="mt-1 text-muted"><span class="code font-semibold text-primary-strong">{{ open_count }}</span> open claim{{ open_count|pluralize }}</p>
+  </div>
+</div>
+
+<div class="card mt-6">
+  <div class="border-b border-border p-4">
+    <label class="sr-only" for="queue-search">Search by claim ID or patient last name</label>
+    <div class="relative max-w-md">
+      <span class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted">{% icon "search" %}</span>
+      <input id="queue-search" type="search" name="q" value="{{ query }}" class="input pl-9" placeholder="Search by claim ID or last name" autocomplete="off"
+             hx-get="{% url 'queue' %}" hx-trigger="input changed delay:250ms, search" hx-target="#queue-results" hx-include="#queue-tab">
+    </div>
+  </div>
+  <div id="queue-results">{% include "core/partials/queue_table.html" %}</div>
+</div>
+{% endblock %}
