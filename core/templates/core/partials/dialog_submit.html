@@ -1,0 +1,5 @@
+<p>Your changes are saved. The AI review flagged {{ confirm_issues|length }} issue{{ confirm_issues|length|pluralize }} that may still be open:</p>
+<ul class="mt-3 space-y-2">
+  {% for card in confirm_issues %}<li class="rounded-lg border border-warning/40 bg-warning-soft px-3 py-2 font-medium">{{ card.minimal }}</li>{% endfor %}
+</ul>
+<p class="mt-3 text-muted">Cancel to keep working, or submit the claim as it is.</p>

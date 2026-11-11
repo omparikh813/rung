@@ -1,0 +1,10 @@
+{% load rung %}
+{% if claim.status == "denied" %}
+<div class="alert alert-error mt-4" role="note">
+  {% icon "circle-x" "mt-0.5 size-5" %}
+  <div>
+    <p class="font-semibold">Denied by the payer: <span class="code">{{ claim.denial_code }}</span></p>
+    <p class="font-normal">{{ claim.denial_reason }}</p>
+  </div>
+</div>
+{% endif %}

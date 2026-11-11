@@ -1,0 +1,22 @@
+{% if history %}
+<ol class="divide-y divide-border">
+  {% for event in history %}
+  <li class="flex flex-col gap-0.5 py-2.5 text-sm sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+    <span>
+      <span class="font-medium text-navy">{{ event.user.first_name|default:event.user.username|default:"RUNG" }}</span>
+      {% if event.action == "edit" %}changed {{ event.label }} from <span class="code">{{ event.old_value|default:"empty" }}</span> to <span class="code">{{ event.new_value|default:"empty" }}</span>.
+      {% elif event.action == "check" %}ran the AI review. {{ event.new_value }}.
+      {% elif event.action == "answer_shown" %}showed an answer{% if event.label %} for {{ event.label }}{% endif %}.
+      {% elif event.action == "submit" %}submitted the claim.
+      {% elif event.action == "close" %}closed the claim. Reason: {{ event.new_value }}.
+      {% elif event.action == "escalate" %}asked a specialist: {{ event.new_value }}
+      {% elif event.action == "resolve" %}resolved the help request ({{ event.old_value }}). Note: {{ event.new_value }}
+      {% endif %}
+    </span>
+    <time class="shrink-0 text-xs text-muted" datetime="{{ event.created_at|date:'c' }}">{{ event.created_at|date:"M j, g:i A" }}</time>
+  </li>
+  {% endfor %}
+</ol>
+{% else %}
+<p class="text-sm text-muted">Nothing yet. Every change, check, and action on this claim will be listed here.</p>
+{% endif %}

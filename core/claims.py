@@ -7,7 +7,7 @@ from decimal import Decimal
 
 from django.conf import settings
 
-from .models import CaseEntry, Claim, ClaimStatus, PayerRule
+from .models import CaseEntry, Claim, ClaimEvent, ClaimStatus, EventAction, PayerRule
 
 # The answer key. Stored for scoring, never shown to a worker or sent to the AI.
 ANSWER_KEY_FIELDS = [
@@ -32,6 +32,23 @@ CSV_COLUMNS = [
     "denial_code", "denial_reason",
     *ANSWER_KEY_FIELDS,
 ]  # fmt: skip
+
+# The claim form, in the order and groups a worker sees.
+FIELD_GROUPS = [
+    ("Patient and Coverage", "user", [
+        "patient_first", "patient_last", "patient_dob", "patient_sex",
+        "payer_name", "member_id", "secondary_payer", "eligibility_note",
+    ]),
+    ("Provider", "users", ["rendering_provider", "place_of_service", "rendering_npi", "billing_npi"]),
+    ("Service Lines", "list-checks", [
+        "date_of_service",
+        "cpt_1", "modifiers_1", "units_1", "charge_1",
+        "cpt_2", "modifiers_2", "units_2", "charge_2",
+    ]),
+    ("Diagnoses", "file-text", ["icd10_primary", "icd10_secondary"]),
+    ("Authorization and Documents", "library", ["prior_auth_number", "referral_number", "ndc_code", "attachments"]),
+]  # fmt: skip
+FORM_FIELDS = [name for _, _, fields in FIELD_GROUPS for name in fields]
 
 DATE_COLUMNS = ["patient_dob", "date_of_service"]
 INTEGER_COLUMNS = ["units_1", "units_2", "difficulty"]
@@ -105,3 +122,42 @@ def similar_cases(claim, limit=3):
     # CaseEntry is ordered newest first, and sorting by rank keeps that order within a rank.
     ranked.sort(key=lambda pair: pair[0])
     return [entry for _, entry in ranked[:limit]]
+
+
+def visible_claims():
+    """Claims without the answer key loaded, for anything that reaches a template."""
+    return Claim.objects.defer(*ANSWER_KEY_FIELDS)
+
+
+def field_label(name):
+    try:
+        return str(Claim._meta.get_field(name).verbose_name)
+    except Exception:
+        return name
+
+
+def save_claim_form(form, user):
+    """Save a valid claim form and log one ClaimEvent per changed field. Returns the changed field names."""
+    events = [
+        ClaimEvent(
+            claim=form.instance,
+            user=user,
+            action=EventAction.EDIT,
+            field=name,
+            old_value="" if form.initial.get(name) is None else str(form.initial.get(name)),
+            new_value="" if form.cleaned_data[name] is None else str(form.cleaned_data[name]),
+        )
+        for name in form.changed_data
+    ]
+    if events:
+        form.save()
+        ClaimEvent.objects.bulk_create(events)
+    return [event.field for event in events]
+
+
+def claim_history(claim):
+    """The claim's audit log, newest first, with a readable label for each changed field."""
+    events = list(claim.events.select_related("user"))
+    for event in events:
+        event.label = field_label(event.field) if event.field else ""
+    return events

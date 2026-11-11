@@ -1,0 +1,41 @@
+{% load rung %}
+<div id="review-panel" class="review-content flex animate-fade-in flex-col gap-3"
+     {% if auto_review %}hx-get="{% url 'claim_review' claim.pk %}" hx-trigger="load" hx-target="this" hx-swap="outerHTML" hx-indicator="#review-wrap"{% endif %}>
+  {% if form_error %}
+  <div class="alert alert-error" role="alert">
+    {% icon "circle-x" "mt-0.5 size-4" %}<span>Some fields need a fix before RUNG can check the claim. Look for the red messages in the form.</span>
+  </div>
+  {% elif review_error %}
+  <div class="alert alert-error" role="alert">
+    {% icon "circle-x" "mt-0.5 size-4" %}
+    <div>
+      <p>RUNG could not check this claim just now. Your work is safe.</p>
+      {% if missing_key %}<p class="mt-1 font-normal">Setup note: OPENROUTER_API_KEY is not set in .env.</p>{% endif %}
+    </div>
+  </div>
+  <button type="button" class="btn btn-secondary" hx-get="{% url 'claim_review' claim.pk %}" hx-target="#review-panel" hx-swap="outerHTML" hx-indicator="#review-wrap" hx-disabled-elt="this">{% icon "refresh-cw" %}Try again</button>
+  {% elif review %}
+    {% if cards %}
+    <p class="text-sm text-text">{{ review.result_json.summary }}</p>
+    {% else %}
+    <div class="flex items-start gap-2 rounded-lg bg-jade-soft px-3 py-2.5 text-sm font-medium text-jade-strong">
+      {% icon "circle-check" "mt-0.5 size-4" %}
+      <div><p>No issues found. This claim is ready to submit.</p>{% if review.result_json.summary %}<p class="mt-1 font-normal text-text">{{ review.result_json.summary }}</p>{% endif %}</div>
+    </div>
+    {% endif %}
+    {% if stale %}
+    <p class="alert alert-info">{% icon "info" "mt-0.5 size-4" %}<span>The claim changed after this check. Use Re-check claim to update it.</span></p>
+    {% endif %}
+    {% if review.result_json.escalate %}
+    <div class="alert alert-info">
+      {% icon "life-buoy" "mt-0.5 size-4" %}
+      <div><p>RUNG suggests asking a specialist. That is a good call, not a failure.</p>{% if review.result_json.escalate_reason %}<p class="mt-1 font-normal">{{ review.result_json.escalate_reason }}</p>{% endif %}</div>
+    </div>
+    {% endif %}
+    {% for card in cards %}{% include "core/partials/issue_card.html" %}{% endfor %}
+  {% elif auto_review %}
+    {% include "core/partials/review_skeleton.html" %}
+  {% else %}
+  <p class="text-sm text-muted">No AI review was run for this claim.</p>
+  {% endif %}
+</div>

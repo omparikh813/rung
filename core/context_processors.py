@@ -8,7 +8,7 @@ from .models import Role
 # Sidebar links in display order: URL name, label, icon, roles, and the URL names
 # that keep the link highlighted. A role's first link is its landing page.
 NAV = [
-    ("queue", "My Queue", "list-checks", {Role.WORKER}, ()),
+    ("queue", "My Queue", "list-checks", {Role.WORKER}, ("claim",)),
 ]
 
 

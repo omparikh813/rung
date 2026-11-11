@@ -1,0 +1,21 @@
+{% load rung %}
+{# card: one AI issue with the text for the worker's help level. Clicking it jumps to the flagged field. #}
+<article class="rounded-lg border p-3 text-sm transition duration-200 {% if card.addressed %}border-border bg-background{% else %}border-warning/40 bg-warning-soft{% endif %} {% if card.fields %}cursor-pointer hover:shadow-md{% endif %}"
+         {% if card.fields %}@click="const f = document.getElementById('id_{{ card.fields.0 }}'); if (f) { f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); f.classList.add('is-pulsing'); setTimeout(() => f.classList.remove('is-pulsing'), 400) }"{% endif %}>
+  <div class="flex flex-wrap items-center gap-2">
+    <span class="badge badge-level">{{ card.level_label }}</span>
+    <span class="font-semibold text-navy">{{ card.category_label }}</span>
+    {% if card.confidence == "low" %}<span class="badge badge-neutral">Low confidence</span>{% endif %}
+    {% if card.addressed %}<span class="badge badge-neutral">{% icon "check" "size-3.5" %}Changed since check</span>{% endif %}
+  </div>
+  <p class="mt-2 text-text">{{ card.text }}</p>
+  {% if card.level == "full" and card.suggested_value %}<p class="mt-2 text-xs text-muted">Suggested value: <span class="code font-semibold text-navy">{{ card.suggested_value }}</span></p>{% endif %}
+  {% if card.escalate %}<p class="mt-2 flex items-center gap-1.5 text-xs font-medium text-primary-strong">{% icon "life-buoy" %}A specialist should look at this one.</p>{% endif %}
+  {% if card.fields %}<button type="button" class="link mt-2 inline-flex items-center gap-1 text-xs">Go to the field{% icon "chevron-right" "size-3" %}</button>{% endif %}
+  {% if card.level != "full" %}
+  <div id="answer-{{ card.index }}" class="mt-1">
+    {% if card.answer_shown %}{% include "core/partials/answer.html" with issue=card %}
+    {% else %}<button type="button" class="btn btn-quiet -ml-2" hx-post="{% url 'claim_answer' claim.pk card.index %}" hx-target="#answer-{{ card.index }}" hx-swap="innerHTML" hx-disabled-elt="this" @click.stop>{% icon "eye" %}Show answer</button>{% endif %}
+  </div>
+  {% endif %}
+</article>

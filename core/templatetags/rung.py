@@ -36,3 +36,9 @@ def icon(name, css="size-4"):
 def get_item(mapping, key):
     """Look up a dict value by a variable key."""
     return mapping.get(key) if mapping else None
+
+
+@register.filter
+def field_wrap(name):
+    """Grid classes for a claim form field. The date of service gets a row to itself."""
+    return "@md:col-span-2 @md:max-w-[calc(50%-0.5rem)]" if name == "date_of_service" else ""

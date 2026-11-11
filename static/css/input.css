@@ -239,6 +239,17 @@
     @apply inline-flex;
   }
 
+  /* The AI review panel swaps to skeleton lines while a review request runs. */
+  .review-loading {
+    @apply hidden;
+  }
+  .htmx-request .review-loading {
+    @apply block;
+  }
+  .htmx-request .review-content {
+    @apply hidden;
+  }
+
   /* Dialogs: native <dialog>, so Escape closes and focus stays inside. */
   .dialog {
     @apply m-auto w-[min(92vw,500px)] rounded-2xl border border-border bg-card p-0 text-text shadow-lg;

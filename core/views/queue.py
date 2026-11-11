@@ -1,9 +1,9 @@
 from django.db.models import Q
 from django.shortcuts import render
 
-from ..claims import days_left_to_file, days_left_tone, filing_limits
+from ..claims import days_left_to_file, days_left_tone, filing_limits, visible_claims
 from ..decorators import role_required
-from ..models import DONE_STATUSES, OPEN_STATUSES, Claim, Role, WorkStatus
+from ..models import DONE_STATUSES, OPEN_STATUSES, Role, WorkStatus
 
 # Tab key, label, statuses, and the sentence shown when the tab is empty.
 TABS = [
@@ -17,7 +17,7 @@ TABS = [
 
 @role_required(Role.WORKER)
 def queue(request):
-    claims = Claim.objects.filter(assigned_to=request.user)
+    claims = visible_claims().filter(assigned_to=request.user)
     statuses = list(claims.values_list("work_status", flat=True))
     tabs = [
         {"key": key, "label": label, "count": sum(status in group for status in statuses), "empty": empty}

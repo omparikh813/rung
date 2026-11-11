@@ -1,0 +1,5 @@
+<p>Closing takes this claim out of your open queue. Choose the reason.</p>
+<label class="label mt-4" for="close-reason">Reason</label>
+<select id="close-reason" name="close_reason" form="claim-form" class="input">
+  {% for value, label in close_reasons %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+</select>

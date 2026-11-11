@@ -27,8 +27,8 @@
       </thead>
       <tbody>
         {% for claim in claims %}
-        <tr>
-          <td class="code font-medium whitespace-nowrap text-navy">{{ claim.claim_id }}</td>
+        <tr class="row-link" tabindex="0" aria-label="Open claim {{ claim.claim_id }}" @click="window.location = '{% url 'claim' claim.pk %}'" @keydown.enter="window.location = '{% url 'claim' claim.pk %}'">
+          <td><a class="link code whitespace-nowrap" href="{% url 'claim' claim.pk %}" tabindex="-1">{{ claim.claim_id }}</a></td>
           <td class="whitespace-nowrap">{{ claim.patient_last }}, {{ claim.patient_first|slice:":1" }}.</td>
           <td class="whitespace-nowrap">{{ claim.payer_name }}</td>
           <td class="code whitespace-nowrap">{{ claim.date_of_service|date:"Y-m-d" }}</td>

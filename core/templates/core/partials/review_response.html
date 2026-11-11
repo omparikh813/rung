@@ -1,0 +1,7 @@
+{# The HTMX reply to a review request: the help panel, plus out of band updates for the rest of the page. #}
+{% include "core/partials/review_panel.html" %}
+<span id="claim-status" hx-swap-oob="true">{% include "core/partials/status_badge.html" with status=claim.work_status %}</span>
+{% for group in groups %}{% for item in group.fields %}
+<div id="hint-{{ item.field.name }}" hx-swap-oob="true">{% include "core/partials/field_hint.html" with errors=item.field.errors hint=item.hint %}</div>
+{% endfor %}{% endfor %}
+<div id="claim-history" class="mt-2" hx-swap-oob="true">{% include "core/partials/history.html" %}</div>
