@@ -11,8 +11,8 @@
   </div>
 
   {% if claims %}
-  <div class="overflow-x-auto lg:overflow-visible">
-    <table class="table lg:[&_th]:top-16">
+  <div class="overflow-x-auto xl:overflow-visible">
+    <table class="table xl:[&_th]:top-16">
       <thead>
         <tr>
           <th scope="col">Claim ID</th>
@@ -31,7 +31,7 @@
         <tr class="row-link" tabindex="0" aria-label="Open claim {{ claim.claim_id }}" @click="window.location = '{% url 'claim' claim.pk %}'" @keydown.enter="window.location = '{% url 'claim' claim.pk %}'">
           <td><a class="link code whitespace-nowrap" href="{% url 'claim' claim.pk %}" tabindex="-1">{{ claim.claim_id }}</a></td>
           <td class="whitespace-nowrap">{{ claim.patient_last }}, {{ claim.patient_first|slice:":1" }}.</td>
-          <td class="whitespace-nowrap">{{ claim.payer_name }}</td>
+          <td class="min-w-32">{{ claim.payer_name }}</td>
           <td class="code whitespace-nowrap">{{ claim.date_of_service|date:"Y-m-d" }}</td>
           <td class="code whitespace-nowrap">{{ claim.cpt_1 }}{% if claim.cpt_2 %}, {{ claim.cpt_2 }}{% endif %}</td>
           <td>{% include "core/partials/status_badge.html" with status=claim.work_status %}</td>

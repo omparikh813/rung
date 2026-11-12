@@ -27,9 +27,14 @@ and percent (shown as a progress ring with ring_label).
     </div>
   </div>
   {% if tiles %}
-  <div class="relative mt-6 grid grid-cols-2 gap-3 {% if tiles|length == 5 %}sm:grid-cols-3 xl:grid-cols-5{% elif tiles|length == 3 %}sm:grid-cols-3{% else %}lg:grid-cols-4{% endif %}">
+  {% if tiles|length == 5 %}
+  {# Five tiles: one line on laptops and up, a row you can swipe on phones. #}
+  <div class="relative -mx-2 mt-6 flex snap-x gap-3 overflow-x-auto px-2 pb-2 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0 lg:pb-0" tabindex="0" aria-label="Claim counts">
+  {% else %}
+  <div class="relative mt-6 grid grid-cols-2 gap-3 {% if tiles|length == 3 %}sm:grid-cols-3{% else %}lg:grid-cols-4{% endif %}">
+  {% endif %}
     {% for tile in tiles %}
-    <div class="stat-tile">
+    <div class="stat-tile {% if tiles|length == 5 %}min-w-40 shrink-0 snap-start gap-2.5 px-3 lg:min-w-0 [&_.icon-tile]:size-9{% endif %}">
       <span class="icon-tile">{% icon tile.icon "size-5" %}</span>
       <div>
         <p class="code text-2xl leading-none font-semibold text-forest">{% include "core/partials/count_up.html" with value=tile.value on_view=False %}</p>

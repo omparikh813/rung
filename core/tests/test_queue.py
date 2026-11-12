@@ -72,6 +72,8 @@ class QueueTests(SeededTestCase):
         Claim.objects.filter(claim_id="CLM-1012").update(work_status=WorkStatus.NEEDS_FIX)
         tiles = {tile["label"]: tile["value"] for tile in self.get().context["tiles"]}
         self.assertEqual(tiles, {"Open claims": 30, "Need a fix": 1, "Denied": 6, "With a specialist": 0, "Done": 0})
+        # All five sit on one line on laptops, and in a row you can swipe on phones.
+        self.assertContains(self.get(), "lg:grid lg:grid-cols-5")
 
     def test_search_by_claim_id_or_last_name(self):
         self.assertEqual([c.claim_id for c in self.get(q="1012").context["claims"]], ["CLM-1012"])
