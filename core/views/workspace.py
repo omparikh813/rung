@@ -12,6 +12,7 @@ from ..ai import AIError, claim_version_hash, latest_review
 from ..claims import FIELD_GROUPS, claim_history, save_claim_form, similar_cases, visible_claims
 from ..decorators import role_required, user_role
 from ..forms import ClaimForm
+from .. import payer
 from ..models import ClaimEvent, EventAction, FinalAction, HelpLevel, HelpRequest, RequestStatus, Role, WorkStatus
 from ..reviews import field_hints, issue_cards, open_high_confidence, run_review
 from ..skills import PLAIN_NAMES, score_claim
@@ -131,7 +132,17 @@ def submit_claim(request, claim):
     claim.save(update_fields=["work_status", "updated_at"])
     ClaimEvent.objects.create(claim=claim, user=request.user, action=EventAction.SUBMIT)
     score_final_action(request, claim, FinalAction.SUBMIT)
-    messages.success(request, f"{claim.claim_id} submitted.")
+    answer = payer.respond(claim, request.user)
+    if answer == "paid":
+        messages.success(request, f"{claim.claim_id} submitted. The payer paid it.")
+    elif answer == "denied":
+        claim.refresh_from_db(fields=["denial_code", "denial_reason"])
+        messages.error(
+            request,
+            f"{claim.claim_id} was denied by the payer ({claim.denial_code}). It is back in your queue to fix.",
+        )
+    else:
+        messages.success(request, f"{claim.claim_id} submitted.")
     return redirect("queue")
 
 

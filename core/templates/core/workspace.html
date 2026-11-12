@@ -11,7 +11,7 @@
 {% if not editable %}
 <div class="alert alert-info mt-4" role="note">
   {% icon "info" "mt-0.5 size-4" %}
-  <span>{% if claim.work_status == "waiting" %}This claim is with a specialist. It will come back to your queue when they are done.{% elif claim.work_status == "submitted" %}This claim was submitted. It can no longer be changed.{% else %}This claim is closed. It can no longer be changed.{% endif %}</span>
+  <span>{% if claim.work_status == "waiting" %}This claim is with a specialist. It will come back to your queue when they are done.{% elif claim.work_status == "paid" %}The payer paid this claim. It can no longer be changed.{% elif claim.work_status == "submitted" %}This claim was submitted. It can no longer be changed.{% else %}This claim is closed. It can no longer be changed.{% endif %}</span>
 </div>
 {% endif %}
 

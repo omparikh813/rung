@@ -211,7 +211,8 @@ class HelpDetailTests(HelpTestCase):
         self.assertRedirects(response, reverse("help_list"))
         self.assertContains(response, "Request for CLM-1021 resolved. The fix was saved to the Case Library.")
         claim = self.refresh()
-        self.assertEqual((claim.work_status, claim.help_request_open, claim.modifiers_1), (WorkStatus.SUBMITTED, False, "GY"))
+        # A claim a specialist fixed and submitted is paid by the simulated payer.
+        self.assertEqual((claim.work_status, claim.help_request_open, claim.modifiers_1), (WorkStatus.PAID, False, "GY"))
         help_request.refresh_from_db()
         self.assertEqual(help_request.status, RequestStatus.RESOLVED)
         self.assertEqual((help_request.specialist, help_request.outcome), (self.dan, Outcome.SUBMITTED))
@@ -229,7 +230,7 @@ class HelpDetailTests(HelpTestCase):
     def test_each_outcome_sets_the_claim_status(self):
         expected = {
             Outcome.RETURNED: WorkStatus.READY,
-            Outcome.SUBMITTED: WorkStatus.SUBMITTED,
+            Outcome.SUBMITTED: WorkStatus.PAID,
             Outcome.WRITE_OFF: WorkStatus.CLOSED,
             Outcome.APPEAL: WorkStatus.CLOSED,
         }
@@ -267,7 +268,7 @@ class HelpDetailTests(HelpTestCase):
         self.assertTrue(page.context["editable"])
         self.assertContains(page, "Fixed the code. Please submit.")
         self.client.post(self.claim_url, self.claim_data(action="submit_confirmed"))
-        self.assertEqual(self.refresh().work_status, WorkStatus.SUBMITTED)
+        self.assertEqual(self.refresh().work_status, WorkStatus.PAID)
         self.assertEqual(Attempt.objects.count(), 1)
 
     def test_resolved_request_is_read_only(self):

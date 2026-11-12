@@ -260,12 +260,13 @@ class SubmitAndCloseTests(WorkspaceTestCase):
         self.assertContains(page, ISSUE["minimal"])
         self.assertContains(page, 'value="submit_confirmed"')
 
-    def test_confirming_submits_the_claim(self):
+    def test_confirming_submits_the_claim_and_the_payer_denies_it(self):
         self.review()
         response = self.client.post(self.url, self.form_data(action="submit_confirmed"), follow=True)
         self.assertRedirects(response, reverse("queue"))
-        self.assertContains(response, "CLM-1012 submitted.")
-        self.assertEqual(self.refresh().work_status, WorkStatus.SUBMITTED)
+        # The missing modifier was never added, so the simulated payer denies the claim.
+        self.assertContains(response, "CLM-1012 was denied by the payer (CO-4). It is back in your queue to fix.")
+        self.assertEqual(self.refresh().work_status, WorkStatus.DENIED)
         self.assertEqual(ClaimEvent.objects.filter(claim=self.claim, action=EventAction.SUBMIT).count(), 1)
 
     def test_fixing_the_flagged_field_submits_without_asking(self):
@@ -273,18 +274,22 @@ class SubmitAndCloseTests(WorkspaceTestCase):
         response = self.client.post(self.url, self.form_data(modifiers_1="25", action="submit"))
         self.assertRedirects(response, reverse("queue"))
         claim = self.refresh()
-        self.assertEqual((claim.work_status, claim.modifiers_1), (WorkStatus.SUBMITTED, "25"))
+        self.assertEqual((claim.work_status, claim.modifiers_1), (WorkStatus.PAID, "25"))
         actions = list(ClaimEvent.objects.filter(claim=claim).order_by("id").values_list("action", flat=True))
-        self.assertEqual(actions, [EventAction.EDIT, EventAction.SUBMIT])
+        self.assertEqual(actions, [EventAction.EDIT, EventAction.SUBMIT, EventAction.PAYER])
 
     def test_low_confidence_issue_does_not_block_submit(self):
         self.review({**NEEDS_FIX, "issues": [{**ISSUE, "confidence": "low"}]})
         self.assertRedirects(self.client.post(self.url, self.form_data(action="submit")), reverse("queue"))
 
     def test_ready_claim_submits_directly(self):
+        self.claim = Claim.objects.get(claim_id="CLM-1001")
+        self.url = reverse("claim", args=[self.claim.pk])
         self.review(READY)
-        self.assertRedirects(self.client.post(self.url, self.form_data(action="submit")), reverse("queue"))
-        self.assertEqual(self.refresh().work_status, WorkStatus.SUBMITTED)
+        response = self.client.post(self.url, self.form_data(action="submit"), follow=True)
+        self.assertRedirects(response, reverse("queue"))
+        self.assertContains(response, "CLM-1001 submitted. The payer paid it.")
+        self.assertEqual(self.refresh().work_status, WorkStatus.PAID)
 
     def test_close_needs_a_reason_and_logs_it(self):
         response = self.client.post(self.url, {"action": "close", "close_reason": ""}, follow=True)
@@ -298,6 +303,8 @@ class SubmitAndCloseTests(WorkspaceTestCase):
         self.assertEqual(event.new_value, "Duplicate")
 
     def test_done_claim_is_read_only(self):
+        Claim.objects.filter(pk=self.claim.pk).update(work_status=WorkStatus.PAID)
+        self.assertContains(self.client.get(self.url), "The payer paid this claim. It can no longer be changed.")
         Claim.objects.filter(pk=self.claim.pk).update(work_status=WorkStatus.SUBMITTED)
         response = self.client.get(self.url)
         self.assertFalse(response.context["editable"])
