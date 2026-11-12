@@ -2,8 +2,8 @@
 {% load rung %}
 {% block title %}My Queue{% endblock %}
 {% block content %}
-{% url 'upload' as upload_url %}
-{% include "core/partials/page_hero.html" with eyebrow="My Queue" title="Good to see you, "|add:user.first_name|default:"My Queue" subtitle="Work the claims with the fewest days left first. Open one and RUNG checks it with you." tiles=tiles percent=done_percent ring_label="of your claims done" action_url=upload_url action_label="Upload claims" action_icon="upload" %}
+{% url 'claim_new' as new_url %}
+{% include "core/partials/page_hero.html" with eyebrow="My Queue" title="Good to see you, "|add:user.first_name|default:"My Queue" subtitle="Work the claims with the fewest days left first. Open one and RUNG checks it with you." tiles=tiles percent=done_percent ring_label="of your claims done" action_url=new_url action_label="Create a claim" action_icon="plus" %}
 
 <div class="card mt-6 animate-slide-in" style="animation-delay: 80ms">
   <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border p-4">

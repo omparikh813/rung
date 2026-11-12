@@ -9,9 +9,9 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from ..ai import AIError, claim_version_hash, latest_review
-from ..claims import FIELD_GROUPS, claim_history, save_claim_form, similar_cases, visible_claims
+from ..claims import FIELD_GROUPS, claim_history, next_claim_id, save_claim_form, similar_cases, visible_claims
 from ..decorators import role_required, user_role
-from ..forms import ClaimForm
+from ..forms import ClaimForm, NewClaimForm
 from .. import payer
 from ..models import ClaimEvent, EventAction, FinalAction, HelpLevel, HelpRequest, RequestStatus, Role, WorkStatus
 from ..reviews import field_hints, issue_cards, open_high_confidence, run_review
@@ -79,6 +79,26 @@ def render_workspace(request, claim, form):
         confirm_issues=open_high_confidence(context["cards"]) if request.GET.get("confirm") == "submit" else [],
     )
     return render(request, "core/workspace.html", context)
+
+
+@role_required(Role.WORKER)
+def claim_new(request):
+    """Create one claim with a form. It is assigned to the worker and checked as soon as it opens."""
+    form = NewClaimForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        claim = form.save(commit=False)
+        claim.claim_id = next_claim_id()
+        claim.assigned_to = request.user
+        claim.save()
+        messages.success(request, f"{claim.claim_id} created. RUNG is checking it now.")
+        return redirect("claim", pk=claim.pk)
+    if request.method == "POST":
+        messages.error(request, "Some fields need a fix before the claim can be created.")
+    groups = [
+        {"title": title, "icon": icon, "fields": [{"field": form[name], "hint": ""} for name in fields]}
+        for title, icon, fields in FIELD_GROUPS
+    ]
+    return render(request, "core/claim_new.html", {"form": form, "groups": groups})
 
 
 @role_required(Role.WORKER, Role.SPECIALIST)
