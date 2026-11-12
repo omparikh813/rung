@@ -48,8 +48,8 @@ class DemoUploadTests(UploadTestCase):
         rows = response.context["preview"]
         self.assertEqual([item["row"]["claim_id"] for item in rows], ["CLM-2001", "CLM-2002", "CLM-2003"])
         self.assertEqual([bool(item["errors"]) for item in rows], [False, False, True])
-        self.assertEqual(rows[2]["errors"], ["date_of_service is missing"])
-        self.assertContains(response, "Not imported: date_of_service is missing.")
+        self.assertEqual(rows[2]["errors"], ["Date of service is missing"])
+        self.assertContains(response, "Not imported: Date of service is missing.")
         self.assertEqual((response.context["valid_count"], response.context["invalid_count"]), (2, 1))
         self.assertContains(response, "Import 2 valid rows")
         # Nothing is imported at the preview step.
@@ -98,8 +98,10 @@ class RowValidationTests(UploadTestCase):
         self.assertEqual(self.errors(), [])
 
     def test_each_required_value(self):
-        for name in ("claim_id", "patient_first", "patient_last", "payer_name", "date_of_service", "cpt_1", "icd10_primary"):
-            self.assertEqual(self.errors(**{name: ""}), [f"{name} is missing"])
+        labels = {"claim_id": "Claim ID", "patient_first": "First name", "patient_last": "Last name", "payer_name": "Payer",
+                  "date_of_service": "Date of service", "cpt_1": "CPT (line 1)", "icd10_primary": "Primary ICD-10"}
+        for name, label in labels.items():
+            self.assertEqual(self.errors(**{name: ""}), [f"{label} is missing"])
 
     def test_duplicate_of_an_existing_claim(self):
         self.assertEqual(self.errors(claim_id="CLM-1001"), ["claim ID CLM-1001 already exists"])
@@ -114,24 +116,24 @@ class RowValidationTests(UploadTestCase):
         self.assertEqual(self.errors(payer_name="All payers"), ["payer All payers is not in the payer rules"])
 
     def test_dates_must_be_yyyy_mm_dd(self):
-        message = "date_of_service must be a real date written as YYYY-MM-DD"
+        message = "Date of service must be a real date written as YYYY-MM-DD"
         for bad in ("11/01/2026", "2026-13-01", "2026-02-30", "20261101", "2026-1-1"):
             self.assertEqual(self.errors(date_of_service=bad), [message], bad)
         rows = self.preview_rows({"patient_dob": "01/02/1980"}, columns=[*GOOD, "patient_dob"])
-        self.assertEqual(rows[0]["errors"], ["patient_dob must be a real date written as YYYY-MM-DD"])
+        self.assertEqual(rows[0]["errors"], ["Date of birth must be a real date written as YYYY-MM-DD"])
 
     def test_status_units_and_charges(self):
         columns = [*GOOD, "status", "units_1", "charge_1"]
         rows = self.preview_rows({"status": "paid", "units_1": "two", "charge_1": "lots"}, columns=columns)
         self.assertEqual(
             rows[0]["errors"],
-            ["status must be new or denied", "units_1 must be a whole number", "charge_1 must be an amount such as 150.00"],
+            ["Status must be new or denied", "Units (line 1) must be a whole number", "Charge (line 1) must be an amount such as 150.00"],
         )
 
     def test_text_that_is_too_long_is_caught(self):
         errors = self.errors(cpt_1="9" * 40)
         self.assertEqual(len(errors), 1)
-        self.assertIn("cpt_1", errors[0])
+        self.assertIn("CPT (line 1)", errors[0])
 
     def test_answer_key_columns_are_optional_and_such_claims_are_not_scored(self):
         self.assertFalse(set(GOOD) & set(ANSWER_KEY_FIELDS))

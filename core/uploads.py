@@ -8,7 +8,15 @@ from decimal import Decimal, InvalidOperation
 
 from django.core.exceptions import ValidationError
 
-from .claims import ANSWER_KEY_FIELDS, CSV_COLUMNS, DATE_COLUMNS, DECIMAL_COLUMNS, INTEGER_COLUMNS, claim_from_row
+from .claims import (
+    ANSWER_KEY_FIELDS,
+    CSV_COLUMNS,
+    DATE_COLUMNS,
+    DECIMAL_COLUMNS,
+    INTEGER_COLUMNS,
+    claim_from_row,
+    field_label,
+)
 from .models import Claim, ClaimStatus, PayerRule
 
 REQUIRED_COLUMNS = ["claim_id", "patient_first", "patient_last", "payer_name", "date_of_service", "cpt_1", "icd10_primary"]
@@ -46,7 +54,7 @@ def read_upload(upload):
 
 def row_errors(row, known_payers, taken_ids):
     """Every problem with one row, in plain words."""
-    errors = [f"{name} is missing" for name in REQUIRED_COLUMNS if not row[name]]
+    errors = [f"{field_label(name)} is missing" for name in REQUIRED_COLUMNS if not row[name]]
     if row["claim_id"] and row["claim_id"] in taken_ids:
         errors.append(f"claim ID {row['claim_id']} already exists")
     if row["payer_name"] and row["payer_name"] not in known_payers:
@@ -58,25 +66,25 @@ def row_errors(row, known_payers, taken_ids):
             except ValueError:
                 valid = False
             if not valid:
-                errors.append(f"{name} must be a real date written as YYYY-MM-DD")
+                errors.append(f"{field_label(name)} must be a real date written as YYYY-MM-DD")
     if row["status"] and row["status"] not in ClaimStatus.values:
-        errors.append("status must be new or denied")
+        errors.append("Status must be new or denied")
     for name in INTEGER_COLUMNS:
         if row[name] and not row[name].isdigit():
-            errors.append(f"{name} must be a whole number")
+            errors.append(f"{field_label(name)} must be a whole number")
     for name in DECIMAL_COLUMNS:
         if row[name]:
             try:
                 if not Decimal(row[name]).is_finite():
                     raise InvalidOperation
             except InvalidOperation:
-                errors.append(f"{name} must be an amount such as 150.00")
+                errors.append(f"{field_label(name)} must be an amount such as 150.00")
     if not errors:
         # A last check against the model catches anything else, such as text that is too long.
         try:
             claim_from_row(row).full_clean(exclude=["assigned_to"], validate_unique=False)
         except ValidationError as error:
-            errors.extend(f"{name}: {' '.join(messages)}" for name, messages in error.message_dict.items())
+            errors.extend(f"{field_label(name)}: {' '.join(messages)}" for name, messages in error.message_dict.items())
     return errors
 
 

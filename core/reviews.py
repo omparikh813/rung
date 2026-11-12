@@ -3,13 +3,15 @@
 import re
 
 from .ai import latest_review, review_claim
-from .claims import FORM_FIELDS, field_label
+from .claims import ANSWER_KEY_FIELDS, CSV_COLUMNS, FORM_FIELDS, field_label
 from .models import Category, ClaimEvent, EventAction, HelpLevel, WorkStatus
 from .skills import help_level, help_levels
 
 
-# Field names such as icd10_primary, longest first so modifiers_1 is not cut short.
-_FIELD_NAME = re.compile(r"\b(" + "|".join(sorted(FORM_FIELDS, key=len, reverse=True)) + r")\b")
+# Every claim field name with an underscore, such as icd10_primary, denial_code, or ndc_code.
+# Longest first, so modifiers_1 is not cut short. The answer key is left out.
+_NAMES = [name for name in CSV_COLUMNS if "_" in name and name not in ANSWER_KEY_FIELDS]
+_FIELD_NAME = re.compile(r"\b(" + "|".join(sorted(_NAMES, key=len, reverse=True)) + r")\b")
 
 
 def plain_fields(text):

@@ -408,6 +408,11 @@ class PlainFieldNameTests(WorkspaceTestCase):
         text = plain_fields("icd10_primary and modifiers_1 need a fix; cpt_1 is fine. Not a field: icd10_primaryx")
         self.assertEqual(text, "Primary ICD-10 and Modifiers (line 1) need a fix; CPT (line 1) is fine. Not a field: icd10_primaryx")
 
+    def test_every_claim_field_name_is_covered(self):
+        text = plain_fields("denial_code CO-16; ndc_code missing; date_of_service late; prior_auth_number and place_of_service ok")
+        self.assertEqual(text, "Denial code CO-16; NDC code missing; Date of service late; Prior auth number and Place of service ok")
+        self.assertEqual(plain_fields("expected_action"), "expected_action")
+
     def test_the_review_panel_never_shows_a_raw_field_name(self):
         issue = {**ISSUE, "category": "code_matching", "field": "icd10_primary", "full": "icd10_primary should be E78.5.",
                  "guided": "icd10_primary: what is the lab monitoring?", "minimal": "Code matching: icd10_primary", "answer": "Set icd10_primary to E78.5."}

@@ -155,11 +155,14 @@ def save_claim_form(form, user):
     return [event.field for event in events]
 
 
+FIELD_NAME = re.compile(r"\b([a-z]+[a-z0-9]*_[a-z0-9_]+)\b")
+
+
 def claim_history(claim):
     """The claim's audit log, newest first, with a readable label for each changed field."""
     events = list(claim.events.select_related("user"))
     for event in events:
-        event.label = field_label(event.field) if event.field else ""
+        event.label = FIELD_NAME.sub(lambda match: field_label(match.group(1)), event.field)
     return events
 
 

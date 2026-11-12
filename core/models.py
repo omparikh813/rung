@@ -102,7 +102,7 @@ class PayerRule(models.Model):
 class Claim(models.Model):
     # Identity and status
     claim_id = models.CharField("Claim ID", max_length=30, unique=True)
-    status = models.CharField(max_length=10, choices=ClaimStatus.choices, default=ClaimStatus.NEW)
+    status = models.CharField("Status", max_length=10, choices=ClaimStatus.choices, default=ClaimStatus.NEW)
 
     # Patient and coverage
     patient_first = models.CharField("First name", max_length=60)
@@ -144,8 +144,8 @@ class Claim(models.Model):
     clinical_note = models.TextField("Clinical note", blank=True)
 
     # Denial (denied claims only)
-    denial_code = models.CharField(max_length=20, blank=True)
-    denial_reason = models.CharField(max_length=200, blank=True)
+    denial_code = models.CharField("Denial code", max_length=20, blank=True)
+    denial_reason = models.CharField("Denial reason", max_length=200, blank=True)
 
     # Answer key. Used only for scoring. Never shown to a worker or sent to the AI.
     expected_category = models.CharField(max_length=20, blank=True)
