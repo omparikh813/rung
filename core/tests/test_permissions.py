@@ -46,7 +46,7 @@ class LoginTests(RoleTestCase):
     def test_debug_hint_lists_usernames_but_no_password(self):
         response = self.client.get(reverse("login"))
         self.assertContains(response, "Demo accounts")
-        for username in ("om", "james", "flora", "kevin", "cassandra", "nina", "leo"):
+        for username in ("om", "james", "flora", "kevin", "cassandra", "steven", "kaua"):
             self.assertContains(response, f">{username}<")
         self.assertNotContains(response, PASSWORD)
 

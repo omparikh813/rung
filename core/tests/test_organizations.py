@@ -16,8 +16,8 @@ class OrganizationTestCase(SeededTestCase):
     def setUp(self):
         super().setUp()
         User = get_user_model()
-        self.leo = User.objects.get(username="leo")
-        self.nina = User.objects.get(username="nina")
+        self.kaua = User.objects.get(username="kaua")
+        self.steven = User.objects.get(username="steven")
         self.summit_claim = Claim.objects.get(claim_id="SMB-1002")
         self.ags_claim = Claim.objects.get(claim_id="CLM-1012")
 
@@ -43,7 +43,7 @@ class DirectoryAndTierTests(OrganizationTestCase):
 
 class SeparationTests(OrganizationTestCase):
     def test_each_worker_sees_only_their_own_claims(self):
-        self.client.force_login(self.leo)
+        self.client.force_login(self.kaua)
         ids = [claim.claim_id for claim in self.client.get(reverse("queue")).context["claims"]]
         self.assertEqual(sorted(ids), ["SMB-1001", "SMB-1002", "SMB-1003"])
         self.assertEqual(self.client.get(reverse("claim", args=[self.ags_claim.pk])).status_code, 403)
@@ -51,7 +51,7 @@ class SeparationTests(OrganizationTestCase):
         self.assertEqual(self.client.get(reverse("claim", args=[self.summit_claim.pk])).status_code, 403)
 
     def test_a_specialist_cannot_reach_another_companys_requests_or_claims(self):
-        request = HelpRequest.objects.create(claim=self.summit_claim, worker=self.leo, question="Summit question")
+        request = HelpRequest.objects.create(claim=self.summit_claim, worker=self.kaua, question="Summit question")
         self.client.force_login(self.dan)
         inbox = self.client.get(reverse("help_list"))
         self.assertNotContains(inbox, "Summit question")
@@ -60,7 +60,7 @@ class SeparationTests(OrganizationTestCase):
         self.assertEqual(self.client.get(reverse("claim_review", args=[self.summit_claim.pk])).status_code, 404)
         self.assertNotContains(inbox, 'aria-label="1 open"')
         # Summit's own admin sees it.
-        self.client.force_login(self.nina)
+        self.client.force_login(self.steven)
         self.assertContains(self.client.get(reverse("help_list")), "Summit question")
 
     def test_case_library_is_separate(self):
@@ -72,23 +72,23 @@ class SeparationTests(OrganizationTestCase):
         self.client.force_login(self.maria)
         self.assertNotContains(self.client.get(reverse("library")), "Summit only fix")
         self.assertEqual(self.client.get(reverse("library_detail", args=[summit_entry.pk])).status_code, 404)
-        self.client.force_login(self.leo)
+        self.client.force_login(self.kaua)
         self.assertContains(self.client.get(reverse("library")), "Summit only fix")
 
     def test_skill_passports_are_separate(self):
         self.client.force_login(self.dan)
-        self.assertEqual(self.client.get(reverse("passport_user", args=["leo"])).status_code, 404)
+        self.assertEqual(self.client.get(reverse("passport_user", args=["kaua"])).status_code, 404)
         picker = [person.username for person in self.client.get(reverse("passport_user", args=["flora"])).context["workers"]]
         self.assertEqual(picker, ["cassandra", "flora", "kevin"])
 
     def test_export_is_separate(self):
-        ClaimEvent.objects.create(claim=self.summit_claim, user=self.leo, action=EventAction.SUBMIT)
+        ClaimEvent.objects.create(claim=self.summit_claim, user=self.kaua, action=EventAction.SUBMIT)
         self.client.force_login(self.dan)
         self.assertEqual(self.client.get(reverse("claim_export", args=[self.summit_claim.pk])).status_code, 404)
 
     def test_the_ai_never_sees_another_companys_patients(self):
         twin = Claim.objects.create(
-            claim_id="SMB-1099", organization=self.summit, assigned_to=self.leo, patient_first="Patricia",
+            claim_id="SMB-1099", organization=self.summit, assigned_to=self.kaua, patient_first="Patricia",
             patient_last="Nguyen", patient_dob=self.ags_claim.patient_dob, payer_name="Summit Health PPO",
             date_of_service=self.ags_claim.date_of_service, icd10_primary="I10", cpt_1="99213",
         )  # fmt: skip
@@ -103,13 +103,13 @@ class SeparationTests(OrganizationTestCase):
         self.assertFalse(payer.has_earlier_duplicate(twin))
 
     def test_new_and_uploaded_claims_join_the_uploaders_organization(self):
-        self.client.force_login(self.leo)
+        self.client.force_login(self.kaua)
         self.client.post(
             reverse("claim_new"),
             {"patient_first": "A", "patient_last": "B", "payer_name": "Summit Health PPO", "date_of_service": "2026-11-05", "cpt_1": "99213", "icd10_primary": "I10"},
         )  # fmt: skip
         claim = Claim.objects.get(patient_last="B")
-        self.assertEqual((claim.claim_id, claim.organization, claim.assigned_to), ("SMB-1004", self.summit, self.leo))
+        self.assertEqual((claim.claim_id, claim.organization, claim.assigned_to), ("SMB-1004", self.summit, self.kaua))
 
     def test_a_user_without_an_organization_is_turned_away(self):
         loner = make_user("loner", Role.WORKER)
@@ -136,7 +136,7 @@ class SignInTests(OrganizationTestCase):
         self.client.logout()
         self.assertRedirects(self.sign_in(self.ags, "om"), reverse("home"), fetch_redirect_response=False)
         self.client.logout()
-        self.assertRedirects(self.sign_in(self.summit, "leo"), reverse("home"), fetch_redirect_response=False)
+        self.assertRedirects(self.sign_in(self.summit, "kaua"), reverse("home"), fetch_redirect_response=False)
 
     def test_signing_in_to_the_wrong_organization_fails(self):
         self.client.logout()

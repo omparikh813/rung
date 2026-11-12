@@ -43,7 +43,7 @@ one's claims, requests, cases, and people are kept apart from the other's:
 | Organization | Admin | Specialist | Workers |
 |--------------|-------|------------|---------|
 | AGS Health (10 seats) | `om` | `james` | `flora` (holds the 30 sample claims), `kevin`, `cassandra` (ready for promotion) |
-| Summit Medical Billing (5 seats, trial) | `nina` | | `leo` (3 sample claims) |
+| Summit Medical Billing (5 seats, trial) | `steven` | | `kaua` (3 sample claims) |
 
 Everyone signs in with the password from `DEMO_PASSWORD`.
 

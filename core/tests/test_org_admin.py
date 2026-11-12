@@ -16,8 +16,8 @@ class OrgAdminTestCase(SeededTestCase):
         User = get_user_model()
         self.cassandra = User.objects.get(username="cassandra")
         self.kevin = User.objects.get(username="kevin")
-        self.nina = User.objects.get(username="nina")
-        self.leo = User.objects.get(username="leo")
+        self.steven = User.objects.get(username="steven")
+        self.kaua = User.objects.get(username="kaua")
 
     def act(self, user, action, **data):
         return self.client.post(reverse("employee_update", args=[user.pk]), {"action": action, **data}, follow=True)
@@ -60,7 +60,7 @@ class DashboardTests(OrgAdminTestCase):
         response = self.client.get(URL, {"section": "employees"})
         usernames = [person.username for person in response.context["people"]]
         self.assertEqual(sorted(usernames), ["cassandra", "flora", "james", "kevin", "om"])
-        self.assertNotContains(response, "nina")
+        self.assertNotContains(response, "steven")
         self.assertContains(response, "Invitations need email, which this demo does not have yet.")
 
     def test_performance_puts_cassandra_first_as_ready(self):
@@ -124,9 +124,9 @@ class EmployeeActionTests(OrgAdminTestCase):
         self.assertEqual(self.role(self.om), Role.ADMIN)
 
     def test_admin_cannot_touch_another_organizations_people(self):
-        self.assertEqual(self.act(self.leo, "deactivate").status_code, 404)
-        self.leo.refresh_from_db()
-        self.assertTrue(self.leo.is_active)
+        self.assertEqual(self.act(self.kaua, "deactivate").status_code, 404)
+        self.kaua.refresh_from_db()
+        self.assertTrue(self.kaua.is_active)
 
     def test_others_cannot_manage_employees(self):
         for user in (self.maria, self.dan):

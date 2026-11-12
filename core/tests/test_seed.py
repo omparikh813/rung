@@ -31,7 +31,7 @@ class SeedDemoTests(TestCase):
                 "cassandra": (Role.WORKER, "AGS Health"),
             },
         )
-        self.assertEqual({p.user.username: p.role for p in summit.members.all()}, {"nina": Role.ADMIN, "leo": Role.WORKER})
+        self.assertEqual({p.user.username: p.role for p in summit.members.all()}, {"steven": Role.ADMIN, "kaua": Role.WORKER})
         for user in get_user_model().objects.all():
             self.assertTrue(user.check_password(PASSWORD), user.username)
         self.assertEqual(ags.seats_used, 5)
@@ -39,12 +39,12 @@ class SeedDemoTests(TestCase):
     def test_claims_belong_to_the_right_organization(self):
         seed()
         flora = get_user_model().objects.get(username="flora")
-        leo = get_user_model().objects.get(username="leo")
+        kaua = get_user_model().objects.get(username="kaua")
         self.assertEqual(Claim.objects.filter(assigned_to=flora, organization__name="AGS Health").count(), 30)
         self.assertEqual(
-            list(Claim.objects.filter(assigned_to=leo).values_list("claim_id", flat=True)), ["SMB-1001", "SMB-1002", "SMB-1003"]
+            list(Claim.objects.filter(assigned_to=kaua).values_list("claim_id", flat=True)), ["SMB-1001", "SMB-1002", "SMB-1003"]
         )
-        self.assertEqual(Claim.objects.filter(assigned_to=leo, organization__name="Summit Medical Billing").count(), 3)
+        self.assertEqual(Claim.objects.filter(assigned_to=kaua, organization__name="Summit Medical Billing").count(), 3)
         self.assertEqual(PayerRule.objects.count(), RULE_COUNT)
 
     def test_cassandra_is_ready_for_promotion(self):

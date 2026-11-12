@@ -11,7 +11,7 @@ class TicketTestCase(SeededTestCase):
     def setUp(self):
         super().setUp()
         User = get_user_model()
-        self.nina = User.objects.get(username="nina")
+        self.steven = User.objects.get(username="steven")
         self.seeded = Ticket.objects.get(subject="More time for new hire reviews")
 
     def detail(self, ticket):
@@ -84,7 +84,7 @@ class AdminTicketTests(TicketTestCase):
         self.assertIn("Coaching plan", [row["ticket"].subject for row in self.client.get(URL).context["rows"]])
 
     def test_admin_can_only_message_their_own_active_specialists(self):
-        for target in (self.maria, self.nina):
+        for target in (self.maria, self.steven):
             self.client.post(URL, {"specialist": target.pk, "subject": "x", "body": "y"})
         self.assertEqual(Ticket.objects.count(), 1)
 
@@ -101,7 +101,7 @@ class AdminTicketTests(TicketTestCase):
         self.assertEqual(self.seeded.status, TicketStatus.OPEN)
 
     def test_another_organizations_admin_cannot_see_it(self):
-        self.client.force_login(self.nina)
+        self.client.force_login(self.steven)
         self.assertEqual(self.client.get(URL).context["rows"], [])
         self.assertEqual(self.client.get(self.detail(self.seeded)).status_code, 404)
         self.assertEqual(self.client.post(reverse("ticket_status", args=[self.seeded.pk])).status_code, 404)

@@ -69,8 +69,8 @@ DEMO_USERS = [
     ("flora", "Flora", Role.WORKER, "AGS Health"),
     ("kevin", "Kevin", Role.WORKER, "AGS Health"),
     ("cassandra", "Cassandra", Role.WORKER, "AGS Health"),
-    ("nina", "Nina", Role.ADMIN, "Summit Medical Billing"),
-    ("leo", "Leo", Role.WORKER, "Summit Medical Billing"),
+    ("steven", "Steven", Role.ADMIN, "Summit Medical Billing"),
+    ("kaua", "Kaua", Role.WORKER, "Summit Medical Billing"),
 ]
 
 # Fictional patients for Cassandra's past claims, so they never match the sample claims' patients.
@@ -128,7 +128,7 @@ class Command(BaseCommand):
             claim_from_row(row, assigned_to=users["flora"], organization=ags).save()
         summit_rows = read_csv(data / "summit_claims.csv")
         for row in summit_rows:
-            claim_from_row(row, assigned_to=users["leo"], organization=summit).save()
+            claim_from_row(row, assigned_to=users["kaua"], organization=summit).save()
         self.add_history(users["cassandra"], ags, rows)
         ticket = Ticket.objects.create(
             organization=ags, specialist=users["james"], opened_by=users["james"], subject="More time for new hire reviews"
