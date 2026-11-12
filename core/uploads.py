@@ -56,7 +56,7 @@ def row_errors(row, known_payers, taken_ids):
     """Every problem with one row, in plain words."""
     errors = [f"{field_label(name)} is missing" for name in REQUIRED_COLUMNS if not row[name]]
     if row["claim_id"] and row["claim_id"] in taken_ids:
-        errors.append(f"claim ID {row['claim_id']} already exists")
+        errors.append(f"Claim ID {row['claim_id']} is already in use")
     if row["payer_name"] and row["payer_name"] not in known_payers:
         errors.append(f"payer {row['payer_name']} is not in the payer rules")
     for name in DATE_COLUMNS:
@@ -82,7 +82,7 @@ def row_errors(row, known_payers, taken_ids):
     if not errors:
         # A last check against the model catches anything else, such as text that is too long.
         try:
-            claim_from_row(row).full_clean(exclude=["assigned_to"], validate_unique=False)
+            claim_from_row(row).full_clean(exclude=["assigned_to", "organization"], validate_unique=False)
         except ValidationError as error:
             errors.extend(f"{field_label(name)}: {' '.join(messages)}" for name, messages in error.message_dict.items())
     return errors
@@ -105,8 +105,9 @@ def import_rows(rows, user):
     """Import only the valid rows, assigned to the uploader. Returns (imported, skipped)."""
     checked = check_rows(rows)
     valid = [item["row"] for item in checked if not item["errors"]]
+    organization = user.profile.organization
     for row in valid:
-        claim_from_row(row, assigned_to=user).save()
+        claim_from_row(row, assigned_to=user, organization=organization).save()
     return len(valid), len(checked) - len(valid)
 
 

@@ -32,7 +32,7 @@
     </div>
     {% endif %}
 
-    <p class="mt-6 text-xs font-semibold text-muted">{% if entry.from_insurer %}Written automatically from the simulated insurer's answer on {{ entry.created_at|date:"M j, Y" }}, after a denied claim was fixed and paid.{% else %}Saved by {{ entry.created_by.first_name|default:entry.created_by.username|default:"a specialist" }} on {{ entry.created_at|date:"M j, Y" }}{% endif %}</p>
+    <p class="mt-6 text-xs font-semibold text-muted">{% if entry.from_insurer %}Written automatically from the simulated insurer's answer on {{ entry.created_at|date:"M j, Y" }}, after a denied claim was fixed and paid.{% else %}Saved by {% if entry.created_by %}{{ entry.created_by.first_name|default:entry.created_by.username }}{% else %}a specialist{% endif %} on {{ entry.created_at|date:"M j, Y" }}{% endif %}</p>
 
     {% if can_change %}
     <div class="mt-6 flex flex-wrap gap-2 border-t border-border pt-5">

@@ -1,11 +1,17 @@
 from django.contrib import admin
 
-from .models import AIReview, Attempt, CaseEntry, Claim, ClaimEvent, HelpRequest, PayerRule, Profile, SkillRecord, TrainingAttempt, TrainingExercise
+from .models import AIReview, Attempt, CaseEntry, Claim, ClaimEvent, HelpRequest, Organization, PayerRule, Profile, SkillRecord, TrainingAttempt, TrainingExercise
+
+
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ["name", "org_type", "seat_limit", "subscription_status", "renewal_date"]
 
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ["user", "role"]
+    list_display = ["user", "role", "organization"]
+    list_filter = ["organization", "role"]
 
 
 @admin.register(PayerRule)

@@ -129,7 +129,7 @@ class ExportViewTests(SeededTestCase):
 
     def test_who_can_export(self):
         self.submit()
-        self.client.force_login(make_user("other", Role.WORKER))
+        self.client.force_login(make_user("other", Role.WORKER, self.ags))
         self.assertEqual(self.client.get(self.url).status_code, 403)
         self.client.force_login(self.dan)
         self.assertEqual(self.client.get(self.url).status_code, 200)
@@ -140,7 +140,7 @@ class ExportViewTests(SeededTestCase):
         self.submit()
         escalated = Claim.objects.get(claim_id="CLM-1021")
         score_claim(escalated, self.maria, FinalAction.ESCALATE)
-        self.assertEqual(Attempt.objects.count(), 2)
+        self.assertEqual(Attempt.objects.exclude(worker__username="cassandra").count(), 2)
         response = self.client.get(reverse("passport"))
         self.assertContains(response, f'href="{self.url}"')
         self.assertContains(response, "Export 837", count=1)

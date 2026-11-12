@@ -101,7 +101,7 @@ class AskSpecialistTests(HelpTestCase):
 
     def test_asking_scores_the_claim_as_an_escalation(self):
         self.ask()
-        attempt = Attempt.objects.get()
+        attempt = Attempt.objects.exclude(worker__username="cassandra").get()
         # CLM-1021 expects an escalation, so asking is correct.
         self.assertEqual((attempt.action_taken, attempt.correct), (FinalAction.ESCALATE, True))
         self.assertTrue(self.refresh().scored)
@@ -110,7 +110,7 @@ class AskSpecialistTests(HelpTestCase):
         self.claim = Claim.objects.get(claim_id="CLM-1012")
         self.claim_url = reverse("claim", args=[self.claim.pk])
         response = self.ask()
-        self.assertFalse(Attempt.objects.get().correct)
+        self.assertFalse(Attempt.objects.exclude(worker__username="cassandra").get().correct)
         self.assertNotContains(response, "ncorrect")
 
     def test_waiting_claim_is_read_only_for_the_worker(self):
@@ -131,7 +131,7 @@ class AskSpecialistTests(HelpTestCase):
 class HelpListTests(HelpTestCase):
     def test_worker_sees_own_requests_with_status_and_link(self):
         self.ask()
-        other = make_user("other", Role.WORKER)
+        other = make_user("other", Role.WORKER, self.ags)
         HelpRequest.objects.create(claim=Claim.objects.get(claim_id="CLM-1001"), worker=other, question="Someone else's question")
         response = self.client.get(reverse("help_list"))
         self.assertTemplateUsed(response, "core/help_list.html")
@@ -159,7 +159,7 @@ class HelpListTests(HelpTestCase):
         self.assertRedirects(self.client.get(reverse("home")), reverse("help_list"))
         response = self.client.get(reverse("help_list"))
         self.assertTemplateUsed(response, "core/help_inbox.html")
-        for text in ("CLM-1021", "Maria", "Medicare Part B", QUESTION, "Code matching", "minute"):
+        for text in ("CLM-1021", "Flora", "Medicare Part B", QUESTION, "Code matching", "minute"):
             self.assertContains(response, text)
         self.assertContains(response, reverse("help_detail", args=[help_request.pk]))
 
@@ -273,7 +273,7 @@ class HelpDetailTests(HelpTestCase):
         self.assertContains(page, "Fixed the code. Please submit.")
         self.client.post(self.claim_url, self.claim_data(action="submit_confirmed"))
         self.assertEqual(self.refresh().work_status, WorkStatus.PAID)
-        self.assertEqual(Attempt.objects.count(), 1)
+        self.assertEqual(Attempt.objects.exclude(worker__username="cassandra").count(), 1)
 
     def test_resolved_request_is_read_only(self):
         help_request = self.open_request()

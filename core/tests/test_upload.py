@@ -8,7 +8,7 @@ from django.urls import reverse
 from core.claims import ANSWER_KEY_FIELDS, CSV_COLUMNS
 from core.models import Attempt, Claim, FinalAction, WorkStatus
 from core.skills import score_claim
-from core.tests.base import SeededTestCase
+from core.tests.base import SEEDED_CLAIMS, SeededTestCase
 
 GOOD = {
     "claim_id": "CLM-3001", "patient_first": "Pat", "patient_last": "Lee", "payer_name": "Summit Health PPO",
@@ -53,7 +53,7 @@ class DemoUploadTests(UploadTestCase):
         self.assertEqual((response.context["valid_count"], response.context["invalid_count"]), (2, 1))
         self.assertContains(response, "Import 2 valid rows")
         # Nothing is imported at the preview step.
-        self.assertEqual(Claim.objects.count(), 30)
+        self.assertEqual(Claim.objects.count(), SEEDED_CLAIMS)
 
     def test_import_adds_two_claims_for_the_uploader_and_skips_one(self):
         self.preview(self.demo_file())
@@ -61,7 +61,7 @@ class DemoUploadTests(UploadTestCase):
         self.assertRedirects(response, self.url)
         self.assertContains(response, "Upload complete. 2 imported, 1 skipped.")
         self.assertEqual(response.context["summary"], {"imported": 2, "skipped": 1})
-        self.assertEqual(Claim.objects.count(), 32)
+        self.assertEqual(Claim.objects.count(), SEEDED_CLAIMS + 2)
         self.assertFalse(Claim.objects.filter(claim_id="CLM-2003").exists())
         for claim_id in ("CLM-2001", "CLM-2002"):
             claim = Claim.objects.get(claim_id=claim_id)
@@ -83,11 +83,11 @@ class DemoUploadTests(UploadTestCase):
     def test_import_needs_a_preview_first_and_runs_once(self):
         response = self.do_import()
         self.assertContains(response, "Preview a file before importing.")
-        self.assertEqual(Claim.objects.count(), 30)
+        self.assertEqual(Claim.objects.count(), SEEDED_CLAIMS)
         self.preview(self.demo_file())
         self.do_import()
         self.do_import()
-        self.assertEqual(Claim.objects.count(), 32)
+        self.assertEqual(Claim.objects.count(), SEEDED_CLAIMS + 2)
 
 
 class RowValidationTests(UploadTestCase):
@@ -104,12 +104,12 @@ class RowValidationTests(UploadTestCase):
             self.assertEqual(self.errors(**{name: ""}), [f"{label} is missing"])
 
     def test_duplicate_of_an_existing_claim(self):
-        self.assertEqual(self.errors(claim_id="CLM-1001"), ["claim ID CLM-1001 already exists"])
+        self.assertEqual(self.errors(claim_id="CLM-1001"), ["Claim ID CLM-1001 is already in use"])
 
     def test_duplicate_inside_the_file(self):
         rows = self.preview_rows({}, {})
         self.assertEqual(rows[0]["errors"], [])
-        self.assertEqual(rows[1]["errors"], ["claim ID CLM-3001 already exists"])
+        self.assertEqual(rows[1]["errors"], ["Claim ID CLM-3001 is already in use"])
 
     def test_unknown_payer(self):
         self.assertEqual(self.errors(payer_name="Acme Health"), ["payer Acme Health is not in the payer rules"])
@@ -142,7 +142,7 @@ class RowValidationTests(UploadTestCase):
         claim = Claim.objects.get(claim_id="CLM-3001")
         self.assertEqual(claim.expected_action, "")
         score_claim(claim, self.maria, FinalAction.SUBMIT)
-        self.assertEqual(Attempt.objects.count(), 0)
+        self.assertEqual(Attempt.objects.exclude(worker__username="cassandra").count(), 0)
 
     def test_only_valid_rows_are_imported(self):
         self.preview(csv_file([GOOD, {**GOOD, "claim_id": "CLM-3002", "payer_name": "Acme"}, {**GOOD, "claim_id": "CLM-3003"}]))
@@ -169,7 +169,7 @@ class FileValidationTests(UploadTestCase):
         self.preview(self.demo_file())
         self.client.post(self.url, {"step": "preview"})
         self.do_import()
-        self.assertEqual(Claim.objects.count(), 30)
+        self.assertEqual(Claim.objects.count(), SEEDED_CLAIMS)
 
 
 class UploadPageTests(UploadTestCase):

@@ -3,6 +3,7 @@
 from django.urls import reverse
 
 from .decorators import user_role
+from .organizations import is_reviewer, organization_of
 from .models import HelpRequest, RequestStatus, Role
 
 # Sidebar links in display order: URL name, label, icon, roles, and the URL names
@@ -18,9 +19,11 @@ NAV = [
 
 
 def open_help_requests(user):
-    """Open requests: all of them for a specialist, their own for a worker."""
+    """Open requests: all of their organization's for a specialist, their own for a worker."""
     requests = HelpRequest.objects.filter(status=RequestStatus.OPEN)
-    return requests if user_role(user) == Role.SPECIALIST else requests.filter(worker=user)
+    if is_reviewer(user):
+        return requests.filter(claim__organization=organization_of(user))
+    return requests.filter(worker=user)
 
 
 def nav_for(user, current=""):

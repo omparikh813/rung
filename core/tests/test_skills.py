@@ -166,25 +166,25 @@ class ScoreOnceTests(SkillsTestCase):
         self.fix_and_submit("CLM-1012")
         self.assertTrue(self.claim("CLM-1012").scored)
         self.assertIsNone(score_claim(self.claim("CLM-1012"), self.maria, FinalAction.CLOSE))
-        self.assertEqual(Attempt.objects.count(), 1)
+        self.assertEqual(Attempt.objects.exclude(worker__username="cassandra").count(), 1)
         self.assertEqual(self.record().attempts, 1)
 
     def test_clean_claims_use_category_none_and_make_no_skill_record(self):
         score_claim(self.claim("CLM-1001"), self.maria, FinalAction.SUBMIT)
-        attempt = Attempt.objects.get()
+        attempt = Attempt.objects.exclude(worker__username="cassandra").get()
         self.assertEqual((attempt.category, attempt.correct), (Attempt.NO_CATEGORY, True))
-        self.assertEqual(SkillRecord.objects.count(), 0)
+        self.assertEqual(SkillRecord.objects.filter(worker=self.maria).count(), 0)
 
     def test_claims_without_an_answer_key_are_not_scored(self):
         claim = self.claim("CLM-1001")
         Claim.objects.filter(pk=claim.pk).update(expected_action="")
         self.assertIsNone(score_claim(claim, self.maria, FinalAction.SUBMIT))
-        self.assertEqual(Attempt.objects.count(), 0)
+        self.assertEqual(Attempt.objects.exclude(worker__username="cassandra").count(), 0)
         self.assertFalse(self.claim("CLM-1001").scored)
 
     def test_only_the_assigned_worker_is_scored(self):
         score_claim(self.claim("CLM-1001"), self.dan, FinalAction.SUBMIT)
-        self.assertEqual(Attempt.objects.count(), 0)
+        self.assertEqual(Attempt.objects.exclude(worker__username="cassandra").count(), 0)
 
 
 class ScoringThroughTheWorkspaceTests(SkillsTestCase):
@@ -202,18 +202,18 @@ class ScoringThroughTheWorkspaceTests(SkillsTestCase):
         response = self.post("CLM-1014", modifiers_1="QW", action="submit")
         self.assertContains(response, "Modifiers improved. Help in this category is now Guided.")
         self.assertEqual(self.record().help_level, HelpLevel.GUIDED)
-        self.assertEqual(Attempt.objects.filter(correct=True, action_taken=FinalAction.SUBMIT).count(), 3)
+        self.assertEqual(Attempt.objects.filter(worker=self.maria, correct=True, action_taken=FinalAction.SUBMIT).count(), 3)
 
     def test_close_scores_the_duplicate_claim(self):
         self.post("CLM-1029", action="close", close_reason="duplicate")
-        attempt = Attempt.objects.get()
+        attempt = Attempt.objects.exclude(worker__username="cassandra").get()
         self.assertEqual((attempt.action_taken, attempt.correct, attempt.category), (FinalAction.CLOSE, True, Category.FILING_RULES))
 
     def test_show_answer_marks_the_attempt_assisted(self):
         claim = self.claim("CLM-1012")
         ClaimEvent.objects.create(claim=claim, user=self.maria, action=EventAction.ANSWER_SHOWN, new_value="0")
         self.post("CLM-1012", modifiers_1="25", action="submit")
-        self.assertTrue(Attempt.objects.get().assisted)
+        self.assertTrue(Attempt.objects.exclude(worker__username="cassandra").get().assisted)
         self.assertEqual(self.record().streak, 0)
 
 
@@ -279,19 +279,19 @@ class PassportTests(SkillsTestCase):
         self.assertNotContains(response, "worker-picker")
 
     def test_worker_cannot_see_another_workers_passport(self):
-        make_user("other", Role.WORKER)
+        make_user("other", Role.WORKER, self.ags)
         self.assertEqual(self.client.get(reverse("passport_user", args=["other"])).status_code, 403)
-        self.assertEqual(self.client.get(reverse("passport_user", args=["maria"])).status_code, 200)
+        self.assertEqual(self.client.get(reverse("passport_user", args=["flora"])).status_code, 200)
 
     def test_specialist_sees_any_worker_with_a_picker(self):
-        make_user("other", Role.WORKER)
+        make_user("other", Role.WORKER, self.ags)
         self.client.force_login(self.dan)
-        self.assertRedirects(self.client.get(reverse("passport")), reverse("passport_user", args=["maria"]))
+        self.assertRedirects(self.client.get(reverse("passport")), reverse("passport_user", args=["cassandra"]))
         response = self.client.get(reverse("passport_user", args=["other"]))
         self.assertEqual(response.context["worker"], get_user_model().objects.get(username="other"))
         self.assertContains(response, "worker-picker")
-        self.assertContains(response, reverse("passport_user", args=["maria"]))
-        self.assertEqual(self.client.get(reverse("passport_user", args=["dan"])).status_code, 404)
+        self.assertContains(response, reverse("passport_user", args=["flora"]))
+        self.assertEqual(self.client.get(reverse("passport_user", args=["james"])).status_code, 404)
 
     def test_passport_never_shows_the_answer_key(self):
         self.fix_and_submit("CLM-1012")

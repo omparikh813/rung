@@ -9,7 +9,8 @@ from django.urls import reverse
 
 from ..ai import AIError, claim_version_hash, latest_review
 from ..claims import FIELD_GROUPS, claim_history, next_claim_id, save_claim_form, similar_cases, visible_claims
-from ..decorators import role_required, user_role
+from ..decorators import role_required
+from ..organizations import is_reviewer, organization_of
 from ..forms import ClaimForm, NewClaimForm
 from .. import payer
 from ..models import CaseEntry, ClaimEvent, EventAction, FinalAction, HelpLevel, HelpRequest, RequestStatus, Role, WorkStatus
@@ -31,12 +32,12 @@ def worker_claim(request, pk):
 def reviewable_claim(request, pk):
     """A claim this user may run checks on, and whether they may change it.
 
-    A worker reaches their own claims. A specialist reaches claims through a help request.
+    A worker reaches their own claims. A specialist reaches claims in their organization through a help request.
     """
-    if user_role(request.user) == Role.WORKER:
+    if not is_reviewer(request.user):
         claim = worker_claim(request, pk)
         return claim, claim.is_open
-    claim = get_object_or_404(visible_claims(), pk=pk)
+    claim = get_object_or_404(visible_claims(), pk=pk, organization=organization_of(request.user))
     requests = claim.help_requests.all()
     if not requests.exists():
         raise PermissionDenied
@@ -87,7 +88,8 @@ def claim_new(request):
     form = NewClaimForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         claim = form.save(commit=False)
-        claim.claim_id = next_claim_id()
+        claim.organization = organization_of(request.user)
+        claim.claim_id = next_claim_id(claim.organization)
         claim.assigned_to = request.user
         claim.save()
         messages.success(request, f"{claim.claim_id} created. RUNG is checking it now.")
@@ -103,9 +105,13 @@ def claim_new(request):
 
 @role_required(Role.WORKER, Role.SPECIALIST)
 def claim(request, pk):
-    if user_role(request.user) == Role.SPECIALIST:
+    if is_reviewer(request.user):
         # A specialist works a claim from its help request.
-        help_request = HelpRequest.objects.filter(claim_id=pk).order_by("-created_at").first()
+        help_request = (
+            HelpRequest.objects.filter(claim_id=pk, claim__organization=organization_of(request.user))
+            .order_by("-created_at")
+            .first()
+        )
         if help_request is None:
             raise PermissionDenied
         return redirect("help_detail", pk=help_request.pk)
@@ -223,10 +229,10 @@ def claim_review(request, pk):
 def claim_export(request, pk):
     """Download a submitted claim as an ANSI X12 837P file.
 
-    A worker can export their own claims. A specialist can export any worker's.
+    A worker can export their own claims. A specialist can export any worker's in their organization.
     """
-    claim = get_object_or_404(visible_claims(), pk=pk)
-    if user_role(request.user) == Role.WORKER and claim.assigned_to_id != request.user.pk:
+    claim = get_object_or_404(visible_claims(), pk=pk, organization=organization_of(request.user))
+    if not is_reviewer(request.user) and claim.assigned_to_id != request.user.pk:
         raise PermissionDenied
     if not claim.events.filter(action=EventAction.SUBMIT).exists():
         raise Http404("Only submitted claims can be exported.")

@@ -46,8 +46,8 @@ class LoginTests(RoleTestCase):
     def test_debug_hint_lists_usernames_but_no_password(self):
         response = self.client.get(reverse("login"))
         self.assertContains(response, "Demo accounts")
-        self.assertContains(response, "maria")
-        self.assertContains(response, "dan")
+        for username in ("om", "james", "flora", "kevin", "cassandra", "nina", "leo"):
+            self.assertContains(response, f">{username}<")
         self.assertNotContains(response, PASSWORD)
 
     @override_settings(DEBUG=False)
@@ -85,8 +85,8 @@ class RouteAccessTests(SeededTestCase):
         super().setUp()
         claim = Claim.objects.get(claim_id="CLM-1021")
         help_request = HelpRequest.objects.create(claim=claim, worker=self.maria, question="Help?")
-        entry = CaseEntry.objects.create(title="t", category=Category.MODIFIERS, problem="p", fix="f", created_by=self.dan)
-        self.other_worker = make_user("other", Role.WORKER)
+        entry = CaseEntry.objects.create(title="t", category=Category.MODIFIERS, problem="p", fix="f", created_by=self.dan, organization=self.ags)
+        self.other_worker = make_user("other", Role.WORKER, self.ags)
         # Route, then the status each role should get: worker (maria), specialist (dan).
         self.routes = [
             (reverse("queue"), 200, 403),
@@ -98,7 +98,7 @@ class RouteAccessTests(SeededTestCase):
             (reverse("library_detail", args=[entry.pk]), 200, 200),
             (reverse("library_edit", args=[entry.pk]), 403, 200),
             (reverse("passport"), 200, 302),
-            (reverse("passport_user", args=["maria"]), 200, 200),
+            (reverse("passport_user", args=["flora"]), 200, 200),
             (reverse("passport_user", args=["other"]), 403, 200),
             (reverse("upload"), 200, 403),
             (reverse("claim_new"), 200, 403),

@@ -8,7 +8,7 @@ from django.test import override_settings
 from core import ai
 from core.claims import ANSWER_KEY_FIELDS
 from core.models import AIReview, CaseEntry, Category, Claim
-from core.tests.base import SeededTestCase
+from core.tests.base import SEEDED_CLAIMS, SeededTestCase
 
 API_KEY = "sk-test-secret-key"
 
@@ -90,7 +90,7 @@ class AIClientTests(SeededTestCase):
                 self.assertNotIn(name, sent, claim.claim_id)
             if claim.expected_issue:
                 self.assertNotIn(json.dumps(claim.expected_issue)[1:-1], sent, claim.claim_id)
-        self.assertEqual(post.call_count, 30)
+        self.assertEqual(post.call_count, SEEDED_CLAIMS)
 
     def test_claim_block_has_visible_fields_only(self):
         block = ai.claim_block(self.claim("CLM-1012"))
@@ -125,9 +125,9 @@ class AIClientTests(SeededTestCase):
         for number in range(4):
             CaseEntry.objects.create(
                 title=f"Routine physical {number}", category=Category.CODE_MATCHING, payer_name="Medicare Part B",
-                codes="99397, Z00.00", problem="p", fix="f", tip="t", created_by=self.dan,
+                codes="99397, Z00.00", problem="p", fix="f", tip="t", created_by=self.dan, organization=self.ags,
             )
-        CaseEntry.objects.create(title="Unrelated", category=Category.MODIFIERS, codes="12345", problem="p", fix="f")
+        CaseEntry.objects.create(title="Unrelated", category=Category.MODIFIERS, codes="12345", problem="p", fix="f", organization=self.ags)
         # CLM-1017 is Medicare with diagnosis Z00.00: same payer and diagnosis.
         rows = json.loads(ai.similar_cases_block(self.claim("CLM-1017")))
         self.assertEqual(len(rows), 3)

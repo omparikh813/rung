@@ -37,8 +37,15 @@ python manage.py seed_demo
 python manage.py runserver
 ```
 
-Open http://127.0.0.1:8000 and sign in as `maria` (Worker) or `dan` (Specialist)
-with the password from `DEMO_PASSWORD`.
+Open http://127.0.0.1:8000 and sign in. The demo has two organizations, and each
+one's claims, requests, cases, and people are kept apart from the other's:
+
+| Organization | Admin | Specialist | Workers |
+|--------------|-------|------------|---------|
+| AGS Health (10 seats) | `om` | `james` | `flora` (holds the 30 sample claims), `kevin`, `cassandra` (ready for promotion) |
+| Summit Medical Billing (5 seats, trial) | `nina` | | `leo` (3 sample claims) |
+
+Everyone signs in with the password from `DEMO_PASSWORD`.
 
 - `python manage.py tailwind` downloads the Tailwind standalone CLI into `.tools/`
   on first use and builds `static/css/output.css`. Add `--watch` while editing
@@ -86,7 +93,7 @@ The tests never call the AI. They use mocked OpenRouter responses.
 
 ## Check the live AI review
 
-With `OPENROUTER_API_KEY` set, sign in as `maria` and open a claim. The review runs
+With `OPENROUTER_API_KEY` set, sign in as `flora` and open a claim. The review runs
 on first open. These four claims cover the checks the AI does from the payer rules,
 today's date, and the patient's other claims:
 

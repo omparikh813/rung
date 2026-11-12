@@ -6,7 +6,8 @@ from django.utils import timezone
 
 from ..ai import latest_review
 from ..claims import save_claim_form, visible_claims
-from ..decorators import role_required, user_role
+from ..decorators import role_required
+from ..organizations import is_reviewer, organization_of
 from .. import payer
 from ..forms import ClaimForm, ResolutionForm
 from ..models import Category, ClaimEvent, EventAction, HelpRequest, Outcome, RequestStatus, Role, WorkStatus
@@ -32,10 +33,12 @@ def ai_categories(claim):
 
 @role_required(Role.WORKER, Role.SPECIALIST)
 def help_list(request):
-    """A worker sees their own requests. A specialist sees every request, open ones first."""
-    is_specialist = user_role(request.user) == Role.SPECIALIST
+    """A worker sees their own requests. A specialist sees every request in their organization, open ones first."""
+    is_specialist = is_reviewer(request.user)
     requests = HelpRequest.objects.select_related("worker", "specialist").prefetch_related("claim__reviews")
-    if not is_specialist:
+    if is_specialist:
+        requests = requests.filter(claim__organization=organization_of(request.user))
+    else:
         requests = requests.filter(worker=request.user)
     rows = [
         {
@@ -77,7 +80,9 @@ def case_entry_start(claim):
 
 @role_required(Role.SPECIALIST)
 def help_detail(request, pk):
-    help_request = get_object_or_404(HelpRequest.objects.select_related("worker", "specialist"), pk=pk)
+    help_request = get_object_or_404(
+        HelpRequest.objects.select_related("worker", "specialist"), pk=pk, claim__organization=organization_of(request.user)
+    )
     claim = get_object_or_404(visible_claims(), pk=help_request.claim_id)
     is_open = help_request.status == RequestStatus.OPEN
 
@@ -126,5 +131,7 @@ def resolve(request, help_request, claim, form, resolution):
     if outcome == Outcome.SUBMITTED:
         payer.respond(claim, request.user)  # A claim a specialist fixed and submitted is paid.
     if data["save_to_library"]:
-        resolution.case_entry(source_request=help_request, created_by=request.user).save()
+        resolution.case_entry(
+            source_request=help_request, created_by=request.user, organization=claim.organization
+        ).save()
     return data["save_to_library"]

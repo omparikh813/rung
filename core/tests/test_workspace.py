@@ -296,7 +296,7 @@ class WorkspaceAccessTests(WorkspaceTestCase):
     def test_another_worker_gets_403(self):
         from core.models import Role
 
-        self.client.force_login(make_user("other", Role.WORKER))
+        self.client.force_login(make_user("other", Role.WORKER, self.ags))
         for method, url in self.urls():
             self.assertEqual(getattr(self.client, method)(url).status_code, 403, url)
 

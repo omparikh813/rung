@@ -2,7 +2,7 @@ from django.urls import reverse
 
 from core.claims import ANSWER_KEY_FIELDS, next_claim_id
 from core.models import Claim, WorkStatus
-from core.tests.base import SeededTestCase
+from core.tests.base import SEEDED_CLAIMS, SeededTestCase
 
 URL = reverse("claim_new")
 GOOD = {
@@ -37,7 +37,8 @@ class NewClaimTests(SeededTestCase):
         self.assertIn("CLM-1031", [c.claim_id for c in self.client.get(reverse("queue")).context["claims"]])
 
     def test_claim_ids_count_up_from_the_highest_in_use(self):
-        self.assertEqual(next_claim_id(), "CLM-1031")
+        self.assertEqual(next_claim_id(self.ags), "CLM-1031")
+        self.assertEqual(next_claim_id(self.summit), "SMB-1004")
         self.client.post(URL, GOOD)
         self.client.post(URL, {**GOOD, "patient_last": "Kim"})
         self.assertEqual(Claim.objects.get(patient_last="Kim").claim_id, "CLM-1032")
@@ -47,7 +48,7 @@ class NewClaimTests(SeededTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This field is required.", count=5)
         self.assertContains(response, "Some fields need a fix before the claim can be created.")
-        self.assertEqual(Claim.objects.count(), 30)
+        self.assertEqual(Claim.objects.count(), SEEDED_CLAIMS)
 
     def test_answer_key_and_status_cannot_be_posted(self):
         self.client.post(URL, {**GOOD, "expected_action": "submit", "work_status": "paid", "claim_id": "CLM-9", "scored": "on"})
@@ -57,7 +58,7 @@ class NewClaimTests(SeededTestCase):
     def test_unknown_payer_is_rejected(self):
         response = self.client.post(URL, {**GOOD, "payer_name": "Acme Health"})
         self.assertContains(response, "Select a valid choice.")
-        self.assertEqual(Claim.objects.count(), 30)
+        self.assertEqual(Claim.objects.count(), SEEDED_CLAIMS)
 
     def test_specialist_cannot_create_claims(self):
         self.client.force_login(self.dan)

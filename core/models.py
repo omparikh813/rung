@@ -5,6 +5,67 @@ from django.db import models
 class Role(models.TextChoices):
     WORKER = "worker", "Worker"
     SPECIALIST = "specialist", "Specialist"
+    ADMIN = "admin", "Organization Admin"
+
+
+# Roles that review workers' claims and coach them. An admin can do everything a specialist can.
+REVIEWER_ROLES = (Role.SPECIALIST, Role.ADMIN)
+
+
+class OrganizationType(models.TextChoices):
+    BILLING = "billing", "Medical billing company"
+    PROVIDER = "provider", "Healthcare provider or practice"
+    HOSPITAL = "hospital", "Hospital or health system"
+    RCM = "rcm", "RCM outsourcing company"
+    OTHER = "other", "Other"
+
+
+class SubscriptionStatus(models.TextChoices):
+    TRIAL = "trial", "Trial"
+    ACTIVE = "active", "Active"
+    PAST_DUE = "past_due", "Past due"
+    SUSPENDED = "suspended", "Suspended"
+    CANCELLED = "cancelled", "Cancelled"
+
+
+class ContractTerm(models.TextChoices):
+    MONTHLY = "monthly", "Monthly"
+    ANNUAL = "annual", "Annual"
+    CUSTOM = "custom", "Custom"
+
+
+class Organization(models.Model):
+    """A company that uses RUNG. Each one's claims, cases, and people are kept apart from every other's."""
+
+    name = models.CharField(max_length=120, unique=True)
+    org_type = models.CharField("Organization type", max_length=20, choices=OrganizationType.choices)
+    # The company picked from the directory, or blank for Other. Being listed is not a RUNG contract.
+    directory_company = models.CharField(max_length=120, blank=True)
+    seat_limit = models.PositiveIntegerField(help_text="How many employees the contract allows.")
+    contract_term = models.CharField(max_length=10, choices=ContractTerm.choices, default=ContractTerm.ANNUAL)
+    subscription_status = models.CharField(max_length=10, choices=SubscriptionStatus.choices, default=SubscriptionStatus.TRIAL)
+    contract_start = models.DateField(null=True, blank=True)
+    renewal_date = models.DateField(null=True, blank=True)
+    features = models.JSONField(default=list, blank=True)
+    claim_prefix = models.CharField(max_length=5, default="CLM", help_text="Starts each new claim ID.")
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def active_members(self):
+        return self.members.filter(user__is_active=True)
+
+    @property
+    def seats_used(self):
+        return self.active_members.count()
+
+    @property
+    def seats_left(self):
+        return max(self.seat_limit - self.seats_used, 0)
 
 
 class ClaimStatus(models.TextChoices):
@@ -78,6 +139,7 @@ class Outcome(models.TextChoices):
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
     role = models.CharField(max_length=20, choices=Role.choices)
+    organization = models.ForeignKey(Organization, null=True, on_delete=models.PROTECT, related_name="members")
 
     def __str__(self):
         return f"{self.user.username} ({self.get_role_display()})"
@@ -156,6 +218,7 @@ class Claim(models.Model):
     difficulty = models.PositiveSmallIntegerField(null=True, blank=True)
 
     # Work tracking
+    organization = models.ForeignKey(Organization, null=True, on_delete=models.CASCADE, related_name="claims")
     assigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="claims"
     )
@@ -245,6 +308,7 @@ class CaseEntry(models.Model):
     fix = models.TextField()
     tip = models.TextField(blank=True)
     source_request = models.ForeignKey(HelpRequest, null=True, blank=True, on_delete=models.SET_NULL)
+    organization = models.ForeignKey(Organization, null=True, on_delete=models.CASCADE, related_name="case_entries")
     # Written automatically when the simulated insurer pays a claim it had denied.
     from_insurer = models.BooleanField(default=False)
     source_claim = models.ForeignKey("Claim", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")

@@ -12,12 +12,12 @@ class LibraryTestCase(SeededTestCase):
             title="Routine physical billed to Medicare", category=Category.CODE_MATCHING, payer_name="Medicare Part B",
             codes="99397, Z00.00", problem="Medicare does not cover routine physicals.",
             fix="Add modifier GY so the patient can be billed.", tip="Check the Annual Wellness Visit rules first.",
-            created_by=self.dan,
+            created_by=self.dan, organization=self.ags,
         )  # fmt: skip
         self.auth = CaseEntry.objects.create(
             title="Missing auth number on knee surgery", category=Category.PRIOR_AUTH, payer_name="Summit Health PPO",
             codes="29881", denial_code="CO-197", problem="The approval existed but was left off.",
-            fix="Add the number from the scheduling note and resend.", created_by=self.dan,
+            fix="Add the number from the scheduling note and resend.", created_by=self.dan, organization=self.ags,
         )  # fmt: skip
 
     def titles(self, **params):
@@ -30,7 +30,7 @@ class LibraryListTests(LibraryTestCase):
             self.client.force_login(user)
             response = self.client.get(reverse("library"))
             self.assertEqual(response.status_code, 200)
-            for text in (self.physical.title, "Code matching", "Medicare Part B", "99397, Z00.00", self.physical.problem, self.physical.fix, self.physical.tip, "Dan"):
+            for text in (self.physical.title, "Code matching", "Medicare Part B", "99397, Z00.00", self.physical.problem, self.physical.fix, self.physical.tip, "James"):
                 self.assertContains(response, text)
 
     def test_search_covers_title_problem_fix_and_codes(self):
@@ -64,13 +64,13 @@ class LibraryListTests(LibraryTestCase):
 class LibraryDetailTests(LibraryTestCase):
     def test_detail_shows_the_full_entry(self):
         response = self.client.get(reverse("library_detail", args=[self.physical.pk]))
-        for text in (self.physical.title, self.physical.problem, self.physical.fix, self.physical.tip, "Saved by Dan"):
+        for text in (self.physical.title, self.physical.problem, self.physical.fix, self.physical.tip, "Saved by James"):
             self.assertContains(response, text)
 
     def test_only_the_author_sees_edit_and_delete(self):
         url = reverse("library_detail", args=[self.physical.pk])
         self.assertNotContains(self.client.get(url), reverse("library_edit", args=[self.physical.pk]))
-        self.client.force_login(make_user("erin", Role.SPECIALIST))
+        self.client.force_login(make_user("erin", Role.SPECIALIST, self.ags))
         self.assertFalse(self.client.get(url).context["can_change"])
         self.client.force_login(self.dan)
         response = self.client.get(url)
@@ -96,7 +96,7 @@ class LibraryDetailTests(LibraryTestCase):
         self.assertFalse(CaseEntry.objects.filter(pk=self.physical.pk).exists())
 
     def test_workers_and_other_specialists_cannot_edit_or_delete(self):
-        for user in (self.maria, make_user("erin", Role.SPECIALIST)):
+        for user in (self.maria, make_user("erin", Role.SPECIALIST, self.ags)):
             self.client.force_login(user)
             self.assertEqual(self.client.get(reverse("library_edit", args=[self.physical.pk])).status_code, 403)
             self.assertEqual(self.client.post(reverse("library_delete", args=[self.physical.pk])).status_code, 403)
@@ -125,7 +125,7 @@ class SimilarCaseTests(LibraryTestCase):
     def test_no_match_and_at_most_three(self):
         self.assertEqual(similar_cases(self.claim("CLM-1001")), [])
         for number in range(4):
-            CaseEntry.objects.create(title=f"Extra {number}", category=Category.CODE_MATCHING, codes="99397", problem="p", fix="f")
+            CaseEntry.objects.create(title=f"Extra {number}", category=Category.CODE_MATCHING, codes="99397", problem="p", fix="f", organization=self.ags)
         self.assertEqual(len(similar_cases(self.claim("CLM-1021"))), 3)
 
     def test_saved_entry_appears_as_a_similar_case_on_a_related_claim(self):

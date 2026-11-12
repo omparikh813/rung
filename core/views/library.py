@@ -4,7 +4,8 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from ..decorators import role_required, user_role
+from ..decorators import role_required
+from ..organizations import is_reviewer, organization_of
 from ..forms import CaseEntryForm
 from ..models import CaseEntry, Category, Role
 
@@ -13,11 +14,16 @@ EVERYONE = (Role.WORKER, Role.SPECIALIST)
 
 def can_change(user, entry):
     """Specialists can edit and delete the entries they created, and any entry from the simulated insurer."""
-    return user_role(user) == Role.SPECIALIST and (entry.from_insurer or entry.created_by_id == user.pk)
+    return is_reviewer(user) and (entry.from_insurer or entry.created_by_id == user.pk)
+
+
+def entries_for(user):
+    """Only the Case Library of the user's own organization. Each company's records are confidential."""
+    return CaseEntry.objects.filter(organization=organization_of(user))
 
 
 def own_entry(request, pk):
-    entry = get_object_or_404(CaseEntry, pk=pk)
+    entry = get_object_or_404(entries_for(request.user), pk=pk)
     if not can_change(request.user, entry):
         raise PermissionDenied
     return entry
@@ -28,7 +34,8 @@ def library(request):
     query = request.GET.get("q", "").strip()
     category = request.GET.get("category", "")
     payer = request.GET.get("payer", "")
-    entries = CaseEntry.objects.select_related("created_by")
+    everything = entries_for(request.user)
+    entries = everything.select_related("created_by")
     if query:
         entries = entries.filter(
             Q(title__icontains=query) | Q(problem__icontains=query) | Q(fix__icontains=query) | Q(codes__icontains=query)
@@ -37,7 +44,6 @@ def library(request):
         entries = entries.filter(category=category)
     if payer:
         entries = entries.filter(payer_name=payer)
-    everything = CaseEntry.objects.all()
     context = {
         "tiles": [
             {"icon": "library", "label": "Saved fixes", "value": everything.count()},
@@ -49,7 +55,7 @@ def library(request):
         "category": category,
         "payer": payer,
         "categories": Category.choices,
-        "payers": CaseEntry.objects.exclude(payer_name="").values_list("payer_name", flat=True).distinct().order_by("payer_name"),
+        "payers": everything.exclude(payer_name="").values_list("payer_name", flat=True).distinct().order_by("payer_name"),
         "filtered": bool(query or category or payer),
     }
     template = "core/partials/library_cards.html" if request.headers.get("HX-Request") else "core/library_list.html"
@@ -58,7 +64,7 @@ def library(request):
 
 @role_required(*EVERYONE)
 def library_detail(request, pk):
-    entry = get_object_or_404(CaseEntry.objects.select_related("created_by"), pk=pk)
+    entry = get_object_or_404(entries_for(request.user).select_related("created_by"), pk=pk)
     return render(request, "core/library_detail.html", {"entry": entry, "can_change": can_change(request.user, entry)})
 
 

@@ -60,7 +60,7 @@ def read_csv(path):
         return list(csv.DictReader(handle))
 
 
-def claim_from_row(row, assigned_to=None):
+def claim_from_row(row, assigned_to=None, organization=None):
     """Build an unsaved Claim from one CSV row. Raises ValueError on a bad date or number."""
     values = {column: (row.get(column) or "").strip() for column in CSV_COLUMNS}
     for column in DATE_COLUMNS:
@@ -70,7 +70,7 @@ def claim_from_row(row, assigned_to=None):
     for column in DECIMAL_COLUMNS:
         values[column] = Decimal(values[column]) if values[column] else None
     values["status"] = values["status"] or ClaimStatus.NEW
-    return Claim(**values, work_status=values["status"], assigned_to=assigned_to)
+    return Claim(**values, work_status=values["status"], assigned_to=assigned_to, organization=organization)
 
 
 def filing_limits():
@@ -104,11 +104,12 @@ def similar_cases(claim, limit=3):
     """Case Library entries that match this claim, best match first.
 
     A case matches on the same CPT code, the same payer and diagnosis, or the same denial code.
+    Only the claim's own organization's cases are searched.
     """
     cpts = {code.upper() for code in (claim.cpt_1, claim.cpt_2) if code}
     diagnoses = {code.upper() for code in (claim.icd10_primary, claim.icd10_secondary) if code}
     ranked = []
-    for entry in CaseEntry.objects.select_related("created_by"):
+    for entry in CaseEntry.objects.filter(organization=claim.organization).select_related("created_by"):
         codes = set(re.split(r"[^A-Z0-9.]+", entry.codes.upper()))
         if codes & cpts:
             rank = 0
@@ -166,11 +167,13 @@ def claim_history(claim):
     return events
 
 
-def next_claim_id():
-    """The next free claim ID, one above the highest CLM number in use."""
+def next_claim_id(organization):
+    """The next free claim ID for an organization, one above the highest number in use with its prefix."""
+    prefix = organization.claim_prefix if organization else "CLM"
+    pattern = re.compile(rf"{re.escape(prefix)}-(\d+)")
     numbers = [
         int(match.group(1))
-        for claim_id in Claim.objects.values_list("claim_id", flat=True)
-        if (match := re.fullmatch(r"CLM-(\d+)", claim_id))
+        for claim_id in Claim.objects.filter(claim_id__startswith=f"{prefix}-").values_list("claim_id", flat=True)
+        if (match := pattern.fullmatch(claim_id))
     ]
-    return f"CLM-{max(numbers, default=1000) + 1}"
+    return f"{prefix}-{max(numbers, default=1000) + 1}"

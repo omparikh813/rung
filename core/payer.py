@@ -57,6 +57,7 @@ PRIVATE_FIELDS = {
 def has_earlier_duplicate(claim):
     """Whether the same patient already has a claim for the same date and CPT code."""
     return Claim.objects.filter(
+        organization=claim.organization,
         patient_first=claim.patient_first,
         patient_last=claim.patient_last,
         patient_dob=claim.patient_dob,
@@ -168,4 +169,5 @@ def library_entry_from_insurer(claim):
         tip=f"Check {checked} before the first submission to avoid a {code} denial.",
         from_insurer=True,
         source_claim=claim,
+        organization=claim.organization,
     )

@@ -8,22 +8,59 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
 
-from core.models import CaseEntry, Category, Claim, PayerRule, Role, WorkStatus
+from core.models import Attempt, CaseEntry, Category, Claim, HelpLevel, Organization, PayerRule, Role, SkillRecord, WorkStatus
+from core.skills import passport
 from core.tests.base import PASSWORD, RULE_COUNT, seed
 
 
 class SeedDemoTests(TestCase):
-    def test_loads_claims_rules_and_users(self):
+    def test_loads_two_organizations_and_their_people(self):
         seed()
-        self.assertEqual(Claim.objects.count(), 30)
+        ags = Organization.objects.get(name="AGS Health")
+        summit = Organization.objects.get(name="Summit Medical Billing")
+        self.assertEqual((ags.seat_limit, ags.directory_company, ags.claim_prefix), (10, "AGS Health", "CLM"))
+        self.assertEqual(summit.claim_prefix, "SMB")
+        roles = {p.user.username: (p.role, p.organization.name) for p in ags.members.select_related("user", "organization")}
+        self.assertEqual(
+            roles,
+            {
+                "om": (Role.ADMIN, "AGS Health"),
+                "james": (Role.SPECIALIST, "AGS Health"),
+                "flora": (Role.WORKER, "AGS Health"),
+                "kevin": (Role.WORKER, "AGS Health"),
+                "cassandra": (Role.WORKER, "AGS Health"),
+            },
+        )
+        self.assertEqual({p.user.username: p.role for p in summit.members.all()}, {"nina": Role.ADMIN, "leo": Role.WORKER})
+        for user in get_user_model().objects.all():
+            self.assertTrue(user.check_password(PASSWORD), user.username)
+        self.assertEqual(ags.seats_used, 5)
+
+    def test_claims_belong_to_the_right_organization(self):
+        seed()
+        flora = get_user_model().objects.get(username="flora")
+        leo = get_user_model().objects.get(username="leo")
+        self.assertEqual(Claim.objects.filter(assigned_to=flora, organization__name="AGS Health").count(), 30)
+        self.assertEqual(
+            list(Claim.objects.filter(assigned_to=leo).values_list("claim_id", flat=True)), ["SMB-1001", "SMB-1002", "SMB-1003"]
+        )
+        self.assertEqual(Claim.objects.filter(assigned_to=leo, organization__name="Summit Medical Billing").count(), 3)
         self.assertEqual(PayerRule.objects.count(), RULE_COUNT)
-        User = get_user_model()
-        maria = User.objects.get(username="maria")
-        dan = User.objects.get(username="dan")
-        self.assertEqual(maria.profile.role, Role.WORKER)
-        self.assertEqual(dan.profile.role, Role.SPECIALIST)
-        self.assertTrue(maria.check_password(PASSWORD))
-        self.assertEqual(Claim.objects.filter(assigned_to=maria).count(), 30)
+
+    def test_cassandra_is_ready_for_promotion(self):
+        seed()
+        cassandra = get_user_model().objects.get(username="cassandra")
+        self.assertEqual(Claim.objects.filter(assigned_to=cassandra).count(), 20)
+        self.assertEqual(Attempt.objects.filter(worker=cassandra).count(), 20)
+        self.assertEqual(SkillRecord.objects.filter(worker=cassandra, help_level=HelpLevel.MINIMAL).count(), 4)
+        data = passport(cassandra)
+        self.assertEqual(data["accuracy"], 90)
+        self.assertTrue(data["ready"])
+        # Her past patients never match the sample claims' patients.
+        sample = set(Claim.objects.filter(assigned_to__username="flora").values_list("patient_last", flat=True))
+        history = set(Claim.objects.filter(assigned_to=cassandra).values_list("patient_last", flat=True))
+        self.assertFalse(sample & history)
+        self.assertFalse(passport(get_user_model().objects.get(username="flora"))["ready"])
 
     def test_can_run_twice_and_resets_the_demo(self):
         seed()
@@ -32,9 +69,10 @@ class SeedDemoTests(TestCase):
         claim.save()
         CaseEntry.objects.create(title="t", category=Category.MODIFIERS, problem="p", fix="f")
         seed()
-        self.assertEqual(Claim.objects.count(), 30)
+        self.assertEqual(Claim.objects.count(), 53)
         self.assertEqual(PayerRule.objects.count(), RULE_COUNT)
-        self.assertEqual(get_user_model().objects.count(), 2)
+        self.assertEqual(get_user_model().objects.count(), 7)
+        self.assertEqual(Organization.objects.count(), 2)
         self.assertEqual(CaseEntry.objects.count(), 0)
         self.assertEqual(Claim.objects.get(claim_id="CLM-1001").work_status, WorkStatus.NEW)
 

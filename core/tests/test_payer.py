@@ -130,7 +130,7 @@ class AIJudgeTests(PayerTestCase):
         claim = self.without_answer_key("CLM-1001")
         self.review(claim, READY)
         self.submit("CLM-1001")
-        self.assertEqual(Attempt.objects.count(), 0)
+        self.assertEqual(Attempt.objects.exclude(worker__username="cassandra").count(), 0)
 
 
 class PaidStatusTests(PayerTestCase):

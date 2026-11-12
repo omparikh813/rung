@@ -76,6 +76,7 @@ def payer_rules_block(claim):
 def patient_claims_block(claim):
     """The same patient's claims created before this one, so only the later claim is the duplicate."""
     earlier = Claim.objects.filter(
+        organization=claim.organization,
         patient_first=claim.patient_first,
         patient_last=claim.patient_last,
         patient_dob=claim.patient_dob,
