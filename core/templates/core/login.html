@@ -39,6 +39,13 @@
         </div>
         {% endif %}
         <div>
+          <label class="label" for="{{ form.organization.id_for_label }}">Organization</label>
+          <div class="relative">
+            <span class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-primary-strong">{% icon "building-2" %}</span>
+            {{ form.organization }}
+          </div>
+        </div>
+        <div>
           <label class="label" for="{{ form.username.id_for_label }}">Username</label>
           {{ form.username }}
         </div>

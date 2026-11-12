@@ -118,3 +118,28 @@ class SeparationTests(OrganizationTestCase):
         self.client.force_login(loner)
         self.assertEqual(self.client.get(reverse("queue")).status_code, 403)
         self.assertIsNone(organization_of(loner))
+
+
+class SignInTests(OrganizationTestCase):
+    def sign_in(self, organization, username):
+        from core.tests.base import PASSWORD
+
+        return self.client.post(reverse("login"), {"organization": organization.pk, "username": username, "password": PASSWORD})
+
+    def test_both_demo_organizations_are_listed(self):
+        self.client.logout()
+        response = self.client.get(reverse("login"))
+        self.assertContains(response, ">AGS Health<")
+        self.assertContains(response, ">Summit Medical Billing<")
+
+    def test_each_person_signs_in_to_their_own_organization(self):
+        self.client.logout()
+        self.assertRedirects(self.sign_in(self.ags, "om"), reverse("home"), fetch_redirect_response=False)
+        self.client.logout()
+        self.assertRedirects(self.sign_in(self.summit, "leo"), reverse("home"), fetch_redirect_response=False)
+
+    def test_signing_in_to_the_wrong_organization_fails(self):
+        self.client.logout()
+        response = self.sign_in(self.summit, "flora")
+        self.assertContains(response, "That organization, username, or password is not right.")
+        self.assertNotIn("_auth_user_id", self.client.session)

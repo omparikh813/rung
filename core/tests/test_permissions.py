@@ -7,7 +7,7 @@ from django.urls import reverse
 from core.decorators import role_required
 from core.models import Role
 from core.models import CaseEntry, Category, Claim, HelpRequest
-from core.tests.base import PASSWORD, RoleTestCase, SeededTestCase, make_user
+from core.tests.base import PASSWORD, RoleTestCase, SeededTestCase, make_user, test_organization
 
 class RoleRequiredTests(RoleTestCase):
     def setUp(self):
@@ -54,14 +54,43 @@ class LoginTests(RoleTestCase):
     def test_no_hint_when_debug_is_off(self):
         self.assertNotContains(self.client.get(reverse("login")), "Demo accounts")
 
+    def login(self, username, password=PASSWORD, organization=None):
+        organization = organization or test_organization()
+        return self.client.post(
+            reverse("login"), {"organization": organization.pk if organization else "", "username": username, "password": password}
+        )
+
+    def test_organization_comes_first_then_username_and_password(self):
+        html = self.client.get(reverse("login")).content.decode()
+        self.assertContains(self.client.get(reverse("login")), "Select your organization")
+        self.assertLess(html.index('name="organization"'), html.index('name="username"'))
+        self.assertLess(html.index('name="username"'), html.index('name="password"'))
+
     def test_wrong_credentials_show_one_message_that_names_no_field(self):
-        for data in ({"username": "maria", "password": "wrong"}, {"username": "nobody", "password": PASSWORD}):
-            response = self.client.post(reverse("login"), data)
+        other = test_organization("Other Billing Co")
+        attempts = [
+            {"username": "maria", "password": "wrong"},
+            {"username": "nobody"},
+            {"username": "maria", "organization": other},  # right password, wrong organization
+        ]
+        for data in attempts:
+            response = self.login(**data)
             self.assertEqual(response.status_code, 200)
-            self.assertContains(response, "That username or password is not right. Please try again.", count=1)
+            self.assertContains(response, "That organization, username, or password is not right. Please try again.", count=1)
+            self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_organization_is_required(self):
+        response = self.client.post(reverse("login"), {"organization": "", "username": "maria", "password": PASSWORD})
+        self.assertContains(response, "That organization, username, or password is not right.")
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_a_deactivated_employee_cannot_sign_in(self):
+        self.maria.is_active = False
+        self.maria.save()
+        self.assertContains(self.login("maria"), "That organization, username, or password is not right.")
 
     def test_good_credentials_sign_in_and_logout_signs_out(self):
-        response = self.client.post(reverse("login"), {"username": "maria", "password": PASSWORD})
+        response = self.login("maria")
         self.assertRedirects(response, reverse("home"), fetch_redirect_response=False)
         self.assertEqual(int(self.client.session["_auth_user_id"]), self.maria.pk)
         response = self.client.post(reverse("logout"))

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 
 from .claims import FORM_FIELDS
-from .models import CaseEntry, Category, Claim, Outcome, PayerRule
+from .models import CaseEntry, Category, Claim, Organization, Outcome, PayerRule
 
 # Codes, IDs, and amounts use Fira Code so they are easy to compare character by character.
 CODE_FIELDS = {
@@ -13,17 +13,40 @@ CODE_FIELDS = {
 
 
 class LoginForm(AuthenticationForm):
-    """The sign in form. One error message that never says which field was wrong."""
+    """Sign in to one organization: pick it first, then username and password.
+
+    One error message covers every failure, including a user who belongs to a
+    different organization, so the form never says which part was wrong.
+    """
+
+    organization = forms.ModelChoiceField(
+        queryset=Organization.objects.all(), empty_label="Select your organization", label="Organization"
+    )
+    field_order = ["organization", "username", "password"]
 
     error_messages = {
         **AuthenticationForm.error_messages,
-        "invalid_login": "That username or password is not right. Please try again.",
+        "invalid_login": "That organization, username, or password is not right. Please try again.",
     }
+
+    def clean(self):
+        organization = self.cleaned_data.get("organization")
+        if organization is None:
+            raise self.get_invalid_login_error()
+        cleaned = super().clean()
+        profile = getattr(self.user_cache, "profile", None)
+        if profile is None or profile.organization_id != organization.pk:
+            self.user_cache = None
+            raise self.get_invalid_login_error()
+        return cleaned
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.order_fields(self.field_order)
         for field in self.fields.values():
             field.widget.attrs["class"] = "input"
+        # Room for the building icon inside the organization picker.
+        self.fields["organization"].widget.attrs["class"] = "input pl-9"
 
 
 def payer_choices(current=""):
