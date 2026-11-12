@@ -8,6 +8,6 @@
   <li class="text-sage" aria-hidden="true">{% icon "chevron-right" %}</li>
   <li class="step" data-state="{% if status == 'needs_fix' %}current{% elif status == 'new' or status == 'denied' %}todo{% else %}done{% endif %}"><span class="step-number">2</span>Fix</li>
   <li class="text-sage" aria-hidden="true">{% icon "chevron-right" %}</li>
-  <li class="step" data-state="{% if status == 'ready' %}current{% elif status == 'submitted' or status == 'closed' %}done{% else %}todo{% endif %}"><span class="step-number">3</span>{% if status == "closed" %}Closed{% elif status == "submitted" %}Submitted{% else %}Submit{% endif %}</li>
+  <li class="step" data-state="{% if status == 'ready' %}current{% elif status == 'submitted' or status == 'closed' or status == 'paid' %}done{% else %}todo{% endif %}"><span class="step-number">3</span>{% if status == "closed" %}Closed{% elif status == "paid" %}Paid{% elif status == "submitted" %}Submitted{% else %}Submit{% endif %}</li>
 </ol>
 {% endif %}

@@ -21,11 +21,12 @@ class WorkStatus(models.TextChoices):
     READY = "ready", "Ready"
     WAITING = "waiting", "Waiting on Specialist"
     SUBMITTED = "submitted", "Submitted"
+    PAID = "paid", "Paid"
     CLOSED = "closed", "Closed"
 
 
 OPEN_STATUSES = [WorkStatus.NEW, WorkStatus.DENIED, WorkStatus.NEEDS_FIX, WorkStatus.READY]
-DONE_STATUSES = [WorkStatus.SUBMITTED, WorkStatus.CLOSED]
+DONE_STATUSES = [WorkStatus.SUBMITTED, WorkStatus.PAID, WorkStatus.CLOSED]
 
 
 class Category(models.TextChoices):
@@ -48,6 +49,7 @@ class EventAction(models.TextChoices):
     CHECK = "check", "AI review"
     ANSWER_SHOWN = "answer_shown", "Showed an answer"
     SUBMIT = "submit", "Submitted"
+    PAYER = "payer", "Payer response"
     CLOSE = "close", "Closed"
     ESCALATE = "escalate", "Asked a specialist"
     RESOLVE = "resolve", "Specialist resolved"

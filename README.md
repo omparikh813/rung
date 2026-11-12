@@ -47,6 +47,22 @@ with the password from `DEMO_PASSWORD`.
   any time to reset the demo.
 - Keep `DEBUG=True` for the demo so `runserver` serves the static files.
 
+## What is simulated
+
+RUNG is not connected to billing software, clearinghouses, or payers.
+
+- **Adding claims:** a worker creates a claim with the form on the Add Claims page,
+  or uploads a CSV file for many at once.
+- **The payer:** submitting a claim gets an instant answer from a simulated payer
+  (`core/payer.py`). A correct claim is Paid. A wrong one is Denied with a standard
+  code and returns to the worker's queue. Sample claims are judged by their hidden
+  answer key, and other claims by their latest AI review.
+- **837 export:** each submitted claim in the Skill Passport has an Export 837 button
+  that downloads it as an ANSI X12 837P file (`core/x12.py`). Data the demo does not
+  hold, such as the billing provider's address and tax ID, comes from the placeholders
+  in `RUNG_X12` in `rung/settings.py`. The file is marked as test data and has not
+  been validated by a clearinghouse.
+
 ## Test
 
 ```bash
@@ -84,6 +100,8 @@ of the app keeps working.
 | `core/skills.py` | Scoring, fading help levels, and Skill Passport numbers |
 | `core/claims.py` | Claim helpers: CSV rows, filing deadlines, audit log, similar cases |
 | `core/uploads.py` | CSV upload parsing and row validation |
+| `core/payer.py` | The simulated payer that pays or denies submitted claims |
+| `core/x12.py` | Builds the ANSI X12 837P export file |
 | `core/templates/core/` | Pages, with shared pieces in `partials/` |
 | `core/tests/` | Automated tests |
 | `core/management/commands/` | `seed_demo` and `tailwind` |

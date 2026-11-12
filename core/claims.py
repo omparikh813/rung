@@ -161,3 +161,13 @@ def claim_history(claim):
     for event in events:
         event.label = field_label(event.field) if event.field else ""
     return events
+
+
+def next_claim_id():
+    """The next free claim ID, one above the highest CLM number in use."""
+    numbers = [
+        int(match.group(1))
+        for claim_id in Claim.objects.values_list("claim_id", flat=True)
+        if (match := re.fullmatch(r"CLM-(\d+)", claim_id))
+    ]
+    return f"CLM-{max(numbers, default=1000) + 1}"

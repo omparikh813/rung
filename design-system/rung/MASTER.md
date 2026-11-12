@@ -13,9 +13,9 @@ large rounded cards, soft shadows, playful medical illustrations, bold type.
 
 ## Logo
 
-- Use `static/img/rung_logo.png` exactly as supplied. Do not redraw, stretch, recolor, or crop it.
-- The file has a white background, so it always sits inside a white rounded tile.
-- Favicon: `static/img/favicon.png`, the same image at 32 px.
+- Use `static/img/rung_mark.png`: the green clipboard and hand logo with its white background cut out, so it sits directly on white, mint, or deep green.
+- Do not redraw, stretch, or recolor it.
+- Favicon: `static/img/rung_icon.png`, the same image at 64 px.
 
 ## Color Palette
 

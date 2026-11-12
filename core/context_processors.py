@@ -12,7 +12,7 @@ NAV = [
     ("help_list", "Help Requests", "life-buoy", {Role.WORKER, Role.SPECIALIST}, ("help_detail",)),
     ("library", "Case Library", "library", {Role.WORKER, Role.SPECIALIST}, ("library_detail", "library_edit")),
     ("passport", "Skill Passport", "award", {Role.WORKER, Role.SPECIALIST}, ("passport_user",)),
-    ("upload", "Upload Claims", "upload", {Role.WORKER}, ()),
+    ("upload", "Add Claims", "plus", {Role.WORKER}, ("claim_new",)),
 ]
 
 

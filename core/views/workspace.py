@@ -3,18 +3,20 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from ..ai import AIError, claim_version_hash, latest_review
-from ..claims import FIELD_GROUPS, claim_history, save_claim_form, similar_cases, visible_claims
+from ..claims import FIELD_GROUPS, claim_history, next_claim_id, save_claim_form, similar_cases, visible_claims
 from ..decorators import role_required, user_role
-from ..forms import ClaimForm
+from ..forms import ClaimForm, NewClaimForm
+from .. import payer
 from ..models import ClaimEvent, EventAction, FinalAction, HelpLevel, HelpRequest, RequestStatus, Role, WorkStatus
 from ..reviews import field_hints, issue_cards, open_high_confidence, run_review
 from ..skills import PLAIN_NAMES, score_claim
+from ..x12 import build_837p
 
 CLOSE_REASONS = [("duplicate", "Duplicate"), ("not_billable", "Not billable"), ("other", "Other")]
 
@@ -80,6 +82,26 @@ def render_workspace(request, claim, form):
     return render(request, "core/workspace.html", context)
 
 
+@role_required(Role.WORKER)
+def claim_new(request):
+    """Create one claim with a form. It is assigned to the worker and checked as soon as it opens."""
+    form = NewClaimForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        claim = form.save(commit=False)
+        claim.claim_id = next_claim_id()
+        claim.assigned_to = request.user
+        claim.save()
+        messages.success(request, f"{claim.claim_id} created. RUNG is checking it now.")
+        return redirect("claim", pk=claim.pk)
+    if request.method == "POST":
+        messages.error(request, "Some fields need a fix before the claim can be created.")
+    groups = [
+        {"title": title, "icon": icon, "fields": [{"field": form[name], "hint": ""} for name in fields]}
+        for title, icon, fields in FIELD_GROUPS
+    ]
+    return render(request, "core/claim_new.html", {"form": form, "groups": groups})
+
+
 @role_required(Role.WORKER, Role.SPECIALIST)
 def claim(request, pk):
     if user_role(request.user) == Role.SPECIALIST:
@@ -131,7 +153,17 @@ def submit_claim(request, claim):
     claim.save(update_fields=["work_status", "updated_at"])
     ClaimEvent.objects.create(claim=claim, user=request.user, action=EventAction.SUBMIT)
     score_final_action(request, claim, FinalAction.SUBMIT)
-    messages.success(request, f"{claim.claim_id} submitted.")
+    answer = payer.respond(claim, request.user)
+    if answer == "paid":
+        messages.success(request, f"{claim.claim_id} submitted. The payer paid it.")
+    elif answer == "denied":
+        claim.refresh_from_db(fields=["denial_code", "denial_reason"])
+        messages.error(
+            request,
+            f"{claim.claim_id} was denied by the payer ({claim.denial_code}). It is back in your queue to fix.",
+        )
+    else:
+        messages.success(request, f"{claim.claim_id} submitted.")
     return redirect("queue")
 
 
@@ -208,3 +240,19 @@ def claim_answer(request, pk, index):
             new_value=str(index),
         )
     return render(request, "core/partials/answer.html", {"issue": issues[index]})
+
+
+@role_required(Role.WORKER, Role.SPECIALIST)
+def claim_export(request, pk):
+    """Download a submitted claim as an ANSI X12 837P file.
+
+    A worker can export their own claims. A specialist can export any worker's.
+    """
+    claim = get_object_or_404(visible_claims(), pk=pk)
+    if user_role(request.user) == Role.WORKER and claim.assigned_to_id != request.user.pk:
+        raise PermissionDenied
+    if not claim.events.filter(action=EventAction.SUBMIT).exists():
+        raise Http404("Only submitted claims can be exported.")
+    response = HttpResponse(build_837p(claim), content_type="text/plain; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="{claim.claim_id}_837P.txt"'
+    return response

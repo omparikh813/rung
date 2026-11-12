@@ -54,6 +54,21 @@ class ClaimForm(forms.ModelForm):
             field.disabled = read_only
 
 
+class NewClaimForm(ClaimForm):
+    """Create one claim on the page, so nobody needs to build a CSV file."""
+
+    class Meta(ClaimForm.Meta):
+        fields = [*FORM_FIELDS, "clinical_note"]
+        widgets = {**ClaimForm.Meta.widgets, "clinical_note": forms.Textarea(attrs={"rows": 4})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        payer = self.fields["payer_name"]
+        payer.choices = [("", "Choose a payer"), *payer.choices]
+        self.fields["clinical_note"].help_text = "What the provider wrote about the visit. RUNG checks the claim against it."
+        self.fields["units_1"].initial = 1
+
+
 class ResolutionForm(forms.Form):
     """How a specialist resolves a help request, with an optional Case Library entry."""
 

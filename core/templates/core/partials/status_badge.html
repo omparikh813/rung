@@ -4,6 +4,7 @@
 {% elif status == "needs_fix" %}<span class="badge badge-warning">{% icon "triangle-alert" "size-3.5" %}Needs Fix</span>
 {% elif status == "denied" %}<span class="badge badge-danger">{% icon "circle-x" "size-3.5" %}Denied</span>
 {% elif status == "waiting" %}<span class="badge badge-info">{% icon "clock" "size-3.5" %}Waiting on Specialist</span>
+{% elif status == "paid" %}<span class="badge badge-success">{% icon "badge-check" "size-3.5" %}Paid</span>
 {% elif status == "submitted" %}<span class="badge badge-neutral">{% icon "send" "size-3.5" %}Submitted</span>
 {% elif status == "closed" %}<span class="badge badge-neutral">{% icon "archive" "size-3.5" %}Closed</span>
 {% else %}<span class="badge badge-neutral">{% icon "circle-dot" "size-3.5" %}New</span>{% endif %}

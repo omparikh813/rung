@@ -101,7 +101,7 @@
   {% if activity %}
   <div class="overflow-x-auto">
     <table class="table [&_th:first-child]:rounded-tl-2xl [&_th:last-child]:rounded-tr-2xl">
-      <thead><tr><th scope="col">Claim ID</th><th scope="col">Category</th><th scope="col">What {{ worker.first_name|default:"the worker" }} did</th><th scope="col">Result</th><th scope="col">Date</th></tr></thead>
+      <thead><tr><th scope="col">Claim ID</th><th scope="col">Category</th><th scope="col">What {{ worker.first_name|default:"the worker" }} did</th><th scope="col">Result</th><th scope="col">Date</th><th scope="col">Export</th></tr></thead>
       <tbody>
         {% for row in activity %}
         <tr class="hover:bg-primary-soft/50">
@@ -110,6 +110,10 @@
           <td>{{ row.action }}</td>
           <td>{% if row.correct %}<span class="badge badge-success">{% icon "circle-check" "size-3.5" %}{{ row.result }}</span>{% else %}<span class="badge badge-warning">{% icon "triangle-alert" "size-3.5" %}{{ row.result }}</span>{% endif %}</td>
           <td class="whitespace-nowrap text-muted">{{ row.date|date:"M j, g:i A" }}</td>
+          <td class="whitespace-nowrap">
+            {% if row.exportable %}<a class="btn btn-secondary min-h-9 px-3 py-1" href="{% url 'claim_export' row.claim_pk %}" title="Download {{ row.claim_id }} as an ANSI X12 837P file">{% icon "download" %}Export 837</a>
+            {% else %}<span class="text-xs text-muted">Not submitted</span>{% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>

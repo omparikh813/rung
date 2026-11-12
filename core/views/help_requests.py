@@ -7,6 +7,7 @@ from django.utils import timezone
 from ..ai import latest_review
 from ..claims import save_claim_form, visible_claims
 from ..decorators import role_required, user_role
+from .. import payer
 from ..forms import ClaimForm, ResolutionForm
 from ..models import Category, ClaimEvent, EventAction, HelpRequest, Outcome, RequestStatus, Role, WorkStatus
 from .workspace import workspace_context
@@ -122,6 +123,8 @@ def resolve(request, help_request, claim, form, resolution):
     help_request.resolution_note = data["resolution_note"]
     help_request.resolved_at = timezone.now()
     help_request.save()
+    if outcome == Outcome.SUBMITTED:
+        payer.respond(claim, request.user)  # A claim a specialist fixed and submitted is paid.
     if data["save_to_library"]:
         resolution.case_entry(source_request=help_request, created_by=request.user).save()
     return data["save_to_library"]
