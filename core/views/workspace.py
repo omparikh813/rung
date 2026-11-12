@@ -6,7 +6,6 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_POST
 
 from ..ai import AIError, claim_version_hash, latest_review
 from ..claims import FIELD_GROUPS, claim_history, next_claim_id, save_claim_form, similar_cases, visible_claims
@@ -44,10 +43,10 @@ def reviewable_claim(request, pk):
     return claim, requests.filter(status=RequestStatus.OPEN).exists()
 
 
-def workspace_context(claim, form, *, fade_help=True, review_error=False):
+def workspace_context(claim, form, *, review_error=False):
     """Everything the claim form and the help panel need. The answer key is never part of it."""
     review = latest_review(claim)
-    cards = issue_cards(claim, review, fade_help)
+    cards = issue_cards(claim, review)
     hints = field_hints(cards)
     groups = [
         {
@@ -213,33 +212,9 @@ def claim_review(request, pk):
             run_review(claim, request.user)
         except AIError:
             review_error = True
-    fade_help = user_role(request.user) == Role.WORKER
-    context = workspace_context(claim, form, fade_help=fade_help, review_error=review_error)
+    context = workspace_context(claim, form, review_error=review_error)
     context.update(editable=editable, form_error=form_error)
     return render(request, "core/partials/review_response.html", context)
-
-
-@require_POST
-@role_required(Role.WORKER)
-def claim_answer(request, pk, index):
-    """Show answer: reveal one issue's answer and mark the claim as assisted."""
-    claim = worker_claim(request, pk)
-    review = latest_review(claim)
-    issues = review.result_json["issues"] if review else []
-    if index >= len(issues):
-        raise Http404
-    already = claim.events.filter(
-        action=EventAction.ANSWER_SHOWN, new_value=str(index), created_at__gt=review.created_at
-    ).exists()
-    if not already:
-        ClaimEvent.objects.create(
-            claim=claim,
-            user=request.user,
-            action=EventAction.ANSWER_SHOWN,
-            field=issues[index]["field"][:50],
-            new_value=str(index),
-        )
-    return render(request, "core/partials/answer.html", {"issue": issues[index]})
 
 
 @role_required(Role.WORKER, Role.SPECIALIST)

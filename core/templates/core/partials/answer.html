@@ -1,6 +1,0 @@
-{% load rung %}
-<div class="mt-1 animate-slide-in rounded-lg border border-border bg-white p-3">
-  <p class="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-primary-strong uppercase">{% icon "lightbulb" %}Answer</p>
-  <p class="mt-1 text-text">{{ issue.answer|plain_fields }}</p>
-  {% if issue.suggested_value %}<p class="mt-2 text-xs text-muted">Suggested value: <span class="code font-semibold text-forest">{{ issue.suggested_value }}</span></p>{% endif %}
-</div>

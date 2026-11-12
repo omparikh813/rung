@@ -12,7 +12,6 @@ urlpatterns = [
     path("claims/<int:pk>/", workspace.claim, name="claim"),
     path("claims/<int:pk>/export/", workspace.claim_export, name="claim_export"),
     path("claims/<int:pk>/review/", workspace.claim_review, name="claim_review"),
-    path("claims/<int:pk>/answer/<int:index>/", workspace.claim_answer, name="claim_answer"),
     path("help/", help_requests.help_list, name="help_list"),
     path("help/<int:pk>/", help_requests.help_detail, name="help_detail"),
     path("library/", library.library, name="library"),

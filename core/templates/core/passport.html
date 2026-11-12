@@ -14,7 +14,7 @@
     <div class="min-w-0">
       <p class="eyebrow">Skill Passport</p>
       <h1 class="mt-1">{{ worker.get_full_name|default:worker.username }}'s climb</h1>
-      <p class="mt-2 max-w-xl text-muted">Help fades one step at a time as each skill area is proven on real claims.</p>
+      <p class="mt-2 max-w-xl text-muted">Each skill area's help level sets the hints in Daily Training. Real claims move it the most.</p>
       {% if workers %}
       <div class="mt-4 max-w-xs">
         <label class="label" for="worker-picker">Worker</label>
@@ -134,8 +134,8 @@
   </h2>
   <div id="how-this-works" x-cloak x-show="open" x-collapse.duration.300ms>
     <ul class="grid gap-3 px-6 pb-6 text-sm text-white/90 sm:grid-cols-2">
-      <li class="rounded-2xl bg-white/10 p-4">Every worker starts with Full help in every category.</li>
-      <li class="rounded-2xl bg-white/10 p-4">Three correct claims in a row in a category, without using Show answer, lower the help one step: Full, then Guided, then Minimal.</li>
+      <li class="rounded-2xl bg-white/10 p-4">Every worker starts at Full help in every category.</li>
+      <li class="rounded-2xl bg-white/10 p-4">Real claims always get full help. Three correct real claims in a row in a category lower that category's help level one step: Full, then Guided, then Minimal. The level sets how many hints you get in Daily Training.</li>
       <li class="rounded-2xl bg-white/10 p-4">An incorrect claim raises the help one step and resets the streak, so support comes back when it is needed.</li>
       <li class="rounded-2xl bg-white/10 p-4">A correct claim where the answer was shown still counts for accuracy, but it does not add to the streak.</li>
       <li class="rounded-2xl bg-white/10 p-4 sm:col-span-2">Daily Training counts too, but less: three correct training sections in a category equal one correct real claim. A wrong training section clears that progress but never raises your help level.</li>

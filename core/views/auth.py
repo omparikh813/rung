@@ -47,8 +47,9 @@ FAQS = [
     },
     {
         "question": "How does the help fade?",
-        "answer": "Each worker starts with full help in six skill areas. Three correct claims in a row in an area, "
-        "without using Show answer, lower the help one step. A miss raises it again, so support returns when needed.",
+        "answer": "Real claims always get full help. In Daily Training, each worker starts with full hints in six skill "
+        "areas. Correct real claims, and more slowly correct training answers, lower the hints one step. A wrong real "
+        "claim raises them again, so support returns when needed.",
     },
 ]
 

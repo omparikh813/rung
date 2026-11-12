@@ -2,7 +2,7 @@ import json
 from unittest import mock
 
 from django.test import override_settings
-from django.urls import reverse
+from django.urls import NoReverseMatch, reverse
 
 from core import ai
 from core.claims import ANSWER_KEY_FIELDS
@@ -126,66 +126,30 @@ class OpenClaimTests(WorkspaceTestCase):
         self.assertContains(response, "Demo data only. Do not enter real patient information.")
 
 
-class HelpLevelTests(WorkspaceTestCase):
-    def set_level(self, level):
-        SkillRecord.objects.create(worker=self.maria, category=Category.MODIFIERS, help_level=level)
+class FullHelpTests(WorkspaceTestCase):
+    """Real claims always get full help, whatever the worker's level. Fading help is for Daily Training."""
 
-    def test_full_help_shows_the_fix_and_flags_the_field(self):
+    def test_full_text_fix_and_flagged_field(self):
         self.review()
         response = self.client.get(self.url)
-        self.assertContains(response, "Full help")
         self.assertContains(response, SHOWN["full"], count=2)  # the card and under the field
+        self.assertContains(response, "Suggested value")
         self.assertNotContains(response, "Show answer")
         self.assertEqual(response.context["groups"][2]["fields"][2]["hint"], SHOWN["full"])
 
-    def test_guided_help_asks_a_question_and_hides_the_fix(self):
-        self.set_level(HelpLevel.GUIDED)
-        self.review()
-        response = self.client.get(self.url)
-        self.assertContains(response, "Guided")
-        self.assertContains(response, SHOWN["guided"], count=2)
-        self.assertNotContains(response, SHOWN["full"])
-        self.assertNotContains(response, SHOWN["answer"])
-        self.assertNotContains(response, "Suggested value")
-        self.assertContains(response, "Show answer")
+    def test_a_worker_at_minimal_still_gets_full_help(self):
+        for level in (HelpLevel.GUIDED, HelpLevel.MINIMAL):
+            SkillRecord.objects.update_or_create(worker=self.maria, category=Category.MODIFIERS, defaults={"help_level": level})
+            AIReview.objects.all().delete()
+            self.review()
+            response = self.client.get(self.url)
+            self.assertContains(response, SHOWN["full"])
+            self.assertNotContains(response, SHOWN["guided"])
+            self.assertNotContains(response, "Show answer")
 
-    def test_minimal_help_names_only_category_and_field(self):
-        self.set_level(HelpLevel.MINIMAL)
-        self.review()
-        response = self.client.get(self.url)
-        self.assertContains(response, SHOWN["minimal"])
-        self.assertNotContains(response, SHOWN["guided"])
-        self.assertNotContains(response, SHOWN["answer"])
-        self.assertContains(response, "Show answer")
-
-    def test_levels_apply_per_category_so_cards_can_differ(self):
-        self.set_level(HelpLevel.GUIDED)
-        other = {**ISSUE, "category": "code_matching", "field": "icd10_primary", "full": "Full text for the diagnosis.", "guided": "Guided text for the diagnosis."}
-        self.review({**NEEDS_FIX, "issues": [ISSUE, other]})
-        response = self.client.get(self.url)
-        self.assertContains(response, SHOWN["guided"])
-        self.assertContains(response, "Full text for the diagnosis.")
-        self.assertNotContains(response, "Guided text for the diagnosis.")
-
-    def test_show_answer_reveals_the_answer_and_marks_the_claim_assisted(self):
-        self.set_level(HelpLevel.GUIDED)
-        self.review()
-        answer_url = reverse("claim_answer", args=[self.claim.pk, 0])
-        self.assertContains(self.client.get(self.url), f'hx-post="{answer_url}"')
-        response = self.client.post(answer_url)
-        self.assertContains(response, SHOWN["answer"])
-        self.assertContains(response, "Suggested value")
-        self.client.post(answer_url)
-        events = ClaimEvent.objects.filter(claim=self.claim, action=EventAction.ANSWER_SHOWN)
-        self.assertEqual(events.count(), 1)
-        self.assertEqual(events[0].field, "modifiers_1")
-        # The answer stays open when the page is loaded again.
-        self.assertContains(self.client.get(self.url), SHOWN["answer"])
-
-    def test_show_answer_needs_post_and_a_real_issue(self):
-        self.review()
-        self.assertEqual(self.client.get(reverse("claim_answer", args=[self.claim.pk, 0])).status_code, 405)
-        self.assertEqual(self.client.post(reverse("claim_answer", args=[self.claim.pk, 5])).status_code, 404)
+    def test_show_answer_no_longer_exists(self):
+        with self.assertRaises(NoReverseMatch):
+            reverse("claim_answer", args=[self.claim.pk, 0])
 
 
 class SaveTests(WorkspaceTestCase):
@@ -322,7 +286,7 @@ class SubmitAndCloseTests(WorkspaceTestCase):
 
 class WorkspaceAccessTests(WorkspaceTestCase):
     def urls(self):
-        return [("get", self.url), ("get", self.review_url), ("post", reverse("claim_answer", args=[self.claim.pk, 0]))]
+        return [("get", self.url), ("get", self.review_url)]
 
     def test_specialist_gets_403(self):
         self.client.force_login(self.dan)
@@ -422,6 +386,3 @@ class PlainFieldNameTests(WorkspaceTestCase):
         self.assertContains(page, "Primary ICD-10 needs a change.")
         # The raw name still appears in the HTML as the input's own name, but never in the review text.
         self.assertNotIn("icd10_primary ", page.content.decode().split('id="review-panel"')[1].split("</aside>")[0].replace('id_icd10_primary', ''))
-        answer = self.client.post(reverse("claim_answer", args=[self.claim.pk, 0]))
-        self.assertContains(answer, "Set Primary ICD-10 to E78.5.")
-        self.assertNotContains(answer, "icd10_primary")

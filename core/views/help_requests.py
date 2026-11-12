@@ -96,7 +96,7 @@ def help_detail(request, pk):
         form = ClaimForm(instance=claim, read_only=not is_open)
         resolution = ResolutionForm(prefix="res", initial=case_entry_start(claim))
 
-    context = workspace_context(claim, form, fade_help=False)
+    context = workspace_context(claim, form)
     context.update(help_request=help_request, resolution=resolution, editable=is_open)
     return render(request, "core/help_detail.html", context)
 
