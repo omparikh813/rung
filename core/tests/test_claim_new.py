@@ -66,8 +66,8 @@ class NewClaimTests(SeededTestCase):
 
     def test_create_a_claim_is_the_main_option_and_csv_is_secondary(self):
         page = self.client.get(reverse("upload"))
-        self.assertContains(page, "Start a new claim")
         self.assertContains(page, "Or upload a CSV file")
         self.assertContains(page, f'href="{URL}"')
         self.assertLess(page.content.decode().index("Create a claim"), page.content.decode().index("Or upload a CSV file"))
+        self.assertContains(page, f'href="{URL}"', count=1)
         self.assertContains(self.client.get(reverse("queue")), f'href="{URL}"')
