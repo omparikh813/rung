@@ -5,16 +5,17 @@
 {% url 'claim_new' as new_url %}
 {% include "core/partials/page_hero.html" with eyebrow="Add Claims" title="Bring your claims in" subtitle="Create a claim right here on the page. No spreadsheet needed." action_url=new_url action_label="Create a claim" action_icon="plus" shape="cross" %}
 
-<a href="{{ new_url }}" class="group card card-lift relative mt-6 flex flex-wrap items-center justify-between gap-5 overflow-hidden border-white bg-linear-to-br from-forest to-forest-deep p-7 text-white sm:p-9">
-  {% include "core/partials/shapes/capsule.html" with class="floaty -top-3 right-[30%] hidden w-24 opacity-80 md:block" %}
-  <span class="flex items-start gap-4">
-    <span class="icon-tile size-14 bg-lime text-forest transition duration-300 group-hover:-rotate-6 group-hover:scale-110">{% icon "clipboard-check" "size-7" %}</span>
-    <span>
-      <span class="block text-2xl font-extrabold sm:text-3xl">Create a claim</span>
-      <span class="mt-1 block max-w-xl text-white/80">Fill in a simple form: the patient, the payer, the codes, and the provider's note. RUNG checks it the moment you save.</span>
+<a href="{{ new_url }}" class="group card card-lift mt-6 block border-white bg-linear-to-br from-forest to-forest-deep text-white">
+  <span class="flex flex-wrap items-center justify-between gap-5 px-6 py-6 sm:px-8">
+    <span class="flex min-w-0 items-center gap-4">
+      <span class="icon-tile size-12 bg-lime text-forest transition duration-300 group-hover:-rotate-6 group-hover:scale-110">{% icon "clipboard-check" "size-6" %}</span>
+      <span class="min-w-0">
+        <span class="block text-xl font-extrabold">Create a claim</span>
+        <span class="mt-1 block max-w-xl text-sm text-white/80">Fill in a simple form: the patient, the payer, the codes, and the provider's note. RUNG checks it the moment you save.</span>
+      </span>
     </span>
+    <span class="btn btn-lime">Start a new claim<span class="arrow">{% icon "arrow-right" %}</span></span>
   </span>
-  <span class="btn btn-lime btn-lg">Start a new claim<span class="arrow">{% icon "arrow-right" "size-5" %}</span></span>
 </a>
 
 
