@@ -1,0 +1,49 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}{{ ticket.subject }}{% endblock %}
+{% block content %}
+<a class="link inline-flex items-center gap-1 text-sm" href="{% url 'tickets' %}">{% icon "arrow-left" %}Messages</a>
+
+<section class="page-hero mt-3 animate-slide-in">
+  <span class="blob -top-20 right-10 size-72 bg-lime/50" aria-hidden="true"></span>
+  <div class="relative flex flex-wrap items-center justify-between gap-4">
+    <div class="min-w-0">
+      <p class="eyebrow">{% if ticket.from_admin %}Message to a specialist{% else %}Ticket to the admin{% endif %}</p>
+      <h1 class="mt-1">{{ ticket.subject }}</h1>
+      <p class="mt-2 text-sm font-semibold text-muted">With {{ ticket.specialist.first_name|default:ticket.specialist.username }} · started {{ ticket.created_at|date:"M j, g:i A" }}</p>
+    </div>
+    <div class="flex items-center gap-3">
+      {% if ticket.status == "closed" %}<span class="badge badge-neutral">Closed</span>{% else %}<span class="badge badge-info">Open</span>{% endif %}
+      {% if admin %}
+      <form method="post" action="{% url 'ticket_status' ticket.pk %}">{% csrf_token %}
+        <button type="submit" class="btn btn-secondary">{% if ticket.status == "open" %}{% icon "circle-check" %}Close conversation{% else %}{% icon "refresh-cw" %}Reopen{% endif %}</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="card mt-6 max-w-3xl p-5">
+  <ol class="flex flex-col gap-4">
+    {% for message in thread %}
+    <li class="flex {% if message.author == user %}justify-end{% endif %}">
+      <div class="max-w-[85%] animate-slide-in rounded-2xl px-4 py-3 {% if message.author == user %}rounded-tr-sm bg-linear-to-br from-primary-soft to-mint{% else %}rounded-tl-sm bg-sage-soft{% endif %}">
+        <p class="text-xs font-bold text-forest">{{ message.author.first_name|default:message.author.username }} <span class="font-semibold text-muted">· {{ message.author.profile.get_role_display }} · {{ message.created_at|date:"M j, g:i A" }}</span></p>
+        <p class="mt-1 leading-relaxed whitespace-pre-line">{{ message.body }}</p>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+
+  {% if ticket.status == "open" %}
+  <form method="post" class="mt-6 flex flex-col gap-3 border-t border-border pt-5" x-data="{ busy: false }" @submit="busy = true" @pageshow.window="busy = false" :class="busy && 'is-busy'">
+    {% csrf_token %}
+    <label class="label" for="reply-body">Reply</label>
+    <textarea id="reply-body" name="body" rows="3" class="input"></textarea>
+    <button type="submit" class="btn btn-primary self-end">{% icon "send" %}Send reply</button>
+  </form>
+  {% else %}
+  <p class="alert alert-info mt-6">{% icon "info" "mt-0.5 size-4" %}<span>This conversation is closed. {% if admin %}Reopen it to reply.{% else %}Open a new ticket if you need more help.{% endif %}</span></p>
+  {% endif %}
+</section>
+{% endblock %}

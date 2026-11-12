@@ -28,6 +28,8 @@ from core.models import (
     Role,
     SkillRecord,
     SubscriptionStatus,
+    Ticket,
+    TicketMessage,
     TrainingAttempt,
     WorkStatus,
 )
@@ -128,6 +130,14 @@ class Command(BaseCommand):
         for row in summit_rows:
             claim_from_row(row, assigned_to=users["leo"], organization=summit).save()
         self.add_history(users["cassandra"], ags, rows)
+        ticket = Ticket.objects.create(
+            organization=ags, specialist=users["james"], opened_by=users["james"], subject="More time for new hire reviews"
+        )
+        TicketMessage.objects.create(
+            ticket=ticket,
+            author=users["james"],
+            body="Help requests from new workers are taking most of my mornings. Can we set aside time each week for reviews?",
+        )
 
         call_command("load_training", stdout=self.stdout)
         self.stdout.write(

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AIReview, Attempt, CaseEntry, Claim, ClaimEvent, HelpRequest, Organization, PayerRule, Profile, SkillRecord, TrainingAttempt, TrainingExercise
+from .models import AIReview, Attempt, CaseEntry, Claim, ClaimEvent, HelpRequest, Organization, PayerRule, Profile, SkillRecord, Ticket, TicketMessage, TrainingAttempt, TrainingExercise
 
 
 @admin.register(Organization)
@@ -68,3 +68,13 @@ class TrainingExerciseAdmin(admin.ModelAdmin):
 @admin.register(TrainingAttempt)
 class TrainingAttemptAdmin(admin.ModelAdmin):
     list_display = ["worker", "exercise", "day", "correct", "total"]
+
+
+@admin.register(Ticket)
+class TicketAdmin(admin.ModelAdmin):
+    list_display = ["subject", "organization", "specialist", "opened_by", "status", "updated_at"]
+
+
+@admin.register(TicketMessage)
+class TicketMessageAdmin(admin.ModelAdmin):
+    list_display = ["ticket", "author", "created_at"]

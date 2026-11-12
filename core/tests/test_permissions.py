@@ -178,7 +178,7 @@ class RouteAccessTests(SeededTestCase):
         self.assertEqual(worker_links, ["My Queue", "Daily Training", "Help Requests", "Case Library", "Skill Passport", "Add Claims"])
         self.client.force_login(self.dan)
         specialist_links = [item["label"] for item in self.client.get(reverse("help_list")).context["nav_items"]]
-        self.assertEqual(specialist_links, ["Help Requests", "My Queue", "Case Library", "Skill Passport", "Add Claims"])
+        self.assertEqual(specialist_links, ["Help Requests", "My Queue", "Messages", "Case Library", "Skill Passport", "Add Claims"])
 
     def test_each_role_lands_on_its_own_page(self):
         self.assertRedirects(self.client.get(reverse("home")), reverse("queue"))

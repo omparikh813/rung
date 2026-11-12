@@ -15,13 +15,14 @@ LINKS = {
     "passport": ("Skill Passport", "award", ("passport_user",)),
     "upload": ("Add Claims", "plus", ("claim_new",)),
     "organization": ("Organization", "building-2", ("employee_update",)),
+    "tickets": ("Messages", "messages-square", ("ticket_detail",)),
 }
 
 # Each role's sidebar, in order. The first link is the role's landing page.
 NAV = {
     Role.WORKER: ["queue", "training", "help_list", "library", "passport", "upload"],
-    Role.SPECIALIST: ["help_list", "queue", "library", "passport", "upload"],
-    Role.ADMIN: ["organization", "help_list", "queue", "library", "passport", "upload"],
+    Role.SPECIALIST: ["help_list", "queue", "tickets", "library", "passport", "upload"],
+    Role.ADMIN: ["organization", "tickets", "help_list", "queue", "library", "passport", "upload"],
 }
 
 
@@ -41,6 +42,10 @@ def nav_for(user, current=""):
     for link in links:
         if link["name"] == "help_list":
             link["count"] = open_help_requests(user).count()
+        if link["name"] == "tickets":
+            from .views.tickets import needs_reply
+
+            link["count"] = needs_reply(user)
     return links
 
 

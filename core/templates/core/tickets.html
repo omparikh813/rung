@@ -1,0 +1,62 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+{% if admin %}
+{% include "core/partials/page_hero.html" with eyebrow="Messages" title="Your specialists" subtitle="Tickets your specialists sent you, and messages you started with them." tiles=tiles shape="cross" %}
+{% else %}
+{% include "core/partials/page_hero.html" with eyebrow="Messages" title="Talk to your admin" subtitle="Open a ticket when you need something from your organization's admin. They can reply and message you too." tiles=tiles shape="cross" %}
+{% endif %}
+
+<div class="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+  <section class="card">
+    <h2 class="card-title flex items-center gap-3 border-b border-border p-5"><span class="icon-tile">{% icon "messages-square" "size-5" %}</span>Conversations</h2>
+    {% if rows %}
+    <ul class="divide-y divide-border">
+      {% for row in rows %}
+      <li>
+        <a href="{% url 'ticket_detail' row.ticket.pk %}" class="group flex items-start gap-4 px-5 py-4 transition duration-200 hover:bg-primary-soft">
+          <span class="icon-tile size-10 {% if row.ticket.from_admin %}bg-pastel-lavender{% else %}bg-pastel-sky{% endif %} text-forest">{% if row.ticket.from_admin %}{% icon "mail" %}{% else %}{% icon "life-buoy" %}{% endif %}</span>
+          <span class="min-w-0 flex-1">
+            <span class="flex flex-wrap items-center gap-2">
+              <span class="font-bold text-forest">{{ row.ticket.subject }}</span>
+              {% if row.ticket.status == "closed" %}<span class="badge badge-neutral">Closed</span>{% elif row.waiting %}<span class="badge badge-warning">{% icon "message-square" "size-3.5" %}Waiting on you</span>{% else %}<span class="badge badge-info">Open</span>{% endif %}
+            </span>
+            <span class="mt-1 block text-xs text-muted">
+              {% if row.ticket.from_admin %}Message from {{ row.ticket.opened_by.first_name|default:row.ticket.opened_by.username }} to {{ row.ticket.specialist.first_name|default:row.ticket.specialist.username }}{% else %}Ticket from {{ row.ticket.specialist.first_name|default:row.ticket.specialist.username }}{% endif %}
+              · {{ row.count }} message{{ row.count|pluralize }} · {{ row.ticket.updated_at|timesince }} ago
+            </span>
+            {% if row.last %}<span class="mt-1 line-clamp-1 block text-sm text-text">{{ row.last.author.first_name|default:row.last.author.username }}: {{ row.last.body }}</span>{% endif %}
+          </span>
+          <span class="arrow mt-2 text-primary-strong">{% icon "arrow-right" %}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    {% include "core/partials/empty_state.html" with icon="messages-square" title="No conversations yet" text="Tickets and messages between specialists and the admin will appear here." %}
+    {% endif %}
+  </section>
+
+  <section class="card self-start p-5">
+    <h2 class="card-title flex items-center gap-3"><span class="icon-tile bg-lime text-forest">{% icon "send" "size-5" %}</span>{% if admin %}Message a specialist{% else %}Open a ticket{% endif %}</h2>
+    {% if admin and not specialists %}
+    <p class="mt-3 text-sm text-muted">There are no active specialists in your organization yet. Promote a worker from the Organization page.</p>
+    {% else %}
+    <form method="post" class="mt-4 flex flex-col gap-3" x-data="{ busy: false }" @submit="busy = true" @pageshow.window="busy = false" :class="busy && 'is-busy'">
+      {% csrf_token %}
+      {% if error %}<p class="alert alert-error" role="alert">{% icon "circle-x" "mt-0.5 size-4" %}<span>{{ error }}</span></p>{% endif %}
+      {% if admin %}
+      <div><label class="label" for="ticket-specialist">Specialist</label>
+        <select id="ticket-specialist" name="specialist" class="input"><option value="">Choose a specialist</option>{% for person in specialists %}<option value="{{ person.pk }}" {% if form.specialist == person.pk|stringformat:"s" %}selected{% endif %}>{{ person.first_name|default:person.username }}</option>{% endfor %}</select></div>
+      {% else %}
+      <p class="text-sm text-muted">Goes to your organization's admin.</p>
+      {% endif %}
+      <div><label class="label" for="ticket-subject">Subject</label><input id="ticket-subject" name="subject" maxlength="150" class="input" value="{{ form.subject }}" placeholder="{% if admin %}What is this about?{% else %}What do you need?{% endif %}"></div>
+      <div><label class="label" for="ticket-body">Message</label><textarea id="ticket-body" name="body" rows="5" class="input">{{ form.body }}</textarea></div>
+      <button type="submit" class="btn btn-primary">{% icon "send" %}{% if admin %}Send message{% else %}Send ticket{% endif %}</button>
+    </form>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

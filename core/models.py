@@ -400,3 +400,43 @@ class TrainingAttempt(models.Model):
 
     def __str__(self):
         return f"{self.worker} {self.exercise.code} {self.day}: {self.correct}/{self.total}"
+
+
+class TicketStatus(models.TextChoices):
+    OPEN = "open", "Open"
+    CLOSED = "closed", "Closed"
+
+
+class Ticket(models.Model):
+    """A conversation between an organization's admins and one specialist.
+
+    A specialist opens a ticket to the admin. An admin can also start a message to a specialist.
+    """
+
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="tickets")
+    specialist = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tickets")
+    opened_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    subject = models.CharField(max_length=150)
+    status = models.CharField(max_length=10, choices=TicketStatus.choices, default=TicketStatus.OPEN)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["status", "-updated_at"]
+
+    def __str__(self):
+        return self.subject
+
+    @property
+    def from_admin(self):
+        return self.opened_by_id != self.specialist_id
+
+
+class TicketMessage(models.Model):
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="messages")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="+")
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at", "id"]
