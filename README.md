@@ -57,6 +57,13 @@ RUNG is not connected to billing software, clearinghouses, or payers.
   (`core/payer.py`). A correct claim is Paid. A wrong one is Denied with a standard
   code and returns to the worker's queue. Sample claims are judged by their hidden
   answer key, and other claims by their latest AI review.
+- **Daily Training:** workers get ten fictional practice cases a day, each with
+  several sections (for example modifiers, units, and the final decision). Every
+  section is checked on its own, wrong ones get feedback and the right answer, and
+  there is no AI help and no specialist. Training updates the Skill Passport, but
+  less than real claims: three correct training sections in a category equal one
+  correct real claim. The cases live in `data/training_exercises.json`, and
+  `python manage.py load_training` reloads them (seed_demo does this too).
 - **837 export:** each submitted claim in the Skill Passport has an Export 837 button
   that downloads it as an ANSI X12 837P file (`core/x12.py`). Data the demo does not
   hold, such as the billing provider's address and tax ID, comes from the placeholders
@@ -100,6 +107,7 @@ of the app keeps working.
 | `core/skills.py` | Scoring, fading help levels, and Skill Passport numbers |
 | `core/claims.py` | Claim helpers: CSV rows, filing deadlines, audit log, similar cases |
 | `core/uploads.py` | CSV upload parsing and row validation |
+| `core/training.py` | Picks the day's ten practice cases and checks each section |
 | `core/payer.py` | The simulated payer that pays or denies submitted claims |
 | `core/x12.py` | Builds the ANSI X12 837P export file |
 | `core/templates/core/` | Pages, with shared pieces in `partials/` |

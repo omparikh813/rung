@@ -1,0 +1,33 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}Daily Training{% endblock %}
+{% block content %}
+{% if next %}{% url 'training_exercise' next.pk as next_url %}{% endif %}
+{% include "core/partials/page_hero.html" with eyebrow="Daily Training" title="Ten practice cases a day" subtitle="Fictional claims, no AI and no specialist. Work each case yourself, then see every section checked. Training nudges your Skill Passport; real claims move it more." tiles=tiles percent=percent ring_label="of today's cases done" action_url=next_url action_label="Start the next case" action_icon="arrow-right" shape="molecule" %}
+
+{% if not exercises %}
+<div class="card mt-6">{% include "core/partials/empty_state.html" with icon="graduation-cap" title="No training cases loaded" text="Run python manage.py load_training to add the practice cases." %}</div>
+{% else %}
+<h2 class="mt-8 text-2xl font-extrabold">Today's cases</h2>
+<p class="mt-1 text-muted">{{ day|date:"l, F j" }}. A new mix arrives tomorrow.</p>
+<div class="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+  {% for exercise in exercises %}
+  <a href="{% url 'training_exercise' exercise.pk %}" class="group card card-lift relative flex animate-slide-in flex-col gap-3 p-5 {% if exercise.attempt %}border-mint bg-primary-soft/50{% endif %}" style="animation-delay: {% widthratio forloop.counter0 1 50 %}ms">
+    <span class="flex items-center justify-between gap-3">
+      <span class="code flex size-10 items-center justify-center rounded-xl bg-forest font-semibold text-lime">{{ forloop.counter }}</span>
+      {% if exercise.attempt %}
+        {% if exercise.attempt.correct == exercise.attempt.total %}<span class="badge badge-success">{% icon "circle-check" "size-3.5" %}All {{ exercise.attempt.total }} correct</span>
+        {% else %}<span class="badge badge-warning">{% icon "triangle-alert" "size-3.5" %}{{ exercise.attempt.correct }} of {{ exercise.attempt.total }} correct</span>{% endif %}
+      {% else %}<span class="badge badge-neutral">{% icon "circle-dot" "size-3.5" %}Not started</span>{% endif %}
+    </span>
+    <span class="text-lg leading-snug font-bold text-forest">{{ exercise.title }}</span>
+    <span class="text-sm text-muted">{{ exercise.payer_name }} · {{ exercise.sections|length }} sections</span>
+    <span class="mt-auto flex items-center justify-between pt-2 text-sm font-semibold text-primary-strong">
+      {% if exercise.attempt %}Review your answers{% else %}Work this case{% endif %}
+      <span class="arrow flex size-8 items-center justify-center rounded-full bg-forest text-lime">{% icon "arrow-right" %}</span>
+    </span>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

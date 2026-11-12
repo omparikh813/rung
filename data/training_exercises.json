@@ -1,0 +1,1084 @@
+[
+  {
+    "code": "TR-01",
+    "title": "Office visit with a knee injection",
+    "payer_name": "Summit Health PPO",
+    "note": "Established patient seen for diabetes follow up with medication change. Separately, left knee pain evaluated and a left knee joint injection was given in the same visit.",
+    "claim": {
+      "Place of service": "11",
+      "Date of service": "2026-11-03",
+      "CPT (line 1)": "99214",
+      "Modifiers (line 1)": "(blank)",
+      "CPT (line 2)": "20610",
+      "Modifiers (line 2)": "LT",
+      "Primary ICD-10": "M17.12 (left knee osteoarthritis)",
+      "Secondary ICD-10": "E11.9"
+    },
+    "rules": [
+      "All payers: an office visit on the same day as a minor procedure needs modifier 25 if the visit was a separate, significant service.",
+      "All payers: the diagnosis laterality (right or left) must match the procedure modifier (RT or LT)."
+    ],
+    "sections": [
+      {
+        "category": "modifiers",
+        "title": "Modifiers",
+        "question": "Line 1 is an office visit on the same day as the injection. What does line 1 need?",
+        "options": [
+          "Nothing. It is correct as it is",
+          "Modifier 25",
+          "Modifier LT",
+          "Modifier GP"
+        ],
+        "answer": 1,
+        "feedback": "The note shows a separate evaluation of diabetes, so the visit needs modifier 25 to be paid alongside the injection."
+      },
+      {
+        "category": "code_matching",
+        "title": "Diagnosis and side",
+        "question": "The injection has modifier LT. Does the diagnosis match the side?",
+        "options": [
+          "Yes. M17.12 is the left knee",
+          "No. The diagnosis should be for the right knee",
+          "The side does not matter for injections"
+        ],
+        "answer": 0,
+        "feedback": "M17.12 is left knee osteoarthritis and the procedure has LT, so the side matches the note."
+      },
+      {
+        "category": "modifiers",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Add modifier 25 to line 1, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-02",
+    "title": "Physical therapy with timed units",
+    "payer_name": "Medicare Part B",
+    "note": "Therapeutic exercise for right shoulder weakness. 40 minutes of timed treatment in total.",
+    "claim": {
+      "Place of service": "11",
+      "Date of service": "2026-11-05",
+      "CPT (line 1)": "97110",
+      "Modifiers (line 1)": "(blank)",
+      "Units (line 1)": "2",
+      "Primary ICD-10": "M75.101"
+    },
+    "rules": [
+      "Medicare Part B: outpatient physical therapy services need modifier GP.",
+      "Medicare Part B: timed therapy codes follow the 8 minute rule: 8 to 22 min = 1 unit, 23 to 37 min = 2 units, 38 to 52 min = 3 units."
+    ],
+    "sections": [
+      {
+        "category": "modifiers",
+        "title": "Modifiers",
+        "question": "This is outpatient physical therapy billed to Medicare. What modifier does line 1 need?",
+        "options": [
+          "None",
+          "GP",
+          "QW",
+          "25"
+        ],
+        "answer": 1,
+        "feedback": "Medicare needs modifier GP on outpatient physical therapy services."
+      },
+      {
+        "category": "filing_rules",
+        "title": "Units",
+        "question": "The note records 40 minutes of one timed service. How many units is that?",
+        "options": [
+          "1 unit",
+          "2 units",
+          "3 units",
+          "4 units"
+        ],
+        "answer": 2,
+        "feedback": "Under the 8 minute rule, 38 to 52 minutes is 3 units. The claim has 2."
+      },
+      {
+        "category": "filing_rules",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Add GP and change the units to 3, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-03",
+    "title": "Video visit from home",
+    "payer_name": "Crestline Insurance PPO",
+    "note": "Video visit with the patient at home for a medication check. Audio and video used for the whole visit.",
+    "claim": {
+      "Eligibility note": "Active",
+      "Place of service": "10",
+      "Date of service": "2026-11-09",
+      "CPT (line 1)": "99213",
+      "Modifiers (line 1)": "(blank)",
+      "Primary ICD-10": "F41.1"
+    },
+    "rules": [
+      "Crestline Insurance PPO: telehealth visits with place of service 10 need modifier 95."
+    ],
+    "sections": [
+      {
+        "category": "eligibility",
+        "title": "Coverage",
+        "question": "Is there a coverage problem on this claim?",
+        "options": [
+          "No. Coverage is active",
+          "Yes. Coverage is inactive",
+          "Yes. Another plan should pay first"
+        ],
+        "answer": 0,
+        "feedback": "The eligibility note says Active and nothing in the note points to another plan."
+      },
+      {
+        "category": "modifiers",
+        "title": "Modifiers",
+        "question": "The place of service is 10 (telehealth in the patient's home). What does Crestline need on line 1?",
+        "options": [
+          "Nothing",
+          "Modifier 25",
+          "Modifier 95",
+          "Modifier GP"
+        ],
+        "answer": 2,
+        "feedback": "Crestline needs modifier 95 on telehealth visits billed with place of service 10."
+      },
+      {
+        "category": "modifiers",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Add modifier 95, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-04",
+    "title": "Specialist visit on an HMO plan",
+    "payer_name": "Bayview Health HMO",
+    "note": "New patient cardiology visit for palpitations. Referred by the PCP. Referral BVR30112 is in the scanned documents. Today is 2026-11-16.",
+    "claim": {
+      "Date of service": "2026-09-01",
+      "CPT (line 1)": "99204",
+      "Primary ICD-10": "R00.2",
+      "Referral number": "(blank)"
+    },
+    "rules": [
+      "Bayview Health HMO: specialist visits need a PCP referral number on the claim.",
+      "Bayview Health HMO: claims must be filed within 90 days of the date of service."
+    ],
+    "sections": [
+      {
+        "category": "prior_auth",
+        "title": "Referral",
+        "question": "What is missing for this specialist visit?",
+        "options": [
+          "Nothing is missing",
+          "A prior authorization number",
+          "The PCP referral number",
+          "An NDC code"
+        ],
+        "answer": 2,
+        "feedback": "Bayview needs the PCP referral number on specialist claims. The note gives it: BVR30112."
+      },
+      {
+        "category": "filing_rules",
+        "title": "Filing deadline",
+        "question": "The service was on 2026-09-01 and today is 2026-11-16. Bayview's limit is 90 days. Is there still time to file?",
+        "options": [
+          "Yes. 76 days have passed, so 14 days are left",
+          "No. The deadline has passed",
+          "There is no deadline for HMO plans"
+        ],
+        "answer": 0,
+        "feedback": "September 1 to November 16 is 76 days. With a 90 day limit, 14 days are left, so file it soon."
+      },
+      {
+        "category": "prior_auth",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Add referral number BVR30112, then submit before the deadline."
+      }
+    ]
+  },
+  {
+    "code": "TR-05",
+    "title": "MRI with no authorization",
+    "payer_name": "Summit Health PPO",
+    "note": "MRI lumbar spine without contrast for low back pain. No authorization found in the chart or the scheduling notes.",
+    "claim": {
+      "Date of service": "2026-11-06",
+      "CPT (line 1)": "72148",
+      "Primary ICD-10": "M54.50",
+      "Prior auth number": "(blank)"
+    },
+    "rules": [
+      "Summit Health PPO: MRI, CT, knee arthroscopy (29881), and sleep studies (95810) need prior authorization."
+    ],
+    "sections": [
+      {
+        "category": "prior_auth",
+        "title": "Authorization",
+        "question": "Does this service need prior authorization from Summit?",
+        "options": [
+          "No",
+          "Yes. Summit needs prior authorization for MRI",
+          "Only if the charge is over 1,000 dollars"
+        ],
+        "answer": 1,
+        "feedback": "Summit's rule lists MRI as a service that needs prior authorization."
+      },
+      {
+        "category": "prior_auth",
+        "title": "What is on file",
+        "question": "Is there an authorization number you can add to the claim?",
+        "options": [
+          "Yes. It is in the note",
+          "No. None is on the claim or in the chart",
+          "It is not needed, so it does not matter"
+        ],
+        "answer": 1,
+        "feedback": "The note says no authorization was found. Never make up a number."
+      },
+      {
+        "category": "prior_auth",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 3,
+        "feedback": "Without an authorization the payer will deny it. Hold the claim and request a retro authorization first."
+      }
+    ]
+  },
+  {
+    "code": "TR-06",
+    "title": "Medicare ID that looks wrong",
+    "payer_name": "Medicare Part B",
+    "note": "Follow up for atrial fibrillation, stable. Scanned Medicare card reads 5T82HV9RC34.",
+    "claim": {
+      "Member ID": "5TB2HV9RC34",
+      "Eligibility note": "Active",
+      "Date of service": "2026-11-10",
+      "CPT (line 1)": "99213",
+      "Primary ICD-10": "I48.91"
+    },
+    "rules": [
+      "Medicare Part B: Medicare IDs are 11 characters and never use the letters S, L, O, I, B, or Z."
+    ],
+    "sections": [
+      {
+        "category": "eligibility",
+        "title": "Member ID",
+        "question": "Look at the Member ID on the claim. What is wrong with it?",
+        "options": [
+          "Nothing",
+          "It is too short",
+          "It contains the letter B, which Medicare IDs never use",
+          "It should start with a letter"
+        ],
+        "answer": 2,
+        "feedback": "Medicare IDs never use B. The scanned card shows an 8 in that spot."
+      },
+      {
+        "category": "eligibility",
+        "title": "The fix",
+        "question": "What should the Member ID be?",
+        "options": [
+          "5TB2HV9RC34",
+          "5T82HV9RC34",
+          "5TBZHV9RC34",
+          "Leave it blank"
+        ],
+        "answer": 1,
+        "feedback": "Use the value on the scanned card: 5T82HV9RC34. Only use a value you can see in the claim or the note."
+      },
+      {
+        "category": "eligibility",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Correct the Member ID from the card, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-07",
+    "title": "Rapid flu test in the office",
+    "payer_name": "Medicare Part B",
+    "note": "Fever and body aches for 2 days. Rapid influenza test done in the office with a CLIA waived kit. Positive for influenza A.",
+    "claim": {
+      "Place of service": "11",
+      "Date of service": "2026-11-11",
+      "CPT (line 1)": "87804",
+      "Modifiers (line 1)": "(blank)",
+      "Primary ICD-10": "J10.1 (influenza with respiratory symptoms)"
+    },
+    "rules": [
+      "Medicare Part B: CLIA waived lab tests done in the office need modifier QW."
+    ],
+    "sections": [
+      {
+        "category": "modifiers",
+        "title": "Modifiers",
+        "question": "This is a CLIA waived test done in the office and billed to Medicare. What modifier is needed?",
+        "options": [
+          "None",
+          "GP",
+          "QW",
+          "95"
+        ],
+        "answer": 2,
+        "feedback": "Medicare needs modifier QW on CLIA waived lab tests done in the office."
+      },
+      {
+        "category": "code_matching",
+        "title": "Diagnosis",
+        "question": "Does the diagnosis support a flu test?",
+        "options": [
+          "Yes. The note documents flu symptoms and a positive result",
+          "No. It needs a routine exam code",
+          "No. It needs an injury code"
+        ],
+        "answer": 0,
+        "feedback": "J10.1 matches the note: flu symptoms with a positive test."
+      },
+      {
+        "category": "modifiers",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Add modifier QW, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-08",
+    "title": "Wrist fracture, first visit",
+    "payer_name": "Crestline Insurance PPO",
+    "note": "Fell on outstretched right hand today. First visit for this injury. X-ray shows a fracture of the lower end of the right radius. Closed treatment without manipulation.",
+    "claim": {
+      "Date of service": "2026-11-08",
+      "CPT (line 1)": "25600",
+      "Modifiers (line 1)": "RT",
+      "Primary ICD-10": "S52.501"
+    },
+    "rules": [
+      "All payers: injury codes (S and T codes) need a 7th character such as A for the initial encounter.",
+      "All payers: the diagnosis laterality (right or left) must match the procedure modifier (RT or LT)."
+    ],
+    "sections": [
+      {
+        "category": "code_matching",
+        "title": "Diagnosis code",
+        "question": "S52.501 is an injury code. What is wrong with it?",
+        "options": [
+          "Nothing",
+          "It needs a 7th character",
+          "It is for the wrong body part",
+          "It should be a Z code"
+        ],
+        "answer": 1,
+        "feedback": "Injury codes need a 7th character. This is the first visit, so the code is S52.501A."
+      },
+      {
+        "category": "code_matching",
+        "title": "Side",
+        "question": "The procedure has modifier RT. Does the diagnosis agree?",
+        "options": [
+          "Yes. S52.501 is the right radius",
+          "No. It is the left radius",
+          "Fracture codes have no side"
+        ],
+        "answer": 0,
+        "feedback": "S52.501 is the right radius, which matches RT and the note."
+      },
+      {
+        "category": "code_matching",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Change the diagnosis to S52.501A, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-09",
+    "title": "Knee injection on the wrong side",
+    "payer_name": "Summit Health PPO",
+    "note": "Right knee osteoarthritis flare. Right knee joint injection performed.",
+    "claim": {
+      "Date of service": "2026-11-04",
+      "CPT (line 1)": "20610",
+      "Modifiers (line 1)": "RT",
+      "Primary ICD-10": "M17.12 (left knee osteoarthritis)"
+    },
+    "rules": [
+      "All payers: the diagnosis laterality (right or left) must match the procedure modifier (RT or LT)."
+    ],
+    "sections": [
+      {
+        "category": "code_matching",
+        "title": "Diagnosis and side",
+        "question": "The procedure has RT and the note says right knee. What about the diagnosis?",
+        "options": [
+          "It matches",
+          "It is for the left knee and should be M17.11",
+          "It should be an injury code",
+          "The modifier should change to LT"
+        ],
+        "answer": 1,
+        "feedback": "M17.12 is the left knee. The note and the modifier say right, so the diagnosis should be M17.11."
+      },
+      {
+        "category": "modifiers",
+        "title": "Modifiers",
+        "question": "Should the RT modifier change?",
+        "options": [
+          "No. RT matches the note",
+          "Yes. Change it to LT",
+          "Yes. Remove it"
+        ],
+        "answer": 0,
+        "feedback": "The note documents the right knee, so RT is correct. Fix the diagnosis, not the modifier."
+      },
+      {
+        "category": "code_matching",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Change the diagnosis to M17.11, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-10",
+    "title": "Yearly visit billed to Medicare",
+    "payer_name": "Medicare Part B",
+    "note": "Subsequent Annual Wellness Visit. Health risk assessment updated, screening schedule reviewed, no new complaints.",
+    "claim": {
+      "Date of service": "2026-11-02",
+      "CPT (line 1)": "99396",
+      "Primary ICD-10": "Z00.00"
+    },
+    "rules": [
+      "Medicare Part B: routine physicals (99381 to 99397) are not covered. The Annual Wellness Visit uses G0438 or G0439."
+    ],
+    "sections": [
+      {
+        "category": "code_matching",
+        "title": "Procedure code",
+        "question": "The claim bills 99396, a routine physical. What does Medicare's rule say?",
+        "options": [
+          "Medicare covers routine physicals",
+          "Routine physicals are not covered. The Annual Wellness Visit uses G0438 or G0439",
+          "It needs modifier 25"
+        ],
+        "answer": 1,
+        "feedback": "Medicare does not cover 99381 to 99397. The note documents an Annual Wellness Visit."
+      },
+      {
+        "category": "code_matching",
+        "title": "The fix",
+        "question": "The note says this is a subsequent Annual Wellness Visit. Which code fits?",
+        "options": [
+          "99396",
+          "G0439",
+          "99213",
+          "Leave the line blank"
+        ],
+        "answer": 1,
+        "feedback": "The rule gives G0438 or G0439 for the Annual Wellness Visit, and the note documents a subsequent one, which is G0439."
+      },
+      {
+        "category": "code_matching",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Change the code to G0439, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-11",
+    "title": "Injection given in the office",
+    "payer_name": "State Medicaid",
+    "note": "Acute allergic reaction. Dexamethasone 4 mg IM given in office. Medication log: vial NDC 00641036725. Today is 2026-11-16.",
+    "claim": {
+      "Date of service": "2026-06-01",
+      "CPT (line 1)": "J1100",
+      "CPT (line 2)": "96372",
+      "Primary ICD-10": "T78.40XA",
+      "NDC code": "(blank)"
+    },
+    "rules": [
+      "State Medicaid: drugs given in the office need the 11 digit NDC on the claim.",
+      "State Medicaid: claims must be filed within 180 days of the date of service."
+    ],
+    "sections": [
+      {
+        "category": "documentation",
+        "title": "Drug details",
+        "question": "A drug was given in the office. What does Medicaid need on the claim?",
+        "options": [
+          "Nothing more",
+          "The 11 digit NDC",
+          "A referral number",
+          "Modifier QW"
+        ],
+        "answer": 1,
+        "feedback": "Medicaid needs the drug's 11 digit NDC. The medication log gives it: 00641036725."
+      },
+      {
+        "category": "filing_rules",
+        "title": "Filing deadline",
+        "question": "The service was on 2026-06-01 and today is 2026-11-16. Medicaid's limit is 180 days. Where does that leave this claim?",
+        "options": [
+          "The deadline has passed",
+          "168 days have passed, so 12 days are left",
+          "There are more than 60 days left"
+        ],
+        "answer": 1,
+        "feedback": "June 1 to November 16 is 168 days. With a 180 day limit only 12 days are left."
+      },
+      {
+        "category": "documentation",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Add the NDC from the medication log, then submit right away."
+      }
+    ]
+  },
+  {
+    "code": "TR-12",
+    "title": "A claim that was already sent",
+    "payer_name": "Summit Health PPO",
+    "note": "Chest x-ray, 2 views. The patient's other claims show CLM-0871 for the same patient, the same date of service, and the same code 71046, already submitted.",
+    "claim": {
+      "Status": "Denied",
+      "Denial code": "CO-18",
+      "Date of service": "2026-10-19",
+      "CPT (line 1)": "71046",
+      "Primary ICD-10": "R05.1"
+    },
+    "rules": [
+      "A claim is a duplicate when the same patient has an earlier claim with the same date of service and the same CPT code."
+    ],
+    "sections": [
+      {
+        "category": "filing_rules",
+        "title": "Duplicate check",
+        "question": "Compare this claim with CLM-0871. What do you see?",
+        "options": [
+          "They are different services",
+          "Same patient, same date, same code: this one is a duplicate",
+          "CLM-0871 is the duplicate"
+        ],
+        "answer": 1,
+        "feedback": "Same patient, date, and code. The later claim is the duplicate, never the earlier one."
+      },
+      {
+        "category": "filing_rules",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 2,
+        "feedback": "Do not resubmit a duplicate. Close it and track the original claim."
+      }
+    ]
+  },
+  {
+    "code": "TR-13",
+    "title": "An old claim found in a report",
+    "payer_name": "Crestline Insurance PPO",
+    "note": "Office visit for sinusitis. Claim found in an unbilled report during an audit. Today is 2026-11-16.",
+    "claim": {
+      "Date of service": "2026-06-20",
+      "CPT (line 1)": "99213",
+      "Primary ICD-10": "J01.90"
+    },
+    "rules": [
+      "Crestline Insurance PPO: claims must be filed within 120 days of the date of service."
+    ],
+    "sections": [
+      {
+        "category": "filing_rules",
+        "title": "Filing deadline",
+        "question": "The service was on 2026-06-20 and today is 2026-11-16. Crestline's limit is 120 days. Is the claim on time?",
+        "options": [
+          "Yes. There are 30 days left",
+          "No. 149 days have passed, so the deadline has passed",
+          "The limit does not apply to office visits"
+        ],
+        "answer": 1,
+        "feedback": "June 20 to November 16 is 149 days, which is past the 120 day limit."
+      },
+      {
+        "category": "filing_rules",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 3,
+        "feedback": "A late claim will be denied. Hold it and check whether a filing exception applies before anything else."
+      }
+    ]
+  },
+  {
+    "code": "TR-14",
+    "title": "Coverage ended before the visit",
+    "payer_name": "Bayview Health HMO",
+    "note": "Office visit for a rash. Front desk note on the day of the visit: patient changed jobs, new card is Summit Health PPO, member SHP660114208.",
+    "claim": {
+      "Member ID": "BVH77120394",
+      "Eligibility note": "Inactive since 2026-09-30",
+      "Date of service": "2026-10-12",
+      "CPT (line 1)": "99213",
+      "Primary ICD-10": "L30.9"
+    },
+    "rules": [
+      "A claim must go to the plan that covered the patient on the date of service."
+    ],
+    "sections": [
+      {
+        "category": "eligibility",
+        "title": "Coverage",
+        "question": "Compare the eligibility note with the date of service. What is the problem?",
+        "options": [
+          "No problem",
+          "Bayview coverage ended before the visit",
+          "The Member ID is too long"
+        ],
+        "answer": 1,
+        "feedback": "Coverage ended on 2026-09-30 and the visit was on 2026-10-12, so Bayview will not pay."
+      },
+      {
+        "category": "eligibility",
+        "title": "The fix",
+        "question": "Who should be billed, and with which Member ID?",
+        "options": [
+          "Bayview, with the same ID",
+          "Summit Health PPO, with SHP660114208",
+          "The patient",
+          "Medicare"
+        ],
+        "answer": 1,
+        "feedback": "The front desk note gives the new plan and member ID. Bill Summit with SHP660114208."
+      },
+      {
+        "category": "eligibility",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Change the payer and Member ID to the new plan, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-15",
+    "title": "Medicare patient who is still working",
+    "payer_name": "Medicare Part B",
+    "note": "Follow up for hypertension. Intake form: patient still works full time and is covered by a large employer plan, Crestline Insurance PPO, member CRX20118845.",
+    "claim": {
+      "Payer": "Medicare Part B",
+      "Secondary payer": "(blank)",
+      "Date of service": "2026-11-03",
+      "CPT (line 1)": "99213",
+      "Primary ICD-10": "I10"
+    },
+    "rules": [
+      "Medicare Part B: if the patient or spouse is still working and covered by a large employer plan, that plan pays first."
+    ],
+    "sections": [
+      {
+        "category": "eligibility",
+        "title": "Who pays first",
+        "question": "The patient has Medicare and a large employer plan. Which plan pays first?",
+        "options": [
+          "Medicare",
+          "The employer plan, Crestline",
+          "Whichever is billed first"
+        ],
+        "answer": 1,
+        "feedback": "When the patient is still working with a large employer plan, that plan pays first and Medicare is second."
+      },
+      {
+        "category": "eligibility",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Make Crestline the payer with member CRX20118845 and Medicare the secondary payer, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-16",
+    "title": "A simple office visit",
+    "payer_name": "Summit Health PPO",
+    "note": "Established patient with cold symptoms for 4 days. No fever. Supportive care advised. 15 minutes.",
+    "claim": {
+      "Eligibility note": "Active",
+      "Place of service": "11",
+      "Date of service": "2026-11-12",
+      "CPT (line 1)": "99213",
+      "Modifiers (line 1)": "(blank)",
+      "Primary ICD-10": "J06.9"
+    },
+    "rules": [
+      "All payers: an office visit on the same day as a minor procedure needs modifier 25 if the visit was a separate, significant service."
+    ],
+    "sections": [
+      {
+        "category": "eligibility",
+        "title": "Coverage",
+        "question": "Is there a coverage problem?",
+        "options": [
+          "No. Coverage is active",
+          "Yes. Coverage is inactive",
+          "Yes. The Member ID is invalid"
+        ],
+        "answer": 0,
+        "feedback": "The eligibility note says Active."
+      },
+      {
+        "category": "modifiers",
+        "title": "Modifiers",
+        "question": "Does this visit need a modifier?",
+        "options": [
+          "No. There is no procedure on the same day",
+          "Yes. Modifier 25",
+          "Yes. Modifier 95"
+        ],
+        "answer": 0,
+        "feedback": "Modifier 25 is only for a visit on the same day as a procedure. There is none here."
+      },
+      {
+        "category": "code_matching",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 0,
+        "feedback": "Nothing is wrong. Do not invent a problem. Submit it as it is."
+      }
+    ]
+  },
+  {
+    "code": "TR-17",
+    "title": "Physical therapy that is already right",
+    "payer_name": "Medicare Part B",
+    "note": "Therapeutic exercise for low back pain. 30 minutes of timed treatment in total.",
+    "claim": {
+      "Place of service": "11",
+      "Date of service": "2026-11-10",
+      "CPT (line 1)": "97110",
+      "Modifiers (line 1)": "GP",
+      "Units (line 1)": "2",
+      "Primary ICD-10": "M54.50"
+    },
+    "rules": [
+      "Medicare Part B: outpatient physical therapy services need modifier GP.",
+      "Medicare Part B: timed therapy codes follow the 8 minute rule: 8 to 22 min = 1 unit, 23 to 37 min = 2 units, 38 to 52 min = 3 units."
+    ],
+    "sections": [
+      {
+        "category": "modifiers",
+        "title": "Modifiers",
+        "question": "Is the modifier right for Medicare physical therapy?",
+        "options": [
+          "Yes. GP is on the line",
+          "No. It needs QW",
+          "No. Remove GP"
+        ],
+        "answer": 0,
+        "feedback": "Medicare needs GP on outpatient physical therapy, and it is there."
+      },
+      {
+        "category": "filing_rules",
+        "title": "Units",
+        "question": "The note records 30 minutes. Are 2 units right?",
+        "options": [
+          "Yes. 23 to 37 minutes is 2 units",
+          "No. It should be 1 unit",
+          "No. It should be 3 units"
+        ],
+        "answer": 0,
+        "feedback": "Under the 8 minute rule, 23 to 37 minutes is 2 units."
+      },
+      {
+        "category": "filing_rules",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 0,
+        "feedback": "The claim is correct. Submit it as it is."
+      }
+    ]
+  },
+  {
+    "code": "TR-18",
+    "title": "Screening colonoscopy that found a polyp",
+    "payer_name": "Medicare Part B",
+    "note": "Planned average risk screening colonoscopy. One polyp found in the descending colon and removed by snare.",
+    "claim": {
+      "Place of service": "24",
+      "Date of service": "2026-10-30",
+      "CPT (line 1)": "45385",
+      "Modifiers (line 1)": "(blank)",
+      "Primary ICD-10": "K63.5 (polyp of colon)",
+      "Secondary ICD-10": "(blank)"
+    },
+    "rules": [
+      "Medicare Part B: a screening colonoscopy that becomes diagnostic or therapeutic is billed with modifier PT and Z12.11 first."
+    ],
+    "sections": [
+      {
+        "category": "modifiers",
+        "title": "Modifiers",
+        "question": "A screening colonoscopy turned into a polyp removal. What modifier does Medicare need?",
+        "options": [
+          "None",
+          "PT",
+          "25",
+          "QW"
+        ],
+        "answer": 1,
+        "feedback": "Medicare needs modifier PT when a screening colonoscopy becomes therapeutic."
+      },
+      {
+        "category": "code_matching",
+        "title": "Diagnosis order",
+        "question": "How should the diagnoses be listed?",
+        "options": [
+          "K63.5 only",
+          "Z12.11 first, then K63.5",
+          "K63.5 first, then Z12.11",
+          "Z00.00 only"
+        ],
+        "answer": 1,
+        "feedback": "The rule says Z12.11 (screening) goes first. The polyp code K63.5 goes second."
+      },
+      {
+        "category": "modifiers",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 1,
+        "feedback": "Add PT, put Z12.11 first and K63.5 second, then submit."
+      }
+    ]
+  },
+  {
+    "code": "TR-19",
+    "title": "Sleep study with an authorization",
+    "payer_name": "Summit Health PPO",
+    "note": "In lab sleep study for suspected sleep apnea. Epworth sleepiness score 16. Witnessed pauses in breathing reported by spouse. Authorization SH4520011 approved before the study.",
+    "claim": {
+      "Date of service": "2026-11-01",
+      "CPT (line 1)": "95810",
+      "Primary ICD-10": "G47.33",
+      "Prior auth number": "SH4520011"
+    },
+    "rules": [
+      "Summit Health PPO: MRI, CT, knee arthroscopy (29881), and sleep studies (95810) need prior authorization."
+    ],
+    "sections": [
+      {
+        "category": "prior_auth",
+        "title": "Authorization",
+        "question": "Sleep studies need prior authorization from Summit. Is it handled?",
+        "options": [
+          "Yes. The number on the claim matches the note",
+          "No. It is missing",
+          "No. The number is for a different patient"
+        ],
+        "answer": 0,
+        "feedback": "The claim carries SH4520011 and the note confirms it was approved before the study."
+      },
+      {
+        "category": "documentation",
+        "title": "Supporting notes",
+        "question": "Does the note support why the study was needed?",
+        "options": [
+          "Yes. It records a sleepiness score and witnessed symptoms",
+          "No. It says nothing about symptoms"
+        ],
+        "answer": 0,
+        "feedback": "A sleepiness score and witnessed pauses in breathing support medical need."
+      },
+      {
+        "category": "prior_auth",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 0,
+        "feedback": "Everything the payer needs is there. Submit it as it is."
+      }
+    ]
+  },
+  {
+    "code": "TR-20",
+    "title": "Wound care with a thin note",
+    "payer_name": "Summit Health PPO",
+    "note": "Diabetic foot ulcer, left heel. Debrided ulcer. Tolerated well.",
+    "claim": {
+      "Date of service": "2026-11-07",
+      "CPT (line 1)": "11042",
+      "Primary ICD-10": "E11.621",
+      "Secondary ICD-10": "L97.422",
+      "Attachments": "none"
+    },
+    "rules": [
+      "Debridement claims need the note to record the wound size, the depth, and the tissue removed."
+    ],
+    "sections": [
+      {
+        "category": "documentation",
+        "title": "The clinical note",
+        "question": "Read the note. What does it leave out?",
+        "options": [
+          "Nothing",
+          "The wound size, depth, and tissue removed",
+          "The patient's diagnosis"
+        ],
+        "answer": 1,
+        "feedback": "The note only says the ulcer was debrided. It does not record size, depth, or the tissue removed."
+      },
+      {
+        "category": "documentation",
+        "title": "Who can fix it",
+        "question": "Can you add the missing details yourself?",
+        "options": [
+          "Yes. Estimate them",
+          "No. Only the provider can add to the clinical note"
+        ],
+        "answer": 1,
+        "feedback": "Never invent clinical details. The provider must add them to the note."
+      },
+      {
+        "category": "documentation",
+        "title": "Your decision",
+        "question": "What should you do with this claim?",
+        "options": [
+          "Submit it as it is",
+          "Fix the claim, then submit it",
+          "Close the claim",
+          "Hold it and get what is missing first"
+        ],
+        "answer": 3,
+        "feedback": "Hold the claim and ask the provider to complete the note before it is submitted."
+      }
+    ]
+  }
+]

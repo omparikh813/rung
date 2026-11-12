@@ -86,6 +86,9 @@ DEMO_TODAY = date.fromisoformat(os.environ.get("DEMO_TODAY", "2026-11-16"))
 
 # Fading help. These thresholds are demo settings, not research based standards.
 RUNG_STREAK_TO_LOWER_HELP = 3
+# Daily training: how many exercises a day, and how many correct sections equal one real claim.
+RUNG_TRAINING_PER_DAY = 10
+RUNG_TRAINING_SECTIONS_PER_STEP = 3
 RUNG_READY_MIN_SCORED = 20
 RUNG_READY_MIN_ACCURACY = 85
 RUNG_READY_MIN_MINIMAL = 4

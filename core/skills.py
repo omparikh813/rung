@@ -76,6 +76,45 @@ def is_correct(claim, action):
     return False
 
 
+def add_streak_step(record):
+    """Add one step to the streak. Returns True if that lowered the help level."""
+    step = LEVELS.index(record.help_level)
+    record.streak += 1
+    if record.streak >= settings.RUNG_STREAK_TO_LOWER_HELP and step < len(LEVELS) - 1:
+        record.help_level = LEVELS[step + 1]
+        record.streak = 0
+        return True
+    return False
+
+
+@transaction.atomic
+def record_training(worker, results):
+    """Update the Skill Passport from one training exercise.
+
+    results is a list of (category, correct) pairs, one per section. Training counts
+    for less than real work: it takes RUNG_TRAINING_SECTIONS_PER_STEP correct sections
+    in a category to equal one correct real claim. A wrong section clears that
+    progress but never raises the help level. Returns the records whose level dropped.
+    """
+    improved = []
+    for category, correct in results:
+        if category not in Category.values:
+            continue
+        record, _ = SkillRecord.objects.get_or_create(worker=worker, category=category)
+        record.training_attempts += 1
+        if correct:
+            record.training_correct += 1
+            record.training_progress += 1
+            if record.training_progress >= settings.RUNG_TRAINING_SECTIONS_PER_STEP:
+                record.training_progress = 0
+                if add_streak_step(record):
+                    improved.append(record)
+        else:
+            record.training_progress = 0
+        record.save()
+    return improved
+
+
 @transaction.atomic
 def score_claim(claim, worker, action):
     """Score the worker's first final action on a claim that has an answer key.
@@ -105,11 +144,7 @@ def score_claim(claim, worker, action):
     if correct:
         record.correct += 1
         if not assisted:  # Assisted answers count for accuracy but do not add to the streak.
-            record.streak += 1
-            if record.streak >= settings.RUNG_STREAK_TO_LOWER_HELP and step < len(LEVELS) - 1:
-                record.help_level = LEVELS[step + 1]
-                record.streak = 0
-                improved = True
+            improved = add_streak_step(record)
     else:
         record.help_level = LEVELS[max(step - 1, 0)]
         record.streak = 0
@@ -142,6 +177,8 @@ def passport(worker):
                 "attempts": record.attempts if record else 0,
                 "accuracy": round(100 * record.correct / record.attempts) if record and record.attempts else None,
                 "streak": record.streak if record else 0,
+                "training_correct": record.training_correct if record else 0,
+                "training_attempts": record.training_attempts if record else 0,
             }
         )
     minimal = sum(c["level"] == HelpLevel.MINIMAL for c in categories)

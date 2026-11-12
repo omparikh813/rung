@@ -102,6 +102,7 @@ class RouteAccessTests(SeededTestCase):
             (reverse("passport_user", args=["other"]), 403, 200),
             (reverse("upload"), 200, 403),
             (reverse("claim_new"), 200, 403),
+            (reverse("training"), 200, 403),
             (reverse("upload_template"), 200, 403),
         ]
         # The review endpoint would call the AI, so give the claim a stored review first.
@@ -145,7 +146,7 @@ class RouteAccessTests(SeededTestCase):
 
     def test_sidebar_lists_only_the_roles_own_pages(self):
         worker_links = [item["label"] for item in self.client.get(reverse("queue")).context["nav_items"]]
-        self.assertEqual(worker_links, ["My Queue", "Help Requests", "Case Library", "Skill Passport", "Add Claims"])
+        self.assertEqual(worker_links, ["My Queue", "Daily Training", "Help Requests", "Case Library", "Skill Passport", "Add Claims"])
         self.client.force_login(self.dan)
         specialist_links = [item["label"] for item in self.client.get(reverse("help_list")).context["nav_items"]]
         self.assertEqual(specialist_links, ["Help Requests", "Case Library", "Skill Passport"])

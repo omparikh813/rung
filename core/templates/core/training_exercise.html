@@ -1,0 +1,107 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}{{ exercise.title }}{% endblock %}
+{% block content %}
+<a class="link inline-flex items-center gap-1 text-sm" href="{% url 'training' %}">{% icon "arrow-left" %}Daily Training</a>
+
+<section class="page-hero mt-3 animate-slide-in">
+  <span class="blob -top-20 right-10 size-72 bg-lime/50" aria-hidden="true"></span>
+  <div class="relative flex flex-wrap items-center justify-between gap-6">
+    <div class="min-w-0">
+      <p class="eyebrow">Practice case {{ number }} of {{ count }}</p>
+      <h1 class="mt-1">{{ exercise.title }}</h1>
+      <p class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm font-semibold text-muted">
+        <span class="inline-flex items-center gap-1.5">{% icon "building-2" %}{{ exercise.payer_name }}</span>
+        <span class="inline-flex items-center gap-1.5">{% icon "graduation-cap" %}Fictional training data</span>
+      </p>
+    </div>
+    {% if attempt %}
+    <div class="glass flex items-center gap-4 px-5 py-4">
+      {% widthratio attempt.correct attempt.total 100 as score %}
+      {% include "core/partials/accuracy_ring.html" with percent=score|add:0 size="size-20" label="Score" %}
+      <div><p class="font-bold text-forest">{{ attempt.correct }} of {{ attempt.total }} sections correct</p><p class="mt-1 text-xs text-muted">Your Skill Passport has been updated.</p></div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+  <div class="flex flex-col gap-6 lg:sticky lg:top-20 lg:self-start">
+    <section class="card p-5">
+      <h2 class="card-title flex items-center gap-3"><span class="icon-tile bg-pastel-butter text-forest">{% icon "stethoscope" "size-5" %}</span>Clinical note</h2>
+      <p class="mt-4 rounded-xl border-l-4 border-sage bg-sage-soft p-4 leading-relaxed">{{ exercise.note }}</p>
+    </section>
+    <section class="card p-5">
+      <h2 class="card-title flex items-center gap-3"><span class="icon-tile bg-pastel-sky text-forest">{% icon "clipboard-check" "size-5" %}</span>The claim</h2>
+      <dl class="mt-4 divide-y divide-border text-sm">
+        {% for label, value in exercise.claim.items %}
+        <div class="flex items-baseline justify-between gap-4 py-2"><dt class="font-semibold text-muted">{{ label }}</dt><dd class="code text-right font-semibold text-forest">{{ value }}</dd></div>
+        {% endfor %}
+      </dl>
+    </section>
+    <section class="card p-5">
+      <h2 class="card-title flex items-center gap-3"><span class="icon-tile bg-pastel-lavender text-forest">{% icon "library" "size-5" %}</span>Rules that apply</h2>
+      <ul class="mt-4 space-y-2 text-sm">
+        {% for rule in exercise.rules %}<li class="flex gap-2"><span class="mt-0.5 text-primary">{% icon "circle-check" %}</span><span>{{ rule }}</span></li>{% endfor %}
+      </ul>
+    </section>
+  </div>
+
+  {% if results %}
+  <div class="flex flex-col gap-5">
+    {% for section in results %}
+    <section class="card animate-slide-in overflow-hidden border-2 {% if section.correct %}border-success/50{% else %}border-warning/60{% endif %}" style="animation-delay: {% widthratio forloop.counter0 1 80 %}ms">
+      <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 {{ section.category|category_tone }}">
+        <h2 class="card-title flex items-center gap-3"><span class="icon-tile size-9 bg-white text-forest">{% icon section.category|category_icon %}</span>{{ forloop.counter }}. {{ section.title }} <span class="text-xs font-semibold text-muted">{{ section.category_name }}</span></h2>
+        {% if section.correct %}<span class="badge badge-success">{% icon "circle-check" "size-3.5" %}Correct</span>
+        {% else %}<span class="badge badge-warning">{% icon "triangle-alert" "size-3.5" %}Incorrect</span>{% endif %}
+      </div>
+      <div class="p-5">
+        <p class="font-semibold text-forest">{{ section.question }}</p>
+        <p class="mt-3 text-sm"><span class="font-semibold text-muted">Your answer:</span> <span class="{% if not section.correct %}line-through decoration-warning{% endif %}">{{ section.picked_text }}</span></p>
+        {% if not section.correct %}<p class="mt-1 text-sm"><span class="font-semibold text-muted">Correct answer:</span> <span class="font-semibold text-success-strong">{{ section.answer_text }}</span></p>{% endif %}
+        <p class="mt-3 flex items-start gap-2 rounded-xl px-3 py-2.5 text-sm {% if section.correct %}bg-success-soft text-forest{% else %}bg-warning-soft text-text{% endif %}">
+          <span class="mt-0.5 {% if section.correct %}text-success-strong{% else %}text-warning{% endif %}">{% icon "lightbulb" %}</span><span>{{ section.feedback }}</span>
+        </p>
+      </div>
+    </section>
+    {% endfor %}
+    <div class="flex flex-wrap justify-end gap-3">
+      <a class="btn btn-secondary" href="{% url 'training' %}">Back to today's cases</a>
+      {% if following %}<a class="btn btn-primary" href="{% url 'training_exercise' following.pk %}">Next case<span class="arrow">{% icon "arrow-right" %}</span></a>{% endif %}
+    </div>
+  </div>
+  {% else %}
+  <form method="post" class="flex flex-col gap-5" x-data="{ busy: false }" @submit="busy = true" @pageshow.window="busy = false" :class="busy && 'is-busy'">
+    {% csrf_token %}
+    {% for index, section in sections %}
+    <fieldset class="card animate-slide-in overflow-hidden {% if index in missing %}border-2 border-destructive/60{% endif %}" style="animation-delay: {% widthratio forloop.counter0 1 80 %}ms">
+      <legend class="sr-only">{{ section.title }}</legend>
+      <div class="flex items-center gap-3 px-5 py-4 {{ section.category|category_tone }}">
+        <span class="icon-tile size-9 bg-white text-forest">{% icon section.category|category_icon %}</span>
+        <h2 class="card-title">{{ forloop.counter }}. {{ section.title }}</h2>
+      </div>
+      <div class="p-5">
+        <p class="font-semibold text-forest">{{ section.question }}</p>
+        {% if index in missing %}<p class="field-error" role="alert">{% icon "circle-x" "mt-0.5 size-4" %}<span>Choose an answer for this section.</span></p>{% endif %}
+        <div class="mt-3 grid gap-2">
+          {% for option in section.options %}
+          {% with name="section-"|add:forloop.parentloop.counter0|stringformat:"s" %}
+          <label class="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl border border-border px-3 py-2 text-sm transition duration-200 hover:translate-x-0.5 hover:bg-primary-soft has-[:checked]:border-primary has-[:checked]:bg-primary-soft has-[:checked]:font-bold has-[:checked]:shadow-sm">
+            <input type="radio" class="size-4 accent-primary-strong" name="section-{{ forloop.parentloop.counter0 }}" value="{{ forloop.counter0 }}" {% if picked|get_item:name == forloop.counter0|stringformat:"s" %}checked{% endif %}>
+            <span>{{ option }}</span>
+          </label>
+          {% endwith %}
+          {% endfor %}
+        </div>
+      </div>
+    </fieldset>
+    {% endfor %}
+    <div class="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-white/85 px-4 py-3 shadow-md backdrop-blur-md">
+      <p class="hidden text-sm text-muted sm:block">Each section is checked on its own. You get one try per case per day.</p>
+      <button type="submit" class="btn btn-primary w-full sm:w-auto sm:px-6">{% icon "circle-check" %}Check my work<span class="arrow">{% icon "arrow-right" %}</span></button>
+    </div>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

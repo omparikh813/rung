@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import AIReview, Attempt, CaseEntry, Claim, ClaimEvent, HelpRequest, PayerRule, Profile, SkillRecord
+from .models import AIReview, Attempt, CaseEntry, Claim, ClaimEvent, HelpRequest, PayerRule, Profile, SkillRecord, TrainingAttempt, TrainingExercise
 
 
 @admin.register(Profile)
@@ -52,3 +52,13 @@ class SkillRecordAdmin(admin.ModelAdmin):
 @admin.register(Attempt)
 class AttemptAdmin(admin.ModelAdmin):
     list_display = ["worker", "claim", "category", "action_taken", "correct", "assisted", "created_at"]
+
+
+@admin.register(TrainingExercise)
+class TrainingExerciseAdmin(admin.ModelAdmin):
+    list_display = ["code", "title", "payer_name"]
+
+
+@admin.register(TrainingAttempt)
+class TrainingAttemptAdmin(admin.ModelAdmin):
+    list_display = ["worker", "exercise", "day", "correct", "total"]

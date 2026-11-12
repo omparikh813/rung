@@ -5,6 +5,7 @@ import os
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
+from django.core.management import call_command
 from django.db import transaction
 
 from core.claims import claim_from_row, read_csv
@@ -19,6 +20,7 @@ from core.models import (
     Profile,
     Role,
     SkillRecord,
+    TrainingAttempt,
 )
 
 DEMO_USERS = [("maria", "Maria", Role.WORKER), ("dan", "Dan", Role.SPECIALIST)]
@@ -33,7 +35,7 @@ class Command(BaseCommand):
         if not password:
             raise CommandError("Set DEMO_PASSWORD in .env before seeding.")
 
-        for model in (Attempt, SkillRecord, CaseEntry, HelpRequest, AIReview, ClaimEvent, Claim, PayerRule):
+        for model in (TrainingAttempt, Attempt, SkillRecord, CaseEntry, HelpRequest, AIReview, ClaimEvent, Claim, PayerRule):
             model.objects.all().delete()
 
         User = get_user_model()
@@ -64,6 +66,7 @@ class Command(BaseCommand):
         for row in rows:
             claim_from_row(row, assigned_to=users["maria"]).save()
 
+        call_command("load_training", stdout=self.stdout)
         self.stdout.write(
             self.style.SUCCESS(f"Loaded {len(rows)} claims and {len(rules)} payer rules. Users: maria, dan.")
         )

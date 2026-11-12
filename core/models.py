@@ -263,6 +263,10 @@ class SkillRecord(models.Model):
     correct = models.PositiveIntegerField(default=0)
     streak = models.PositiveIntegerField(default=0)
     escalations = models.PositiveIntegerField(default=0)
+    # Daily training counts for less than real claims: a few correct sections make one streak step.
+    training_attempts = models.PositiveIntegerField(default=0)
+    training_correct = models.PositiveIntegerField(default=0)
+    training_progress = models.PositiveIntegerField(default=0)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["worker", "category"], name="one_skill_per_category")]
@@ -289,3 +293,40 @@ class Attempt(models.Model):
 
     def __str__(self):
         return f"{self.worker} {self.claim}: {'correct' if self.correct else 'incorrect'}"
+
+
+class TrainingExercise(models.Model):
+    """A practice case with fictional data. Each section is a question about one part of the claim."""
+
+    code = models.CharField(max_length=10, unique=True)
+    title = models.CharField(max_length=120)
+    payer_name = models.CharField(max_length=100)
+    note = models.TextField()
+    claim = models.JSONField()  # label -> value, as shown to the worker
+    rules = models.JSONField()  # the payer rules that apply
+    sections = models.JSONField()  # category, title, question, options, answer, feedback
+
+    class Meta:
+        ordering = ["code"]
+
+    def __str__(self):
+        return f"{self.code} {self.title}"
+
+
+class TrainingAttempt(models.Model):
+    """One worker's answers to one exercise on one day."""
+
+    worker = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="training_attempts")
+    exercise = models.ForeignKey(TrainingExercise, on_delete=models.CASCADE, related_name="attempts")
+    day = models.DateField()
+    answers = models.JSONField()  # the option the worker chose in each section
+    correct = models.PositiveSmallIntegerField()
+    total = models.PositiveSmallIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+        constraints = [models.UniqueConstraint(fields=["worker", "exercise", "day"], name="one_try_per_exercise_per_day")]
+
+    def __str__(self):
+        return f"{self.worker} {self.exercise.code} {self.day}: {self.correct}/{self.total}"
