@@ -231,7 +231,10 @@ class HelpRequest(models.Model):
 
 
 class CaseEntry(models.Model):
-    """A specialist fix saved for future workers. Never stores patient names, member IDs, or dates of birth."""
+    """A fix saved for future workers, by a specialist or from the simulated insurer.
+
+    Never stores patient names, member IDs, or dates of birth.
+    """
 
     title = models.CharField(max_length=150)
     category = models.CharField(max_length=20, choices=Category.choices)
@@ -242,6 +245,9 @@ class CaseEntry(models.Model):
     fix = models.TextField()
     tip = models.TextField(blank=True)
     source_request = models.ForeignKey(HelpRequest, null=True, blank=True, on_delete=models.SET_NULL)
+    # Written automatically when the simulated insurer pays a claim it had denied.
+    from_insurer = models.BooleanField(default=False)
+    source_claim = models.ForeignKey("Claim", null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
 

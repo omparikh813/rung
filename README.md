@@ -57,6 +57,10 @@ RUNG is not connected to billing software, clearinghouses, or payers.
   (`core/payer.py`). A correct claim is Paid. A wrong one is Denied with a standard
   code and returns to the worker's queue. Sample claims are judged by their hidden
   answer key, and other claims by their latest AI review.
+  When a claim the insurer denied is fixed and then paid, RUNG adds a Case Library
+  entry for it automatically: the denial is the problem, the changed fields are the
+  fix, and no patient details are copied. These entries are marked "From the
+  simulated insurer", and any specialist can edit or delete them.
 - **Daily Training:** workers get ten fictional practice cases a day, each with
   several sections (for example modifiers, units, and the final decision). Every
   section is checked on its own, wrong ones get feedback and the right answer, and

@@ -145,3 +145,97 @@ class PaidStatusTests(PayerTestCase):
     def test_the_answer_key_text_is_not_shown_with_the_verdict(self):
         response = self.submit("CLM-1012")
         self.assertNotContains(response, self.claim("CLM-1012").expected_issue)
+
+
+class InsurerLibraryEntryTests(PayerTestCase):
+    """A claim the insurer denied, then paid once fixed, becomes a Case Library entry."""
+
+    def entry(self):
+        from core.models import CaseEntry
+
+        return CaseEntry.objects.get(from_insurer=True)
+
+    def test_denied_then_fixed_and_paid_writes_an_entry(self):
+        self.submit("CLM-1012")
+        response = self.submit("CLM-1012", modifiers_1="25")
+        self.assertContains(response, "CLM-1012 submitted. The payer paid it, and the fix was added to the Case Library.")
+        entry = self.entry()
+        self.assertEqual(entry.title, "Modifiers: Summit Health PPO denial CO-4")
+        self.assertEqual((entry.category, entry.payer_name, entry.denial_code), ("modifiers", "Summit Health PPO", "CO-4"))
+        self.assertEqual(entry.codes, "99213, 20610, M17.11, I10")
+        self.assertIn("Summit Health PPO denied the claim with CO-4:", entry.problem)
+        self.assertEqual(entry.fix, "Modifiers (line 1) changed to 25. The claim was resubmitted and the insurer paid it.")
+        self.assertEqual(entry.tip, "Check Modifiers (line 1) before the first submission to avoid a CO-4 denial.")
+        self.assertEqual((entry.created_by, entry.source_claim.claim_id), (None, "CLM-1012"))
+
+    def test_paid_on_the_first_try_writes_nothing(self):
+        from core.models import CaseEntry
+
+        self.submit("CLM-1001")
+        self.submit("CLM-1013", modifiers_1="GP")
+        self.assertEqual(CaseEntry.objects.count(), 0)
+
+    def test_still_denied_writes_nothing(self):
+        from core.models import CaseEntry
+
+        self.submit("CLM-1012")
+        self.submit("CLM-1012", modifiers_1="59")
+        self.assertEqual(CaseEntry.objects.count(), 0)
+
+    def test_a_claim_that_arrived_denied_counts_too(self):
+        self.submit("CLM-1010", prior_auth_number="SH4471932")
+        entry = self.entry()
+        self.assertEqual((entry.category, entry.denial_code), ("prior_auth", "CO-197"))
+        self.assertIn("Prior auth number was added.", entry.fix)
+        self.assertNotIn("SH4471932", entry.fix + entry.tip + entry.problem)
+
+    def test_patient_details_never_reach_the_entry(self):
+        claim = self.claim("CLM-1022")
+        self.submit("CLM-1022", payer_name="Crestline Insurance PPO", member_id="CRX20093357")
+        entry = self.entry()
+        self.assertIn("Payer changed to Crestline Insurance PPO.", entry.fix)
+        self.assertIn("Member ID was corrected.", entry.fix)
+        text = " ".join([entry.title, entry.problem, entry.fix, entry.tip, entry.codes])
+        for private in ("CRX20093357", claim.member_id, claim.patient_first, claim.patient_last, str(claim.patient_dob), str(claim.date_of_service)):
+            self.assertNotIn(private, text)
+
+    def test_only_changes_since_the_first_denial_are_listed(self):
+        self.submit("CLM-1012", units_2="1", charge_1="150.00", icd10_secondary="I10")
+        self.submit("CLM-1012", modifiers_2="RT", units_1="1")
+        self.submit("CLM-1012", modifiers_1="25")
+        self.assertEqual(self.entry().fix, "Modifiers (line 1) changed to 25. The claim was resubmitted and the insurer paid it.")
+
+    def test_entry_shows_its_source_and_specialists_can_tidy_it(self):
+        self.submit("CLM-1012")
+        self.submit("CLM-1012", modifiers_1="25")
+        entry = self.entry()
+        self.assertContains(self.client.get(reverse("library")), "From the simulated insurer")
+        detail = self.client.get(reverse("library_detail", args=[entry.pk]))
+        self.assertContains(detail, "Written automatically from the simulated insurer")
+        self.assertFalse(detail.context["can_change"])
+        self.client.force_login(self.dan)
+        self.assertTrue(self.client.get(reverse("library_detail", args=[entry.pk])).context["can_change"])
+        self.assertEqual(self.client.get(reverse("library_edit", args=[entry.pk])).status_code, 200)
+
+    def test_the_entry_shows_as_a_similar_case_on_a_related_claim(self):
+        self.submit("CLM-1012")
+        self.submit("CLM-1012", modifiers_1="25")
+        page = self.client.get(reverse("claim", args=[self.claim("CLM-1001").pk]))
+        self.assertContains(page, "Modifiers: Summit Health PPO denial CO-4")
+
+    def test_no_second_entry_when_a_specialist_already_wrote_one_up(self):
+        from core.models import CaseEntry
+
+        claim = self.claim("CLM-1026")  # arrived denied with CO-16
+        request = HelpRequest.objects.create(claim=claim, worker=self.maria, question="?", status=RequestStatus.RESOLVED)
+        self.submit("CLM-1026", attachments="wound measurements")
+        self.assertEqual(self.claim("CLM-1026").work_status, WorkStatus.PAID)
+        # Without a specialist write-up the insurer entry is created...
+        self.assertEqual(CaseEntry.objects.filter(from_insurer=True).count(), 1)
+        CaseEntry.objects.all().delete()
+        # ...but with one, it is not repeated.
+        CaseEntry.objects.create(title="t", category="documentation", problem="p", fix="f", source_request=request, created_by=self.dan)
+        Claim.objects.filter(pk=claim.pk).update(work_status=WorkStatus.DENIED)
+        self.submit("CLM-1026", attachments="wound measurements and depth")
+        self.assertEqual(self.claim("CLM-1026").work_status, WorkStatus.PAID)
+        self.assertEqual(CaseEntry.objects.filter(from_insurer=True).count(), 0)

@@ -12,7 +12,7 @@ from ..claims import FIELD_GROUPS, claim_history, next_claim_id, save_claim_form
 from ..decorators import role_required, user_role
 from ..forms import ClaimForm, NewClaimForm
 from .. import payer
-from ..models import ClaimEvent, EventAction, FinalAction, HelpLevel, HelpRequest, RequestStatus, Role, WorkStatus
+from ..models import CaseEntry, ClaimEvent, EventAction, FinalAction, HelpLevel, HelpRequest, RequestStatus, Role, WorkStatus
 from ..reviews import field_hints, issue_cards, open_high_confidence, run_review
 from ..skills import PLAIN_NAMES, score_claim
 from ..x12 import build_837p
@@ -153,7 +153,9 @@ def submit_claim(request, claim):
     ClaimEvent.objects.create(claim=claim, user=request.user, action=EventAction.SUBMIT)
     score_final_action(request, claim, FinalAction.SUBMIT)
     answer = payer.respond(claim, request.user)
-    if answer == "paid":
+    if answer == "paid" and CaseEntry.objects.filter(source_claim_id=claim.pk, from_insurer=True).exists():
+        messages.success(request, f"{claim.claim_id} submitted. The payer paid it, and the fix was added to the Case Library.")
+    elif answer == "paid":
         messages.success(request, f"{claim.claim_id} submitted. The payer paid it.")
     elif answer == "denied":
         claim.refresh_from_db(fields=["denial_code", "denial_reason"])

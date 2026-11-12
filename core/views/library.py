@@ -12,8 +12,8 @@ EVERYONE = (Role.WORKER, Role.SPECIALIST)
 
 
 def can_change(user, entry):
-    """Specialists can edit and delete the entries they created."""
-    return user_role(user) == Role.SPECIALIST and entry.created_by_id == user.pk
+    """Specialists can edit and delete the entries they created, and any entry from the simulated insurer."""
+    return user_role(user) == Role.SPECIALIST and (entry.from_insurer or entry.created_by_id == user.pk)
 
 
 def own_entry(request, pk):

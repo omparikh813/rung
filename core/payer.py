@@ -5,8 +5,9 @@ that is correct and denies one that is not, with a standard denial code and reas
 """
 
 from .ai import latest_review
-from .claims import days_left_to_file, filing_limits
+from .claims import days_left_to_file, field_label, filing_limits
 from .models import (
+    CaseEntry,
     Category,
     Claim,
     ClaimEvent,
@@ -31,6 +32,26 @@ DENIALS = {
 TIMELY_FILING = ("CO-29", "The time limit for filing has expired")
 DUPLICATE = ("CO-18", "Exact duplicate claim/service")
 GENERAL = ("CO-16", "Claim lacks information needed for adjudication")
+
+# The skill area each denial code points to, for claims with no answer key.
+DENIAL_CATEGORIES = {
+    "CO-4": Category.MODIFIERS,
+    "CO-11": Category.CODE_MATCHING,
+    "CO-16": Category.DOCUMENTATION,
+    "CO-18": Category.FILING_RULES,
+    "CO-22": Category.ELIGIBILITY,
+    "CO-27": Category.ELIGIBILITY,
+    "CO-29": Category.FILING_RULES,
+    "CO-31": Category.ELIGIBILITY,
+    "CO-50": Category.DOCUMENTATION,
+    "CO-197": Category.PRIOR_AUTH,
+}
+
+# Fields that identify the patient. A library entry says they changed, never what to.
+PRIVATE_FIELDS = {
+    "patient_first", "patient_last", "patient_dob", "patient_sex", "member_id", "date_of_service",
+    "eligibility_note", "prior_auth_number", "referral_number",
+}  # fmt: skip
 
 
 def has_earlier_duplicate(claim):
@@ -82,9 +103,12 @@ def respond(claim, user):
         return ""
     paid, category = verdict
     if paid:
+        was_denied = claim.status == ClaimStatus.DENIED and bool(claim.denial_code)
         claim.work_status = WorkStatus.PAID
         claim.save(update_fields=["work_status", "updated_at"])
         ClaimEvent.objects.create(claim=claim, user=None, action=EventAction.PAYER, new_value="Paid")
+        if was_denied:
+            library_entry_from_insurer(claim)
         return "paid"
     code, reason = denial_for(claim, category)
     claim.work_status = WorkStatus.DENIED
@@ -93,3 +117,55 @@ def respond(claim, user):
     claim.save(update_fields=["work_status", "status", "denial_code", "denial_reason", "updated_at"])
     ClaimEvent.objects.create(claim=claim, user=None, action=EventAction.PAYER, new_value=f"Denied: {code} {reason}")
     return "denied"
+
+
+def fix_lines(claim):
+    """What changed to get a denied claim paid, one line per field, with no patient details.
+
+    Counts the edits since the insurer first denied the claim, or every edit if it arrived denied.
+    """
+    first_denial = claim.events.filter(action=EventAction.PAYER, new_value__startswith="Denied").order_by("created_at", "id").first()
+    edits = claim.events.filter(action=EventAction.EDIT).order_by("created_at", "id")
+    if first_denial:
+        edits = edits.filter(created_at__gte=first_denial.created_at)
+    changes = {}
+    for edit in edits:
+        before = changes[edit.field][0] if edit.field in changes else edit.old_value
+        changes[edit.field] = (before, edit.new_value)
+    lines = []
+    for field, (before, after) in changes.items():
+        if before == after:
+            continue
+        label = field_label(field)
+        if field in PRIVATE_FIELDS:
+            lines.append(f"{label} was {'added' if not before else 'corrected'}.")
+        elif after:
+            lines.append(f"{label} changed to {after}.")
+        else:
+            lines.append(f"{label} was cleared.")
+    return lines, [field_label(field) for field in changes]
+
+
+def library_entry_from_insurer(claim):
+    """Save a Case Library entry for a claim the insurer denied and then paid once it was fixed."""
+    if CaseEntry.objects.filter(source_request__claim=claim).exists():
+        return None  # A specialist already wrote this one up.
+    lines, labels = fix_lines(claim)
+    if not lines:
+        return None
+    code, reason = claim.denial_code, claim.denial_reason
+    category = claim.expected_category if claim.expected_category in Category.values else DENIAL_CATEGORIES.get(code, Category.DOCUMENTATION)
+    codes = [c for c in (claim.cpt_1, claim.cpt_2, claim.icd10_primary, claim.icd10_secondary) if c]
+    checked = ", ".join(labels[:-1]) + (" and " if len(labels) > 1 else "") + labels[-1]
+    return CaseEntry.objects.create(
+        title=f"{Category(category).label}: {claim.payer_name} denial {code}",
+        category=category,
+        payer_name=claim.payer_name,
+        codes=", ".join(codes),
+        denial_code=code,
+        problem=f"{claim.payer_name} denied the claim with {code}: {reason}.",
+        fix=" ".join(lines) + " The claim was resubmitted and the insurer paid it.",
+        tip=f"Check {checked} before the first submission to avoid a {code} denial.",
+        from_insurer=True,
+        source_claim=claim,
+    )
