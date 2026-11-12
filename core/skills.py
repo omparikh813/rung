@@ -149,7 +149,10 @@ def passport(worker):
     category_names = {c.value: PLAIN_NAMES[c][0] for c in Category} | {Attempt.NO_CATEGORY: "Clean claim"}
     activity = [
         {
+            "claim_pk": a["claim_id"],
             "claim_id": a["claim__claim_id"],
+            # A claim the worker submitted can be exported as an 837P file.
+            "exportable": a["action_taken"] == FinalAction.SUBMIT,
             "category": category_names[a["category"]],
             "action": FinalAction(a["action_taken"]).label,
             "result": "Incorrect" if not a["correct"] else "Correct with answer shown" if a["assisted"] else "Correct",

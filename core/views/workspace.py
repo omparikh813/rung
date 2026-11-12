@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -16,6 +16,7 @@ from .. import payer
 from ..models import ClaimEvent, EventAction, FinalAction, HelpLevel, HelpRequest, RequestStatus, Role, WorkStatus
 from ..reviews import field_hints, issue_cards, open_high_confidence, run_review
 from ..skills import PLAIN_NAMES, score_claim
+from ..x12 import build_837p
 
 CLOSE_REASONS = [("duplicate", "Duplicate"), ("not_billable", "Not billable"), ("other", "Other")]
 
@@ -239,3 +240,19 @@ def claim_answer(request, pk, index):
             new_value=str(index),
         )
     return render(request, "core/partials/answer.html", {"issue": issues[index]})
+
+
+@role_required(Role.WORKER, Role.SPECIALIST)
+def claim_export(request, pk):
+    """Download a submitted claim as an ANSI X12 837P file.
+
+    A worker can export their own claims. A specialist can export any worker's.
+    """
+    claim = get_object_or_404(visible_claims(), pk=pk)
+    if user_role(request.user) == Role.WORKER and claim.assigned_to_id != request.user.pk:
+        raise PermissionDenied
+    if not claim.events.filter(action=EventAction.SUBMIT).exists():
+        raise Http404("Only submitted claims can be exported.")
+    response = HttpResponse(build_837p(claim), content_type="text/plain; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="{claim.claim_id}_837P.txt"'
+    return response

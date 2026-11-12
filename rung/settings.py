@@ -89,3 +89,27 @@ RUNG_STREAK_TO_LOWER_HELP = 3
 RUNG_READY_MIN_SCORED = 20
 RUNG_READY_MIN_ACCURACY = 85
 RUNG_READY_MIN_MINIMAL = 4
+
+# Placeholder values for the ANSI X12 837P export. The demo does not hold this data.
+# Replace every value before sending a file to a clearinghouse.
+RUNG_X12 = {
+    "sender_id": "RUNGDEMO",
+    "receiver_id": "CLEARINGHOUSE",
+    "submitter_name": "PLACEHOLDER BILLING SERVICE",
+    "submitter_contact": "PLACEHOLDER CONTACT",
+    "submitter_phone": "5550100000",
+    "receiver_name": "PLACEHOLDER CLEARINGHOUSE",
+    "billing_provider_name": "PLACEHOLDER MEDICAL GROUP",
+    "billing_provider_address": "123 PLACEHOLDER STREET",
+    "billing_provider_city": "YOUR CITY",
+    "billing_provider_state": "ST",
+    "billing_provider_zip": "000000000",
+    "billing_provider_tax_id": "000000000",
+    "subscriber_address": "123 PLACEHOLDER STREET",
+    "subscriber_city": "YOUR CITY",
+    "subscriber_state": "ST",
+    "subscriber_zip": "00000",
+    "payer_id": "PAYERID",
+    # T marks the file as test data. Production files use P.
+    "usage_indicator": "T",
+}
