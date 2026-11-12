@@ -68,6 +68,11 @@ class QueueTests(SeededTestCase):
         self.assertEqual({c.claim_id for c in self.get(tab="done").context["claims"]}, {"CLM-1001", "CLM-1002"})
         self.assertEqual(len(self.get(tab="denied").context["claims"]), 6)
 
+    def test_banner_has_a_tile_for_every_tab(self):
+        Claim.objects.filter(claim_id="CLM-1012").update(work_status=WorkStatus.NEEDS_FIX)
+        tiles = {tile["label"]: tile["value"] for tile in self.get().context["tiles"]}
+        self.assertEqual(tiles, {"Open claims": 30, "Need a fix": 1, "Denied": 6, "With a specialist": 0, "Done": 0})
+
     def test_search_by_claim_id_or_last_name(self):
         self.assertEqual([c.claim_id for c in self.get(q="1012").context["claims"]], ["CLM-1012"])
         self.assertEqual({c.claim_id for c in self.get(q="sokolov").context["claims"]}, {"CLM-1005", "CLM-1029"})

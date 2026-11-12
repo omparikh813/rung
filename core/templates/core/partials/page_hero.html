@@ -27,7 +27,7 @@ and percent (shown as a progress ring with ring_label).
     </div>
   </div>
   {% if tiles %}
-  <div class="relative mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+  <div class="relative mt-6 grid grid-cols-2 gap-3 {% if tiles|length == 5 %}sm:grid-cols-3 xl:grid-cols-5{% elif tiles|length == 3 %}sm:grid-cols-3{% else %}lg:grid-cols-4{% endif %}">
     {% for tile in tiles %}
     <div class="stat-tile">
       <span class="icon-tile">{% icon tile.icon "size-5" %}</span>

@@ -53,6 +53,7 @@ def queue(request):
         "tiles": [
             {"icon": "inbox", "label": "Open claims", "value": counts["open"]},
             {"icon": "triangle-alert", "label": "Need a fix", "value": counts["needs_fix"]},
+            {"icon": "circle-x", "label": "Denied", "value": counts["denied"]},
             {"icon": "clock", "label": "With a specialist", "value": counts["waiting"]},
             {"icon": "circle-check", "label": "Done", "value": counts["done"]},
         ],
