@@ -10,7 +10,7 @@
 {% else %}
 <h2 class="mt-8 text-2xl font-extrabold">Today's cases</h2>
 <p class="mt-1 text-muted">{{ day|date:"l, F j" }}. A new mix arrives tomorrow.</p>
-<div class="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+<div class="mt-5 grid gap-5 sm:grid-cols-2">
   {% for exercise in exercises %}
   <a href="{% url 'training_exercise' exercise.pk %}" class="group card card-lift relative flex animate-slide-in flex-col gap-3 p-5 {% if exercise.attempt %}border-mint bg-primary-soft/50{% endif %}" style="animation-delay: {% widthratio forloop.counter0 1 50 %}ms">
     <span class="flex items-center justify-between gap-3">

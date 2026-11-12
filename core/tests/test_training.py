@@ -190,3 +190,10 @@ class TrainingScoringTests(SeededTestCase):
         self.assertContains(response, f"{name} improved. Help in this category is now Guided.")
         self.assertEqual(self.record(category).help_level, HelpLevel.GUIDED)
         self.assertContains(self.client.get(reverse("passport")), "Training")
+
+
+class TrainingLayoutTests(SeededTestCase):
+    def test_todays_cases_sit_in_two_columns(self):
+        html = self.client.get(reverse("training")).content.decode()
+        self.assertIn('class="mt-5 grid gap-5 sm:grid-cols-2"', html)
+        self.assertNotIn("xl:grid-cols-3", html)
