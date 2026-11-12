@@ -1,12 +1,13 @@
 from django.contrib.auth.views import LogoutView
 from django.urls import path
 
-from .views import auth, help_requests, library, organization, passport, queue, tickets, training, upload, workspace
+from .views import auth, help_requests, library, onboarding, organization, passport, queue, tickets, training, upload, workspace
 
 urlpatterns = [
     path("", auth.home, name="home"),
     path("login/", auth.Login.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("start/", onboarding.start, name="start"),
     path("queue/", queue.queue, name="queue"),
     path("claims/new/", workspace.claim_new, name="claim_new"),
     path("claims/<int:pk>/", workspace.claim, name="claim"),

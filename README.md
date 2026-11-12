@@ -54,6 +54,22 @@ Everyone signs in with the password from `DEMO_PASSWORD`.
   any time to reset the demo.
 - Keep `DEBUG=True` for the demo so `runserver` serves the static files.
 
+## Organizations and roles
+
+- **Sign in:** choose the organization first, then username and password.
+- **Workers** work their claims, do Daily Training, and ask a specialist for help.
+- **Specialists** resolve workers' help requests, coach through the Case Library,
+  see workers' Skill Passports, work their own claims (not scored), and open
+  tickets to their admin under Messages.
+- **Organization Admins** can do everything a specialist can, and also manage the
+  organization on the Organization page: overview, employees (change roles,
+  promote, deactivate or reactivate within the seat limit), worker performance,
+  settings, and subscription. Admins can message any specialist.
+- **Start Using RUNG** under the sign in box walks through creating an
+  organization (account, organization and company directory, employee seats,
+  review). It is a demo: it cannot create an organization or save anything.
+- There are no prices or payments anywhere. Seat tiers are suggested packaging.
+
 ## What is simulated
 
 RUNG is not connected to billing software, clearinghouses, or payers.
@@ -121,6 +137,7 @@ of the app keeps working.
 | `core/claims.py` | Claim helpers: CSV rows, filing deadlines, audit log, similar cases |
 | `core/uploads.py` | CSV upload parsing and row validation |
 | `core/training.py` | Picks the day's ten practice cases and checks each section |
+| `core/organizations.py` | The company directory, seat tiers, and role helpers |
 | `core/payer.py` | The simulated payer that pays or denies submitted claims |
 | `core/x12.py` | Builds the ANSI X12 837P export file |
 | `core/templates/core/` | Pages, with shared pieces in `partials/` |

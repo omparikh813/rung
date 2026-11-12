@@ -58,6 +58,11 @@
       </form>
     </div>
 
+    <div class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-white/80 p-4 shadow-sm">
+      <p class="text-sm text-muted">New to RUNG? Set up your company.</p>
+      <a class="btn btn-lime" href="{% url 'start' %}">{% icon "building-2" %}Start Using RUNG<span class="arrow">{% icon "arrow-right" %}</span></a>
+    </div>
+
     {% if show_demo_hint %}
     <div class="mt-5 rounded-2xl border border-mint bg-primary-soft p-4 text-sm text-forest">
       <p class="flex items-center gap-2 font-bold">{% icon "info" %}Demo accounts</p>

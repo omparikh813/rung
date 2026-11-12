@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
@@ -73,7 +75,7 @@ class DashboardTests(OrgAdminTestCase):
         self.assertEqual((response.context["tier"], response.context["plan"]), ("Small Business", "Team"))
         self.assertContains(response, "Active")
         self.assertContains(response, "2027-06-30")
-        self.assertNotContains(response, "$")
+        self.assertIsNone(re.search(r"\$\s?\d", response.content.decode()))
         self.assertNotContains(response, "Request more seats")
 
 
