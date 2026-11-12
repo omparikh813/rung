@@ -13,7 +13,7 @@ ROWS_KEY = "upload_rows"
 SUMMARY_KEY = "upload_summary"
 
 
-@role_required(Role.WORKER)
+@role_required(Role.WORKER, Role.SPECIALIST)
 def upload(request):
     """Step 1 previews the file with a message per row. Step 2 imports only the valid rows."""
     if request.method == "POST" and request.POST.get("step") == "import":
@@ -45,7 +45,7 @@ def upload(request):
     return render(request, "core/upload.html", context)
 
 
-@role_required(Role.WORKER)
+@role_required(Role.WORKER, Role.SPECIALIST)
 def upload_template(request):
     """The header row of sample_claims.csv, as a file to fill in."""
     response = HttpResponse(content_type="text/csv")

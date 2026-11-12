@@ -22,7 +22,7 @@ CLOSE_REASONS = [("duplicate", "Duplicate"), ("not_billable", "Not billable"), (
 
 
 def worker_claim(request, pk):
-    """The worker's own claim, or a 403 for anyone else's."""
+    """The user's own claim, or a 403 for anyone else's. Workers, specialists, and admins all have their own."""
     claim = get_object_or_404(visible_claims(), pk=pk)
     if claim.assigned_to_id != request.user.pk:
         raise PermissionDenied
@@ -32,10 +32,11 @@ def worker_claim(request, pk):
 def reviewable_claim(request, pk):
     """A claim this user may run checks on, and whether they may change it.
 
-    A worker reaches their own claims. A specialist reaches claims in their organization through a help request.
+    Everyone reaches their own claims. A specialist also reaches claims in their organization through a help request.
     """
-    if not is_reviewer(request.user):
-        claim = worker_claim(request, pk)
+    own = visible_claims().filter(pk=pk, assigned_to=request.user).first()
+    if own or not is_reviewer(request.user):
+        claim = own or worker_claim(request, pk)
         return claim, claim.is_open
     claim = get_object_or_404(visible_claims(), pk=pk, organization=organization_of(request.user))
     requests = claim.help_requests.all()
@@ -76,15 +77,16 @@ def render_workspace(request, claim, form):
     context.update(
         editable=claim.is_open,
         auto_review=claim.is_open and context["review"] is None,
+        can_ask=not is_reviewer(request.user),
         close_reasons=CLOSE_REASONS,
         confirm_issues=open_high_confidence(context["cards"]) if request.GET.get("confirm") == "submit" else [],
     )
     return render(request, "core/workspace.html", context)
 
 
-@role_required(Role.WORKER)
+@role_required(Role.WORKER, Role.SPECIALIST)
 def claim_new(request):
-    """Create one claim with a form. It is assigned to the worker and checked as soon as it opens."""
+    """Create one claim with a form. It is assigned to its creator and checked as soon as it opens."""
     form = NewClaimForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         claim = form.save(commit=False)
@@ -105,8 +107,8 @@ def claim_new(request):
 
 @role_required(Role.WORKER, Role.SPECIALIST)
 def claim(request, pk):
-    if is_reviewer(request.user):
-        # A specialist works a claim from its help request.
+    if is_reviewer(request.user) and not visible_claims().filter(pk=pk, assigned_to=request.user).exists():
+        # A specialist works someone else's claim from its help request.
         help_request = (
             HelpRequest.objects.filter(claim_id=pk, claim__organization=organization_of(request.user))
             .order_by("-created_at")
@@ -175,7 +177,9 @@ def submit_claim(request, claim):
 
 
 def ask_specialist(request, claim):
-    """Send the full case to a specialist. Asking is never discouraged."""
+    """Send the full case to a specialist. Asking is never discouraged. Only workers ask."""
+    if is_reviewer(request.user):
+        raise PermissionDenied
     question = request.POST.get("question", "").strip()
     if not question:
         messages.error(request, "Type a question for the specialist before sending.")

@@ -143,3 +143,50 @@ class SignInTests(OrganizationTestCase):
         response = self.sign_in(self.summit, "flora")
         self.assertContains(response, "That organization, username, or password is not right.")
         self.assertNotIn("_auth_user_id", self.client.session)
+
+
+class RoleTests(OrganizationTestCase):
+    """Admins can do everything specialists can. Specialists and admins have their own claims, never scored."""
+
+    def own_claim(self, user):
+        return Claim.objects.create(
+            claim_id=f"CLM-77{user.pk:02d}", organization=self.ags, assigned_to=user, patient_first="A", patient_last="B",
+            payer_name="Summit Health PPO", date_of_service=self.ags_claim.date_of_service, icd10_primary="I10",
+            cpt_1="99213", expected_action="submit", expected_category="none",
+        )  # fmt: skip
+
+    def test_each_role_lands_on_its_own_first_page(self):
+        for user, landing in ((self.maria, "queue"), (self.dan, "help_list"), (self.om, "help_list")):
+            self.client.force_login(user)
+            self.assertRedirects(self.client.get(reverse("home")), reverse(landing), fetch_redirect_response=False)
+
+    def test_an_admin_can_do_what_a_specialist_does(self):
+        request = HelpRequest.objects.create(claim=self.ags_claim, worker=self.maria, question="?")
+        self.client.force_login(self.om)
+        self.assertEqual(self.client.get(reverse("help_detail", args=[request.pk])).status_code, 200)
+        self.assertEqual(self.client.get(reverse("passport_user", args=["cassandra"])).status_code, 200)
+        self.assertRedirects(self.client.get(reverse("claim", args=[self.ags_claim.pk])), reverse("help_detail", args=[request.pk]))
+
+    def test_specialists_work_their_own_claims_and_are_not_scored(self):
+        from core.forms import ClaimForm
+        from core.models import Attempt, WorkStatus
+
+        for user in (self.dan, self.om):
+            self.client.force_login(user)
+            claim = self.own_claim(user)
+            page = self.client.get(reverse("claim", args=[claim.pk]))
+            self.assertEqual(page.status_code, 200)
+            self.assertNotContains(page, "Ask a specialist")
+            data = {k: "" if v is None else str(v) for k, v in ClaimForm(instance=claim).initial.items()}
+            # Specialists do not ask specialists, even on an open claim.
+            response = self.client.post(reverse("claim", args=[claim.pk]), {**data, "action": "ask", "question": "?"})
+            self.assertEqual(response.status_code, 403)
+            self.assertFalse(HelpRequest.objects.filter(claim=claim).exists())
+            self.client.post(reverse("claim", args=[claim.pk]), {**data, "action": "submit_confirmed"})
+            self.assertEqual(Claim.objects.get(pk=claim.pk).work_status, WorkStatus.PAID)
+            self.assertFalse(Attempt.objects.filter(worker=user).exists())
+
+    def test_daily_training_is_for_workers_only(self):
+        for user in (self.dan, self.om):
+            self.client.force_login(user)
+            self.assertEqual(self.client.get(reverse("training")).status_code, 403)

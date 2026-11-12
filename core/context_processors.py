@@ -6,16 +6,22 @@ from .decorators import user_role
 from .organizations import is_reviewer, organization_of
 from .models import HelpRequest, RequestStatus, Role
 
-# Sidebar links in display order: URL name, label, icon, roles, and the URL names
-# that keep the link highlighted. A role's first link is its landing page.
-NAV = [
-    ("queue", "My Queue", "list-checks", {Role.WORKER}, ("claim",)),
-    ("training", "Daily Training", "graduation-cap", {Role.WORKER}, ("training_exercise",)),
-    ("help_list", "Help Requests", "life-buoy", {Role.WORKER, Role.SPECIALIST}, ("help_detail",)),
-    ("library", "Case Library", "library", {Role.WORKER, Role.SPECIALIST}, ("library_detail", "library_edit")),
-    ("passport", "Skill Passport", "award", {Role.WORKER, Role.SPECIALIST}, ("passport_user",)),
-    ("upload", "Add Claims", "plus", {Role.WORKER}, ("claim_new",)),
-]
+# Sidebar links: URL name -> label, icon, and the URL names that keep the link highlighted.
+LINKS = {
+    "queue": ("My Queue", "list-checks", ("claim",)),
+    "training": ("Daily Training", "graduation-cap", ("training_exercise",)),
+    "help_list": ("Help Requests", "life-buoy", ("help_detail",)),
+    "library": ("Case Library", "library", ("library_detail", "library_edit")),
+    "passport": ("Skill Passport", "award", ("passport_user",)),
+    "upload": ("Add Claims", "plus", ("claim_new",)),
+}
+
+# Each role's sidebar, in order. The first link is the role's landing page.
+NAV = {
+    Role.WORKER: ["queue", "training", "help_list", "library", "passport", "upload"],
+    Role.SPECIALIST: ["help_list", "queue", "library", "passport", "upload"],
+    Role.ADMIN: ["help_list", "queue", "library", "passport", "upload"],
+}
 
 
 def open_help_requests(user):
@@ -27,12 +33,10 @@ def open_help_requests(user):
 
 
 def nav_for(user, current=""):
-    role = user_role(user)
-    links = [
-        {"name": name, "url": reverse(name), "label": label, "icon": icon, "active": current in (name, *also)}
-        for name, label, icon, roles, also in NAV
-        if role in roles
-    ]
+    links = []
+    for name in NAV.get(user_role(user), []):
+        label, icon, also = LINKS[name]
+        links.append({"name": name, "url": reverse(name), "label": label, "icon": icon, "active": current in (name, *also)})
     for link in links:
         if link["name"] == "help_list":
             link["count"] = open_help_requests(user).count()

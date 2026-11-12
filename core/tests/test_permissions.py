@@ -118,7 +118,7 @@ class RouteAccessTests(SeededTestCase):
         self.other_worker = make_user("other", Role.WORKER, self.ags)
         # Route, then the status each role should get: worker (maria), specialist (dan).
         self.routes = [
-            (reverse("queue"), 200, 403),
+            (reverse("queue"), 200, 200),
             (reverse("claim", args=[claim.pk]), 200, 302),
             (reverse("claim_review", args=[claim.pk]), 200, 200),
             (reverse("help_list"), 200, 200),
@@ -129,10 +129,10 @@ class RouteAccessTests(SeededTestCase):
             (reverse("passport"), 200, 302),
             (reverse("passport_user", args=["flora"]), 200, 200),
             (reverse("passport_user", args=["other"]), 403, 200),
-            (reverse("upload"), 200, 403),
-            (reverse("claim_new"), 200, 403),
+            (reverse("upload"), 200, 200),
+            (reverse("claim_new"), 200, 200),
             (reverse("training"), 200, 403),
-            (reverse("upload_template"), 200, 403),
+            (reverse("upload_template"), 200, 200),
         ]
         # The review endpoint would call the AI, so give the claim a stored review first.
         from core import ai
@@ -169,7 +169,7 @@ class RouteAccessTests(SeededTestCase):
 
     def test_403_page_uses_the_site_layout(self):
         self.client.force_login(self.dan)
-        response = self.client.get(reverse("queue"))
+        response = self.client.get(reverse("training"))
         self.assertContains(response, "You do not have access to this page", status_code=403)
         self.assertContains(response, "Demo data only. Do not enter real patient information.", status_code=403)
 
@@ -178,7 +178,7 @@ class RouteAccessTests(SeededTestCase):
         self.assertEqual(worker_links, ["My Queue", "Daily Training", "Help Requests", "Case Library", "Skill Passport", "Add Claims"])
         self.client.force_login(self.dan)
         specialist_links = [item["label"] for item in self.client.get(reverse("help_list")).context["nav_items"]]
-        self.assertEqual(specialist_links, ["Help Requests", "Case Library", "Skill Passport"])
+        self.assertEqual(specialist_links, ["Help Requests", "My Queue", "Case Library", "Skill Passport", "Add Claims"])
 
     def test_each_role_lands_on_its_own_page(self):
         self.assertRedirects(self.client.get(reverse("home")), reverse("queue"))

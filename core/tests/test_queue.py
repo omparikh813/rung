@@ -24,9 +24,12 @@ class QueueTests(SeededTestCase):
     def test_worker_lands_on_queue(self):
         self.assertRedirects(self.client.get(reverse("home")), reverse("queue"))
 
-    def test_specialist_cannot_open_queue(self):
-        self.client.force_login(self.dan)
-        self.assertEqual(self.get().status_code, 403)
+    def test_specialists_and_admins_have_their_own_empty_queue(self):
+        for user in (self.dan, self.om):
+            self.client.force_login(user)
+            response = self.get()
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["claims"], [])
 
     def test_all_30_claims_appear_with_days_left_from_demo_today(self):
         claims = self.get().context["claims"]

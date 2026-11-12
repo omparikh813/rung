@@ -15,7 +15,7 @@ TABS = [
 ]  # fmt: skip
 
 
-@role_required(Role.WORKER)
+@role_required(Role.WORKER, Role.SPECIALIST)
 def queue(request):
     claims = visible_claims().filter(assigned_to=request.user)
     statuses = list(claims.values_list("work_status", flat=True))

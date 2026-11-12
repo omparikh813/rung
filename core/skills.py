@@ -14,6 +14,7 @@ from .models import (
     FinalAction,
     HelpLevel,
     HelpRequest,
+    Role,
     SkillRecord,
 )
 
@@ -119,10 +120,14 @@ def record_training(worker, results):
 def score_claim(claim, worker, action):
     """Score the worker's first final action on a claim that has an answer key.
 
-    Returns the SkillRecord if this claim lowered the worker's help level, otherwise None.
+    Only workers are scored: the Skill Passport measures workers. Specialists' and admins'
+    own claims are never scored. Returns the SkillRecord if this claim lowered the worker's
+    help level, otherwise None.
     """
     claim = Claim.objects.select_for_update().get(pk=claim.pk)
     if claim.scored or not claim.expected_action or claim.assigned_to_id != worker.pk:
+        return None
+    if getattr(getattr(worker, "profile", None), "role", None) != Role.WORKER:
         return None
 
     correct = is_correct(claim, action)

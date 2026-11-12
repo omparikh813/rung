@@ -60,10 +60,13 @@ class NewClaimTests(SeededTestCase):
         self.assertContains(response, "Select a valid choice.")
         self.assertEqual(Claim.objects.count(), SEEDED_CLAIMS)
 
-    def test_specialist_cannot_create_claims(self):
-        self.client.force_login(self.dan)
-        self.assertEqual(self.client.get(URL).status_code, 403)
-        self.assertEqual(self.client.post(URL, GOOD).status_code, 403)
+    def test_specialists_and_admins_can_create_their_own_claims(self):
+        for user, last in ((self.dan, "Specialist"), (self.om, "Admin")):
+            self.client.force_login(user)
+            self.assertEqual(self.client.get(URL).status_code, 200)
+            self.client.post(URL, {**GOOD, "patient_last": last})
+            claim = Claim.objects.get(patient_last=last)
+            self.assertEqual((claim.assigned_to, claim.organization), (user, self.ags))
 
     def test_create_a_claim_is_the_main_option_and_csv_is_secondary(self):
         page = self.client.get(reverse("upload"))

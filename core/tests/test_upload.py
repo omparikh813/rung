@@ -188,8 +188,10 @@ class UploadPageTests(UploadTestCase):
         self.assertEqual(response.content.decode().strip(), header)
         self.assertEqual(header.split(","), CSV_COLUMNS)
 
-    def test_specialist_cannot_upload(self):
+    def test_specialists_can_upload_their_own_claims(self):
         self.client.force_login(self.dan)
-        self.assertEqual(self.client.get(self.url).status_code, 403)
-        self.assertEqual(self.preview(self.demo_file()).status_code, 403)
-        self.assertEqual(self.client.get(reverse("upload_template")).status_code, 403)
+        self.assertEqual(self.client.get(self.url).status_code, 200)
+        self.preview(self.demo_file())
+        self.do_import()
+        claim = Claim.objects.get(claim_id="CLM-2001")
+        self.assertEqual((claim.assigned_to, claim.organization), (self.dan, self.ags))
