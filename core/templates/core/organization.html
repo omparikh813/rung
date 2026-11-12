@@ -1,0 +1,182 @@
+{% extends "core/base.html" %}
+{% load rung %}
+{% block title %}{{ org.name }}{% endblock %}
+{% block content %}
+{% include "core/partials/page_hero.html" with eyebrow="Organization Admin" title=org.name subtitle="Manage your team, see who is ready for more, and check your contract." tiles=tiles percent=seat_percent ring_label="of seats in use" shape="shield" %}
+
+<nav class="mt-6 flex gap-1 overflow-x-auto rounded-2xl border border-border bg-white p-1.5 shadow-sm" aria-label="Organization sections">
+  {% for key, label, icon in sections %}
+  <a href="?section={{ key }}" class="btn min-h-10 shrink-0 px-4 {% if key == section %}bg-forest text-white shadow-md{% else %}text-forest hover:bg-primary-soft{% endif %}" {% if key == section %}aria-current="page"{% endif %}>{% icon icon %}{{ label }}</a>
+  {% endfor %}
+</nav>
+
+<div class="mt-6 animate-fade-in">
+{% if section == "overview" %}
+  <div class="grid gap-5 lg:grid-cols-3">
+    <section class="card p-5 lg:col-span-2">
+      <h2 class="card-title flex items-center gap-3"><span class="icon-tile">{% icon "activity" "size-5" %}</span>Organization performance</h2>
+      <dl class="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="rounded-2xl bg-pastel-mint p-4"><dt class="text-xs font-semibold text-muted">Claims done</dt><dd class="code mt-1 text-2xl font-semibold text-forest">{{ stats.claims_done }}</dd></div>
+        <div class="rounded-2xl bg-pastel-sky p-4"><dt class="text-xs font-semibold text-muted">Claims open</dt><dd class="code mt-1 text-2xl font-semibold text-forest">{{ stats.claims_open }}</dd></div>
+        <div class="rounded-2xl bg-pastel-lavender p-4"><dt class="text-xs font-semibold text-muted">Open help requests</dt><dd class="code mt-1 text-2xl font-semibold text-forest">{{ stats.open_requests }}</dd></div>
+        <div class="rounded-2xl bg-pastel-peach p-4"><dt class="text-xs font-semibold text-muted">Average worker accuracy</dt><dd class="code mt-1 text-2xl font-semibold text-forest">{% if stats.average_accuracy is None %}&ndash;{% else %}{{ stats.average_accuracy }}%{% endif %}</dd></div>
+      </dl>
+    </section>
+    <section class="card p-5 {% if ready_count %}border-success bg-linear-to-br from-success-soft to-mint{% endif %}">
+      <h2 class="card-title flex items-center gap-3"><span class="icon-tile bg-lime text-forest">{% icon "award" "size-5" %}</span>Ready for promotion</h2>
+      {% if ready_count %}
+      <p class="mt-3 text-sm text-forest"><span class="code text-2xl font-semibold">{{ ready_count }}</span> worker{{ ready_count|pluralize }} met every goal.</p>
+      <ul class="mt-2 space-y-1 text-sm font-semibold text-forest">{% for row in rows %}{% if row.ready %}<li class="flex items-center gap-2">{% icon "circle-check" %}{{ row.user.first_name|default:row.user.username }}</li>{% endif %}{% endfor %}</ul>
+      <a class="btn btn-primary mt-4" href="?section=performance">Review and promote<span class="arrow">{% icon "arrow-right" %}</span></a>
+      {% else %}
+      <p class="mt-3 text-sm text-muted">No one has met every goal yet. Workers show up here once they reach them.</p>
+      {% endif %}
+    </section>
+  </div>
+  <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {% for key, label, icon in sections %}{% if key != "overview" %}
+    <a href="?section={{ key }}" class="group card card-lift flex items-center justify-between gap-3 p-5">
+      <span class="flex items-center gap-3 font-bold text-forest"><span class="icon-tile transition duration-300 group-hover:-rotate-6">{% icon icon "size-5" %}</span>{{ label }}</span>
+      <span class="arrow text-primary-strong">{% icon "arrow-right" %}</span>
+    </a>
+    {% endif %}{% endfor %}
+  </div>
+
+{% elif section == "employees" %}
+  <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <section class="card">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5">
+        <h2 class="card-title flex items-center gap-3"><span class="icon-tile">{% icon "users" "size-5" %}</span>Team members</h2>
+        <span class="badge badge-neutral"><span class="code">{{ org.seats_used }}</span> of <span class="code">{{ org.seat_limit }}</span> seats in use</span>
+      </div>
+      <ul class="divide-y divide-border">
+        {% for person in people %}
+        <li class="flex flex-wrap items-center gap-4 px-5 py-4 {% if not person.is_active %}bg-sage-soft/60{% endif %}">
+          <span class="flex size-11 shrink-0 items-center justify-center rounded-full {% if person.is_active %}bg-primary-soft text-primary-strong{% else %}bg-white text-muted{% endif %} font-bold">{{ person.first_name|default:person.username|slice:":1" }}</span>
+          <div class="min-w-0 flex-1">
+            <p class="font-bold text-forest">{{ person.first_name|default:person.username }}{% if person == user %} <span class="text-xs font-semibold text-muted">(you)</span>{% endif %}</p>
+            <p class="code text-xs text-muted">{{ person.username }}</p>
+          </div>
+          {% if person.is_active %}<span class="badge {% if person.profile.role == 'admin' %}badge-level{% elif person.profile.role == 'specialist' %}badge-info{% else %}badge-success{% endif %}">{{ person.profile.get_role_display }}</span>
+          {% else %}<span class="badge badge-neutral">{% icon "user-x" "size-3.5" %}Deactivated</span>{% endif %}
+          {% if person != user %}
+          <div class="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+            {% if person.is_active %}
+            <form method="post" action="{% url 'employee_update' person.pk %}" class="flex items-center gap-2" x-data="{ busy: false }" @submit="busy = true" :class="busy && 'is-busy'">
+              {% csrf_token %}<input type="hidden" name="action" value="role"><input type="hidden" name="section" value="employees">
+              <label class="sr-only" for="role-{{ person.pk }}">Role for {{ person.first_name|default:person.username }}</label>
+              <select id="role-{{ person.pk }}" name="role" class="input min-h-9 w-auto py-1 text-sm">
+                {% for value, label in roles %}<option value="{{ value }}" {% if value == person.profile.role %}selected{% endif %}>{{ label }}</option>{% endfor %}
+              </select>
+              <button type="submit" class="btn btn-secondary min-h-9 px-3 py-1">{% icon "user-cog" %}Change role</button>
+            </form>
+            <form method="post" action="{% url 'employee_update' person.pk %}">
+              {% csrf_token %}<input type="hidden" name="action" value="deactivate"><input type="hidden" name="section" value="employees">
+              <button type="submit" class="btn btn-danger min-h-9 px-3 py-1">{% icon "user-x" %}Deactivate</button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'employee_update' person.pk %}">
+              {% csrf_token %}<input type="hidden" name="action" value="reactivate"><input type="hidden" name="section" value="employees">
+              <button type="submit" class="btn btn-secondary min-h-9 px-3 py-1">{% icon "user-check" %}Reactivate</button>
+            </form>
+            {% endif %}
+          </div>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    <section class="card self-start p-5">
+      <h2 class="card-title flex items-center gap-3"><span class="icon-tile bg-pastel-sky text-forest">{% icon "mail" "size-5" %}</span>Invite an employee</h2>
+      <p class="mt-2 text-sm text-muted">Employees join through an invitation from you. They never pick an organization and join on their own.</p>
+      <div class="mt-4 flex flex-col gap-3" aria-disabled="true">
+        <div><label class="label" for="invite-email">Work email</label><input id="invite-email" type="email" class="input" placeholder="employee@company.com" disabled></div>
+        <div><label class="label" for="invite-role">Role</label><select id="invite-role" class="input" disabled>{% for value, label in roles %}<option>{{ label }}</option>{% endfor %}</select></div>
+        <button type="button" class="btn btn-primary" disabled>{% icon "send" %}Send invitation</button>
+      </div>
+      <p class="alert alert-info mt-4">{% icon "info" "mt-0.5 size-4" %}<span>Invitations need email, which this demo does not have yet. Seats left: <span class="code font-semibold">{{ org.seats_left }}</span>.</span></p>
+    </section>
+  </div>
+
+{% elif section == "performance" %}
+  <section class="card">
+    <div class="border-b border-border p-5">
+      <h2 class="card-title flex items-center gap-3"><span class="icon-tile">{% icon "trending-up" "size-5" %}</span>Worker performance</h2>
+      <p class="mt-1 text-sm text-muted">Workers who meet every goal for harder claims are ready to be promoted to Specialist. Promoting changes their role right away.</p>
+    </div>
+    {% if rows %}
+    <div class="overflow-x-auto">
+      <table class="table">
+        <thead><tr><th scope="col">Worker</th><th scope="col">Accuracy (last 20)</th><th scope="col">Scored claims</th><th scope="col">Areas at Minimal</th><th scope="col">Training</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Promote</span></th></tr></thead>
+        <tbody>
+          {% for row in rows %}
+          <tr class="{% if row.ready %}bg-success-soft/60{% endif %}">
+            <td class="font-bold whitespace-nowrap text-forest">{{ row.user.first_name|default:row.user.username }}</td>
+            <td class="code">{% if row.accuracy is None %}&ndash;{% else %}{{ row.accuracy }}%{% endif %}</td>
+            <td class="code">{{ row.scored }}</td>
+            <td class="code">{{ row.minimal }} of 6</td>
+            <td class="code">{{ row.training_correct }}/{{ row.training_total }}</td>
+            <td>{% if row.ready %}<span class="badge badge-success">{% icon "award" "size-3.5" %}Ready for promotion</span>{% else %}<span class="badge badge-neutral">{% icon "trending-up" "size-3.5" %}Building skills</span>{% endif %}</td>
+            <td class="whitespace-nowrap">
+              <form method="post" action="{% url 'employee_update' row.user.pk %}">
+                {% csrf_token %}<input type="hidden" name="action" value="role"><input type="hidden" name="role" value="specialist"><input type="hidden" name="section" value="performance">
+                <button type="submit" class="btn {% if row.ready %}btn-primary{% else %}btn-secondary{% endif %} min-h-9 px-3 py-1">{% icon "award" %}Promote to Specialist</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    {% include "core/partials/empty_state.html" with icon="users" title="No active workers" text="Workers and their progress will appear here." %}
+    {% endif %}
+  </section>
+
+{% elif section == "settings" %}
+  <section class="card max-w-3xl p-6">
+    <h2 class="card-title flex items-center gap-3"><span class="icon-tile">{% icon "settings" "size-5" %}</span>Organization settings</h2>
+    <dl class="mt-5 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-2xl bg-sage-soft p-4"><dt class="text-xs font-semibold text-muted">Organization name</dt><dd class="mt-1 font-bold text-forest">{{ org.name }}</dd></div>
+      <div class="rounded-2xl bg-sage-soft p-4"><dt class="text-xs font-semibold text-muted">Organization type</dt><dd class="mt-1 font-bold text-forest">{{ org.get_org_type_display }}</dd></div>
+      <div class="rounded-2xl bg-sage-soft p-4"><dt class="text-xs font-semibold text-muted">Company directory</dt><dd class="mt-1 font-bold text-forest">{{ org.directory_company|default:"Other / not listed" }}</dd></div>
+      <div class="rounded-2xl bg-sage-soft p-4"><dt class="text-xs font-semibold text-muted">Claim ID prefix</dt><dd class="code mt-1 font-semibold text-forest">{{ org.claim_prefix }}-</dd></div>
+    </dl>
+    <p class="alert alert-info mt-5">{% icon "info" "mt-0.5 size-4" %}<span>Settings are view only in this demo. Being in the company directory does not mean a company has a RUNG contract; contracts are tracked separately under Subscription.</span></p>
+  </section>
+
+{% elif section == "subscription" %}
+  <div class="grid gap-5 lg:grid-cols-2">
+    <section class="card p-6">
+      <h2 class="card-title flex items-center gap-3"><span class="icon-tile">{% icon "file-signature" "size-5" %}</span>Contract</h2>
+      <div class="mt-5 flex flex-wrap items-center gap-3">
+        <span class="text-3xl font-extrabold text-forest">{{ tier }}</span>
+        <span class="badge badge-info">{{ plan }} plan</span>
+        <span class="badge {% if org.subscription_status == 'active' %}badge-success{% elif org.subscription_status == 'trial' %}badge-info{% else %}badge-warning{% endif %}">{{ org.get_subscription_status_display }}</span>
+      </div>
+      <dl class="mt-5 divide-y divide-border text-sm">
+        <div class="flex justify-between gap-4 py-2.5"><dt class="text-muted">Seats</dt><dd class="code font-semibold text-forest">{{ org.seats_used }} of {{ org.seat_limit }} in use</dd></div>
+        <div class="flex justify-between gap-4 py-2.5"><dt class="text-muted">Contract term</dt><dd class="font-semibold text-forest">{{ org.get_contract_term_display }}</dd></div>
+        <div class="flex justify-between gap-4 py-2.5"><dt class="text-muted">Started</dt><dd class="code font-semibold text-forest">{{ org.contract_start|date:"Y-m-d"|default:"&ndash;" }}</dd></div>
+        <div class="flex justify-between gap-4 py-2.5"><dt class="text-muted">Renews</dt><dd class="code font-semibold text-forest">{{ org.renewal_date|date:"Y-m-d"|default:"&ndash;" }}</dd></div>
+      </dl>
+      <div class="mt-4">
+        <div class="h-3 overflow-hidden rounded-full bg-primary-soft" role="img" aria-label="{{ seat_percent }} percent of seats in use"><div class="h-full origin-left animate-grow rounded-full bg-linear-to-r from-primary to-success" style="width: {{ seat_percent }}%"></div></div>
+        <p class="mt-2 text-xs text-muted">Seats count RUNG enabled employees, not the company's total headcount. Deactivating someone frees their seat.</p>
+      </div>
+    </section>
+    <section class="card p-6">
+      <h2 class="card-title flex items-center gap-3"><span class="icon-tile bg-pastel-lavender text-forest">{% icon "sparkles" "size-5" %}</span>Features in this contract</h2>
+      <ul class="mt-5 grid gap-2 text-sm">
+        {% for label, included in features %}
+        <li class="flex items-center gap-3 rounded-xl px-3 py-2.5 {% if included %}bg-success-soft font-semibold text-forest{% else %}bg-sage-soft text-muted{% endif %}">
+          {% if included %}<span class="text-success-strong">{% icon "circle-check" %}</span>{% else %}{% icon "circle-dot" %}{% endif %}{{ label }}{% if not included %}<span class="ml-auto text-xs">Not included</span>{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      <p class="mt-4 text-xs text-muted">This demo shows contract details only. It has no prices or payments.</p>
+    </section>
+  </div>
+{% endif %}
+</div>
+{% endblock %}

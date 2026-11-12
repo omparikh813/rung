@@ -156,7 +156,7 @@ class RoleTests(OrganizationTestCase):
         )  # fmt: skip
 
     def test_each_role_lands_on_its_own_first_page(self):
-        for user, landing in ((self.maria, "queue"), (self.dan, "help_list"), (self.om, "help_list")):
+        for user, landing in ((self.maria, "queue"), (self.dan, "help_list"), (self.om, "organization")):
             self.client.force_login(user)
             self.assertRedirects(self.client.get(reverse("home")), reverse(landing), fetch_redirect_response=False)
 

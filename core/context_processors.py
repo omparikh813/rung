@@ -14,13 +14,14 @@ LINKS = {
     "library": ("Case Library", "library", ("library_detail", "library_edit")),
     "passport": ("Skill Passport", "award", ("passport_user",)),
     "upload": ("Add Claims", "plus", ("claim_new",)),
+    "organization": ("Organization", "building-2", ("employee_update",)),
 }
 
 # Each role's sidebar, in order. The first link is the role's landing page.
 NAV = {
     Role.WORKER: ["queue", "training", "help_list", "library", "passport", "upload"],
     Role.SPECIALIST: ["help_list", "queue", "library", "passport", "upload"],
-    Role.ADMIN: ["help_list", "queue", "library", "passport", "upload"],
+    Role.ADMIN: ["organization", "help_list", "queue", "library", "passport", "upload"],
 }
 
 
