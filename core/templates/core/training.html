@@ -3,7 +3,7 @@
 {% block title %}Daily Training{% endblock %}
 {% block content %}
 {% if next %}{% url 'training_exercise' next.pk as next_url %}{% endif %}
-{% include "core/partials/page_hero.html" with eyebrow="Daily Training" title="Ten practice cases a day" subtitle="Fictional claims, no AI and no specialist. Work each case yourself, then see every section checked. Training nudges your Skill Passport; real claims move it more." tiles=tiles percent=percent ring_label="of today's cases done" action_url=next_url action_label="Start the next case" action_icon="arrow-right" shape="molecule" %}
+{% include "core/partials/page_hero.html" with eyebrow="Daily Training" title="Ten practice cases a day" subtitle="Fictional claims, no AI and no specialist. Hints fade as each skill improves. Every section is checked afterwards. Training nudges your Skill Passport; real claims move it more." tiles=tiles percent=percent ring_label="of today's cases done" action_url=next_url action_label="Start the next case" action_icon="arrow-right" shape="molecule" %}
 
 {% if not exercises %}
 <div class="card mt-6">{% include "core/partials/empty_state.html" with icon="graduation-cap" title="No training cases loaded" text="Run python manage.py load_training to add the practice cases." %}</div>

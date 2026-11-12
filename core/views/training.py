@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from ..decorators import role_required
 from ..models import HelpLevel, Role, TrainingAttempt, TrainingExercise
-from ..skills import PLAIN_NAMES
+from ..skills import PLAIN_NAMES, help_level, help_levels
 from ..training import check, submit, todays_exercises, training_day
 
 
@@ -29,6 +29,20 @@ def training(request):
         ],
     }
     return render(request, "core/training.html", context)
+
+
+def hinted_sections(worker, exercise):
+    """Each section with the hint for the worker's help level in that section's skill area.
+
+    Full shows the rule and where to look, Guided asks one question, and Minimal gives no hint.
+    """
+    levels = help_levels(worker)
+    sections = []
+    for index, section in enumerate(exercise.sections):
+        level = help_level(levels, section["category"])
+        hint = {HelpLevel.FULL: section.get("hint_full", ""), HelpLevel.GUIDED: section.get("hint_guided", "")}.get(level, "")
+        sections.append((index, {**section, "level": level, "level_label": HelpLevel(level).label, "hint": hint}))
+    return sections
 
 
 @role_required(Role.WORKER)
@@ -65,7 +79,7 @@ def training_exercise(request, pk):
         "count": len(todays),
         "attempt": attempt,
         "results": check(exercise, attempt.answers) if attempt else None,
-        "sections": list(enumerate(exercise.sections)),
+        "sections": hinted_sections(request.user, exercise),
         "missing": missing,
         "picked": {f"section-{i}": request.POST.get(f"section-{i}", "") for i in range(len(exercise.sections))},
         "following": following,

@@ -30,7 +30,9 @@
           "Modifier GP"
         ],
         "answer": 1,
-        "feedback": "The note shows a separate evaluation of diabetes, so the visit needs modifier 25 to be paid alongside the injection."
+        "feedback": "The note shows a separate evaluation of diabetes, so the visit needs modifier 25 to be paid alongside the injection.",
+        "hint_full": "Rule: All payers: an office visit on the same day as a minor procedure needs modifier 25 if the visit was a separate, significant service. Look at: Modifiers (line 1) and the clinical note.",
+        "hint_guided": "The note describes two things done in one visit. What tells the payer the office visit was a separate service?"
       },
       {
         "category": "code_matching",
@@ -42,7 +44,9 @@
           "The side does not matter for injections"
         ],
         "answer": 0,
-        "feedback": "M17.12 is left knee osteoarthritis and the procedure has LT, so the side matches the note."
+        "feedback": "M17.12 is left knee osteoarthritis and the procedure has LT, so the side matches the note.",
+        "hint_full": "Rule: All payers: the diagnosis laterality (right or left) must match the procedure modifier (RT or LT). Look at: Modifiers (line 2) and Primary ICD-10.",
+        "hint_guided": "Which knee does M17.12 describe, and which side does LT mean?"
       },
       {
         "category": "modifiers",
@@ -55,7 +59,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Add modifier 25 to line 1, then submit."
+        "feedback": "Add modifier 25 to line 1, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -88,7 +94,9 @@
           "25"
         ],
         "answer": 1,
-        "feedback": "Medicare needs modifier GP on outpatient physical therapy services."
+        "feedback": "Medicare needs modifier GP on outpatient physical therapy services.",
+        "hint_full": "Rule: Medicare Part B: outpatient physical therapy services need modifier GP. Look at: Modifiers (line 1).",
+        "hint_guided": "What does Medicare need on outpatient physical therapy lines?"
       },
       {
         "category": "filing_rules",
@@ -101,7 +109,9 @@
           "4 units"
         ],
         "answer": 2,
-        "feedback": "Under the 8 minute rule, 38 to 52 minutes is 3 units. The claim has 2."
+        "feedback": "Under the 8 minute rule, 38 to 52 minutes is 3 units. The claim has 2.",
+        "hint_full": "Rule: Medicare Part B: timed therapy codes follow the 8 minute rule: 8 to 22 min = 1 unit, 23 to 37 min = 2 units, 38 to 52 min = 3 units. Look at: Units (line 1) and the minutes in the note.",
+        "hint_guided": "Which range of the 8 minute rule does 40 minutes fall into?"
       },
       {
         "category": "filing_rules",
@@ -114,7 +124,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Add GP and change the units to 3, then submit."
+        "feedback": "Add GP and change the units to 3, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -145,7 +157,9 @@
           "Yes. Another plan should pay first"
         ],
         "answer": 0,
-        "feedback": "The eligibility note says Active and nothing in the note points to another plan."
+        "feedback": "The eligibility note says Active and nothing in the note points to another plan.",
+        "hint_full": "Rule: Coverage must be active on the date of service, with the plan that covered the patient that day. Look at: Eligibility note.",
+        "hint_guided": "What does the eligibility note say about coverage?"
       },
       {
         "category": "modifiers",
@@ -158,7 +172,9 @@
           "Modifier GP"
         ],
         "answer": 2,
-        "feedback": "Crestline needs modifier 95 on telehealth visits billed with place of service 10."
+        "feedback": "Crestline needs modifier 95 on telehealth visits billed with place of service 10.",
+        "hint_full": "Rule: Crestline Insurance PPO: telehealth visits with place of service 10 need modifier 95. Look at: Place of service and Modifiers (line 1).",
+        "hint_guided": "What does place of service 10 tell you, and what does Crestline ask for then?"
       },
       {
         "category": "modifiers",
@@ -171,7 +187,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Add modifier 95, then submit."
+        "feedback": "Add modifier 95, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -202,7 +220,9 @@
           "An NDC code"
         ],
         "answer": 2,
-        "feedback": "Bayview needs the PCP referral number on specialist claims. The note gives it: BVR30112."
+        "feedback": "Bayview needs the PCP referral number on specialist claims. The note gives it: BVR30112.",
+        "hint_full": "Rule: Bayview Health HMO: specialist visits need a PCP referral number on the claim. Look at: Referral number and the clinical note.",
+        "hint_guided": "What does an HMO need before a specialist visit, and is it on the claim?"
       },
       {
         "category": "filing_rules",
@@ -214,7 +234,9 @@
           "There is no deadline for HMO plans"
         ],
         "answer": 0,
-        "feedback": "September 1 to November 16 is 76 days. With a 90 day limit, 14 days are left, so file it soon."
+        "feedback": "September 1 to November 16 is 76 days. With a 90 day limit, 14 days are left, so file it soon.",
+        "hint_full": "Rule: Bayview Health HMO: claims must be filed within 90 days of the date of service. Look at: Date of service and today's date in the note.",
+        "hint_guided": "How many days are there from September 1 to November 16?"
       },
       {
         "category": "prior_auth",
@@ -227,7 +249,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Add referral number BVR30112, then submit before the deadline."
+        "feedback": "Add referral number BVR30112, then submit before the deadline.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -256,7 +280,9 @@
           "Only if the charge is over 1,000 dollars"
         ],
         "answer": 1,
-        "feedback": "Summit's rule lists MRI as a service that needs prior authorization."
+        "feedback": "Summit's rule lists MRI as a service that needs prior authorization.",
+        "hint_full": "Rule: Summit Health PPO: MRI, CT, knee arthroscopy (29881), and sleep studies (95810) need prior authorization. Look at: CPT (line 1).",
+        "hint_guided": "Is an MRI on Summit's list of services that need approval?"
       },
       {
         "category": "prior_auth",
@@ -268,7 +294,9 @@
           "It is not needed, so it does not matter"
         ],
         "answer": 1,
-        "feedback": "The note says no authorization was found. Never make up a number."
+        "feedback": "The note says no authorization was found. Never make up a number.",
+        "hint_full": "Rule: Summit Health PPO: MRI, CT, knee arthroscopy (29881), and sleep studies (95810) need prior authorization. Look at: Prior auth number and the clinical note.",
+        "hint_guided": "Does the claim or the note give an authorization number?"
       },
       {
         "category": "prior_auth",
@@ -281,7 +309,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 3,
-        "feedback": "Without an authorization the payer will deny it. Hold the claim and request a retro authorization first."
+        "feedback": "Without an authorization the payer will deny it. Hold the claim and request a retro authorization first.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -312,7 +342,9 @@
           "It should start with a letter"
         ],
         "answer": 2,
-        "feedback": "Medicare IDs never use B. The scanned card shows an 8 in that spot."
+        "feedback": "Medicare IDs never use B. The scanned card shows an 8 in that spot.",
+        "hint_full": "Rule: Medicare Part B: Medicare IDs are 11 characters and never use the letters S, L, O, I, B, or Z. Look at: Member ID.",
+        "hint_guided": "Which letters can a Medicare ID never contain?"
       },
       {
         "category": "eligibility",
@@ -325,7 +357,9 @@
           "Leave it blank"
         ],
         "answer": 1,
-        "feedback": "Use the value on the scanned card: 5T82HV9RC34. Only use a value you can see in the claim or the note."
+        "feedback": "Use the value on the scanned card: 5T82HV9RC34. Only use a value you can see in the claim or the note.",
+        "hint_full": "Rule: Medicare Part B: Medicare IDs are 11 characters and never use the letters S, L, O, I, B, or Z. Look at: Member ID and the clinical note.",
+        "hint_guided": "Where in the note can you see what the card really says?"
       },
       {
         "category": "eligibility",
@@ -338,7 +372,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Correct the Member ID from the card, then submit."
+        "feedback": "Correct the Member ID from the card, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -369,7 +405,9 @@
           "95"
         ],
         "answer": 2,
-        "feedback": "Medicare needs modifier QW on CLIA waived lab tests done in the office."
+        "feedback": "Medicare needs modifier QW on CLIA waived lab tests done in the office.",
+        "hint_full": "Rule: Medicare Part B: CLIA waived lab tests done in the office need modifier QW. Look at: Modifiers (line 1).",
+        "hint_guided": "Which modifier does Medicare need on CLIA waived tests done in the office?"
       },
       {
         "category": "code_matching",
@@ -381,7 +419,9 @@
           "No. It needs an injury code"
         ],
         "answer": 0,
-        "feedback": "J10.1 matches the note: flu symptoms with a positive test."
+        "feedback": "J10.1 matches the note: flu symptoms with a positive test.",
+        "hint_full": "Rule: A diagnosis must be supported by what the clinical note documents. Look at: Primary ICD-10 and the clinical note.",
+        "hint_guided": "What did the note document, and does J10.1 describe it?"
       },
       {
         "category": "modifiers",
@@ -394,7 +434,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Add modifier QW, then submit."
+        "feedback": "Add modifier QW, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -425,7 +467,9 @@
           "It should be a Z code"
         ],
         "answer": 1,
-        "feedback": "Injury codes need a 7th character. This is the first visit, so the code is S52.501A."
+        "feedback": "Injury codes need a 7th character. This is the first visit, so the code is S52.501A.",
+        "hint_full": "Rule: All payers: injury codes (S and T codes) need a 7th character such as A for the initial encounter. Look at: Primary ICD-10 and the clinical note.",
+        "hint_guided": "How many characters does an injury code need, and which one marks a first visit?"
       },
       {
         "category": "code_matching",
@@ -437,7 +481,9 @@
           "Fracture codes have no side"
         ],
         "answer": 0,
-        "feedback": "S52.501 is the right radius, which matches RT and the note."
+        "feedback": "S52.501 is the right radius, which matches RT and the note.",
+        "hint_full": "Rule: All payers: the diagnosis laterality (right or left) must match the procedure modifier (RT or LT). Look at: Modifiers (line 1) and Primary ICD-10.",
+        "hint_guided": "Which side does S52.501 describe?"
       },
       {
         "category": "code_matching",
@@ -450,7 +496,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Change the diagnosis to S52.501A, then submit."
+        "feedback": "Change the diagnosis to S52.501A, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -480,7 +528,9 @@
           "The modifier should change to LT"
         ],
         "answer": 1,
-        "feedback": "M17.12 is the left knee. The note and the modifier say right, so the diagnosis should be M17.11."
+        "feedback": "M17.12 is the left knee. The note and the modifier say right, so the diagnosis should be M17.11.",
+        "hint_full": "Rule: All payers: the diagnosis laterality (right or left) must match the procedure modifier (RT or LT). Look at: Primary ICD-10, Modifiers (line 1), and the clinical note.",
+        "hint_guided": "Which knee does M17.12 describe, and which knee does the note describe?"
       },
       {
         "category": "modifiers",
@@ -492,7 +542,9 @@
           "Yes. Remove it"
         ],
         "answer": 0,
-        "feedback": "The note documents the right knee, so RT is correct. Fix the diagnosis, not the modifier."
+        "feedback": "The note documents the right knee, so RT is correct. Fix the diagnosis, not the modifier.",
+        "hint_full": "Rule: All payers: the diagnosis laterality (right or left) must match the procedure modifier (RT or LT). Look at: Modifiers (line 1) and the clinical note.",
+        "hint_guided": "Which side did the provider document?"
       },
       {
         "category": "code_matching",
@@ -505,7 +557,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Change the diagnosis to M17.11, then submit."
+        "feedback": "Change the diagnosis to M17.11, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -533,7 +587,9 @@
           "It needs modifier 25"
         ],
         "answer": 1,
-        "feedback": "Medicare does not cover 99381 to 99397. The note documents an Annual Wellness Visit."
+        "feedback": "Medicare does not cover 99381 to 99397. The note documents an Annual Wellness Visit.",
+        "hint_full": "Rule: Medicare Part B: routine physicals (99381 to 99397) are not covered. The Annual Wellness Visit uses G0438 or G0439. Look at: CPT (line 1).",
+        "hint_guided": "Is 99396 inside the range Medicare does not cover?"
       },
       {
         "category": "code_matching",
@@ -546,7 +602,9 @@
           "Leave the line blank"
         ],
         "answer": 1,
-        "feedback": "The rule gives G0438 or G0439 for the Annual Wellness Visit, and the note documents a subsequent one, which is G0439."
+        "feedback": "The rule gives G0438 or G0439 for the Annual Wellness Visit, and the note documents a subsequent one, which is G0439.",
+        "hint_full": "Rule: Medicare Part B: routine physicals (99381 to 99397) are not covered. The Annual Wellness Visit uses G0438 or G0439. Look at: The clinical note.",
+        "hint_guided": "Does the note describe a first or a later Annual Wellness Visit?"
       },
       {
         "category": "code_matching",
@@ -559,7 +617,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Change the code to G0439, then submit."
+        "feedback": "Change the code to G0439, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -591,7 +651,9 @@
           "Modifier QW"
         ],
         "answer": 1,
-        "feedback": "Medicaid needs the drug's 11 digit NDC. The medication log gives it: 00641036725."
+        "feedback": "Medicaid needs the drug's 11 digit NDC. The medication log gives it: 00641036725.",
+        "hint_full": "Rule: State Medicaid: drugs given in the office need the 11 digit NDC on the claim. Look at: NDC code and the medication log in the note.",
+        "hint_guided": "What does Medicaid need for a drug given in the office, and where in the note is it?"
       },
       {
         "category": "filing_rules",
@@ -603,7 +665,9 @@
           "There are more than 60 days left"
         ],
         "answer": 1,
-        "feedback": "June 1 to November 16 is 168 days. With a 180 day limit only 12 days are left."
+        "feedback": "June 1 to November 16 is 168 days. With a 180 day limit only 12 days are left.",
+        "hint_full": "Rule: State Medicaid: claims must be filed within 180 days of the date of service. Look at: Date of service and today's date in the note.",
+        "hint_guided": "How many days are there from June 1 to November 16?"
       },
       {
         "category": "documentation",
@@ -616,7 +680,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Add the NDC from the medication log, then submit right away."
+        "feedback": "Add the NDC from the medication log, then submit right away.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -646,7 +712,9 @@
           "CLM-0871 is the duplicate"
         ],
         "answer": 1,
-        "feedback": "Same patient, date, and code. The later claim is the duplicate, never the earlier one."
+        "feedback": "Same patient, date, and code. The later claim is the duplicate, never the earlier one.",
+        "hint_full": "Rule: A claim is a duplicate when the same patient has an earlier claim with the same date of service and the same CPT code. Look at: Date of service, CPT (line 1), and the clinical note.",
+        "hint_guided": "Do the patient, the date, and the code match CLM-0871, and which claim came first?"
       },
       {
         "category": "filing_rules",
@@ -659,7 +727,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 2,
-        "feedback": "Do not resubmit a duplicate. Close it and track the original claim."
+        "feedback": "Do not resubmit a duplicate. Close it and track the original claim.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -687,7 +757,9 @@
           "The limit does not apply to office visits"
         ],
         "answer": 1,
-        "feedback": "June 20 to November 16 is 149 days, which is past the 120 day limit."
+        "feedback": "June 20 to November 16 is 149 days, which is past the 120 day limit.",
+        "hint_full": "Rule: Crestline Insurance PPO: claims must be filed within 120 days of the date of service. Look at: Date of service and today's date in the note.",
+        "hint_guided": "How many days are there from June 20 to November 16?"
       },
       {
         "category": "filing_rules",
@@ -700,7 +772,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 3,
-        "feedback": "A late claim will be denied. Hold it and check whether a filing exception applies before anything else."
+        "feedback": "A late claim will be denied. Hold it and check whether a filing exception applies before anything else.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -730,7 +804,9 @@
           "The Member ID is too long"
         ],
         "answer": 1,
-        "feedback": "Coverage ended on 2026-09-30 and the visit was on 2026-10-12, so Bayview will not pay."
+        "feedback": "Coverage ended on 2026-09-30 and the visit was on 2026-10-12, so Bayview will not pay.",
+        "hint_full": "Rule: A claim must go to the plan that covered the patient on the date of service. Look at: Eligibility note and Date of service.",
+        "hint_guided": "Was Bayview coverage active on the date of service?"
       },
       {
         "category": "eligibility",
@@ -743,7 +819,9 @@
           "Medicare"
         ],
         "answer": 1,
-        "feedback": "The front desk note gives the new plan and member ID. Bill Summit with SHP660114208."
+        "feedback": "The front desk note gives the new plan and member ID. Bill Summit with SHP660114208.",
+        "hint_full": "Rule: A claim must go to the plan that covered the patient on the date of service. Look at: The front desk note in the clinical note.",
+        "hint_guided": "What does the front desk note say about the patient's new plan?"
       },
       {
         "category": "eligibility",
@@ -756,7 +834,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Change the payer and Member ID to the new plan, then submit."
+        "feedback": "Change the payer and Member ID to the new plan, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -786,7 +866,9 @@
           "Whichever is billed first"
         ],
         "answer": 1,
-        "feedback": "When the patient is still working with a large employer plan, that plan pays first and Medicare is second."
+        "feedback": "When the patient is still working with a large employer plan, that plan pays first and Medicare is second.",
+        "hint_full": "Rule: Medicare Part B: if the patient or spouse is still working and covered by a large employer plan, that plan pays first. Look at: Payer and the intake form in the clinical note.",
+        "hint_guided": "Is the patient still working and covered by an employer plan?"
       },
       {
         "category": "eligibility",
@@ -799,7 +881,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Make Crestline the payer with member CRX20118845 and Medicare the secondary payer, then submit."
+        "feedback": "Make Crestline the payer with member CRX20118845 and Medicare the secondary payer, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -830,7 +914,9 @@
           "Yes. The Member ID is invalid"
         ],
         "answer": 0,
-        "feedback": "The eligibility note says Active."
+        "feedback": "The eligibility note says Active.",
+        "hint_full": "Rule: Coverage must be active on the date of service, with the plan that covered the patient that day. Look at: Eligibility note.",
+        "hint_guided": "What does the eligibility note say?"
       },
       {
         "category": "modifiers",
@@ -842,7 +928,9 @@
           "Yes. Modifier 95"
         ],
         "answer": 0,
-        "feedback": "Modifier 25 is only for a visit on the same day as a procedure. There is none here."
+        "feedback": "Modifier 25 is only for a visit on the same day as a procedure. There is none here.",
+        "hint_full": "Rule: All payers: an office visit on the same day as a minor procedure needs modifier 25 if the visit was a separate, significant service. Look at: CPT (line 1) and the clinical note.",
+        "hint_guided": "Was any procedure done on the same day as this visit?"
       },
       {
         "category": "code_matching",
@@ -855,7 +943,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 0,
-        "feedback": "Nothing is wrong. Do not invent a problem. Submit it as it is."
+        "feedback": "Nothing is wrong. Do not invent a problem. Submit it as it is.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -887,7 +977,9 @@
           "No. Remove GP"
         ],
         "answer": 0,
-        "feedback": "Medicare needs GP on outpatient physical therapy, and it is there."
+        "feedback": "Medicare needs GP on outpatient physical therapy, and it is there.",
+        "hint_full": "Rule: Medicare Part B: outpatient physical therapy services need modifier GP. Look at: Modifiers (line 1).",
+        "hint_guided": "Is the modifier Medicare asks for already on the line?"
       },
       {
         "category": "filing_rules",
@@ -899,7 +991,9 @@
           "No. It should be 3 units"
         ],
         "answer": 0,
-        "feedback": "Under the 8 minute rule, 23 to 37 minutes is 2 units."
+        "feedback": "Under the 8 minute rule, 23 to 37 minutes is 2 units.",
+        "hint_full": "Rule: Medicare Part B: timed therapy codes follow the 8 minute rule: 8 to 22 min = 1 unit, 23 to 37 min = 2 units, 38 to 52 min = 3 units. Look at: Units (line 1) and the minutes in the note.",
+        "hint_guided": "Which range of the 8 minute rule does 30 minutes fall into?"
       },
       {
         "category": "filing_rules",
@@ -912,7 +1006,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 0,
-        "feedback": "The claim is correct. Submit it as it is."
+        "feedback": "The claim is correct. Submit it as it is.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -944,7 +1040,9 @@
           "QW"
         ],
         "answer": 1,
-        "feedback": "Medicare needs modifier PT when a screening colonoscopy becomes therapeutic."
+        "feedback": "Medicare needs modifier PT when a screening colonoscopy becomes therapeutic.",
+        "hint_full": "Rule: Medicare Part B: a screening colonoscopy that becomes diagnostic or therapeutic is billed with modifier PT and Z12.11 first. Look at: Modifiers (line 1) and the clinical note.",
+        "hint_guided": "Which modifier marks a screening that turned into a treatment?"
       },
       {
         "category": "code_matching",
@@ -957,7 +1055,9 @@
           "Z00.00 only"
         ],
         "answer": 1,
-        "feedback": "The rule says Z12.11 (screening) goes first. The polyp code K63.5 goes second."
+        "feedback": "The rule says Z12.11 (screening) goes first. The polyp code K63.5 goes second.",
+        "hint_full": "Rule: Medicare Part B: a screening colonoscopy that becomes diagnostic or therapeutic is billed with modifier PT and Z12.11 first. Look at: Primary ICD-10 and Secondary ICD-10.",
+        "hint_guided": "Which code does the rule say goes first?"
       },
       {
         "category": "modifiers",
@@ -970,7 +1070,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 1,
-        "feedback": "Add PT, put Z12.11 first and K63.5 second, then submit."
+        "feedback": "Add PT, put Z12.11 first and K63.5 second, then submit.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -999,7 +1101,9 @@
           "No. The number is for a different patient"
         ],
         "answer": 0,
-        "feedback": "The claim carries SH4520011 and the note confirms it was approved before the study."
+        "feedback": "The claim carries SH4520011 and the note confirms it was approved before the study.",
+        "hint_full": "Rule: Summit Health PPO: MRI, CT, knee arthroscopy (29881), and sleep studies (95810) need prior authorization. Look at: Prior auth number and the clinical note.",
+        "hint_guided": "Does the number on the claim match the approval in the note?"
       },
       {
         "category": "documentation",
@@ -1010,7 +1114,9 @@
           "No. It says nothing about symptoms"
         ],
         "answer": 0,
-        "feedback": "A sleepiness score and witnessed pauses in breathing support medical need."
+        "feedback": "A sleepiness score and witnessed pauses in breathing support medical need.",
+        "hint_full": "Rule: A study needs the note to show why it was medically needed. Look at: The clinical note.",
+        "hint_guided": "Does the note give symptoms or scores that explain why the study was needed?"
       },
       {
         "category": "prior_auth",
@@ -1023,7 +1129,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 0,
-        "feedback": "Everything the payer needs is there. Submit it as it is."
+        "feedback": "Everything the payer needs is there. Submit it as it is.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   },
@@ -1053,7 +1161,9 @@
           "The patient's diagnosis"
         ],
         "answer": 1,
-        "feedback": "The note only says the ulcer was debrided. It does not record size, depth, or the tissue removed."
+        "feedback": "The note only says the ulcer was debrided. It does not record size, depth, or the tissue removed.",
+        "hint_full": "Rule: Debridement claims need the note to record the wound size, the depth, and the tissue removed. Look at: The clinical note.",
+        "hint_guided": "Which three details does the rule list, and are they in the note?"
       },
       {
         "category": "documentation",
@@ -1064,7 +1174,9 @@
           "No. Only the provider can add to the clinical note"
         ],
         "answer": 1,
-        "feedback": "Never invent clinical details. The provider must add them to the note."
+        "feedback": "Never invent clinical details. The provider must add them to the note.",
+        "hint_full": "Rule: Only the provider can add to the clinical note. Billing staff never write clinical details. Look at: The clinical note.",
+        "hint_guided": "Who is allowed to write in a clinical note?"
       },
       {
         "category": "documentation",
@@ -1077,7 +1189,9 @@
           "Hold it and get what is missing first"
         ],
         "answer": 3,
-        "feedback": "Hold the claim and ask the provider to complete the note before it is submitted."
+        "feedback": "Hold the claim and ask the provider to complete the note before it is submitted.",
+        "hint_full": "Rule: Submit only when every section above is right. Fix the claim when something is wrong and the right value is in the claim or the note. Hold it when something is missing that only someone else can provide. Close it only when it should never be sent, such as a duplicate. Look at: Your answers to the sections above.",
+        "hint_guided": "Does anything on the claim need to change, and do you have what you need to change it?"
       }
     ]
   }

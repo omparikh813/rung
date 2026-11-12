@@ -60,8 +60,10 @@ RUNG is not connected to billing software, clearinghouses, or payers.
 - **Daily Training:** workers get ten fictional practice cases a day, each with
   several sections (for example modifiers, units, and the final decision). Every
   section is checked on its own, wrong ones get feedback and the right answer, and
-  there is no AI help and no specialist. Training updates the Skill Passport, but
-  less than real claims: three correct training sections in a category equal one
+  there is no AI help and no specialist. Hints fade with the worker's help level:
+  Full shows the rule and where to look, Guided asks one question, Minimal gives
+  none. Real claims always get full help. Training updates the Skill Passport, but
+  less than real claims: five correct training sections in a category equal one
   correct real claim. The cases live in `data/training_exercises.json`, and
   `python manage.py load_training` reloads them (seed_demo does this too).
 - **837 export:** each submitted claim in the Skill Passport has an Export 837 button
