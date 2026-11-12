@@ -16,11 +16,11 @@
   <button type="button" class="btn btn-secondary" hx-get="{% url 'claim_review' claim.pk %}" hx-target="#review-panel" hx-swap="outerHTML" hx-indicator="#review-wrap" hx-disabled-elt="this">{% icon "refresh-cw" %}Try again</button>
   {% elif review %}
     {% if cards %}
-    <p class="text-sm text-text">{{ review.result_json.summary }}</p>
+    <p class="text-sm text-text">{{ review.result_json.summary|plain_fields }}</p>
     {% else %}
     <div class="flex animate-pop items-start gap-3 rounded-2xl bg-linear-to-br from-success-soft to-mint px-4 py-4 text-sm font-semibold text-success-strong">
       <span class="icon-tile size-9 bg-white">{% icon "circle-check" "size-5" %}</span>
-      <div><p>No issues found. This claim is ready to submit.</p>{% if review.result_json.summary %}<p class="mt-1 font-normal text-text">{{ review.result_json.summary }}</p>{% endif %}</div>
+      <div><p>No issues found. This claim is ready to submit.</p>{% if review.result_json.summary %}<p class="mt-1 font-normal text-text">{{ review.result_json.summary|plain_fields }}</p>{% endif %}</div>
     </div>
     {% endif %}
     {% if stale and editable %}
@@ -29,7 +29,7 @@
     {% if review.result_json.escalate %}
     <div class="alert alert-info">
       {% icon "life-buoy" "mt-0.5 size-4" %}
-      <div><p>RUNG suggests asking a specialist. That is a good call, not a failure.</p>{% if review.result_json.escalate_reason %}<p class="mt-1 font-normal">{{ review.result_json.escalate_reason }}</p>{% endif %}</div>
+      <div><p>RUNG suggests asking a specialist. That is a good call, not a failure.</p>{% if review.result_json.escalate_reason %}<p class="mt-1 font-normal">{{ review.result_json.escalate_reason|plain_fields }}</p>{% endif %}</div>
     </div>
     {% endif %}
     {% for card in cards %}{% include "core/partials/issue_card.html" %}{% endfor %}

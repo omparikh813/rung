@@ -17,6 +17,7 @@ from core.models import (
     WorkStatus,
 )
 from core.tests.base import SeededTestCase, make_user
+from core.reviews import plain_fields
 from core.tests.test_ai_client import ISSUE, NEEDS_FIX
 
 QUESTION = "Is this an Annual Wellness Visit or a routine physical?"
@@ -31,6 +32,9 @@ ENTRY = {
     "res-fix": "Add modifier GY so the patient or another plan can be billed.",
     "res-tip": "Check whether the visit meets Annual Wellness Visit rules first.",
 }
+
+# The issue text as a worker sees it, with form labels in place of field names.
+SHOWN = {key: plain_fields(ISSUE[key]) for key in ("full", "guided", "minimal", "answer")}
 
 
 class HelpTestCase(SeededTestCase):
@@ -183,7 +187,7 @@ class HelpDetailTests(HelpTestCase):
         for text in (QUESTION, "Annual routine physical exam.", "Service Lines", "History", "asked a specialist", "Resolve this request", "Save to Case Library", "Closed: appeal sent", "Fixed and returned to worker"):
             self.assertContains(response, text)
         # The specialist always sees the full text of each issue, never a faded version.
-        self.assertContains(response, ISSUE["full"])
+        self.assertContains(response, SHOWN["full"])
         self.assertNotContains(response, "Show answer")
         self.assertTrue(response.context["editable"])
 

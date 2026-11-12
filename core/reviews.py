@@ -3,9 +3,18 @@
 import re
 
 from .ai import latest_review, review_claim
-from .claims import FORM_FIELDS
+from .claims import FORM_FIELDS, field_label
 from .models import Category, ClaimEvent, EventAction, HelpLevel, WorkStatus
 from .skills import help_level, help_levels
+
+
+# Field names such as icd10_primary, longest first so modifiers_1 is not cut short.
+_FIELD_NAME = re.compile(r"\b(" + "|".join(sorted(FORM_FIELDS, key=len, reverse=True)) + r")\b")
+
+
+def plain_fields(text):
+    """Swap field names the AI used, such as icd10_primary, for the labels a worker sees on the form."""
+    return _FIELD_NAME.sub(lambda match: field_label(match.group(1)), text or "")
 
 
 def run_review(claim, user):
@@ -46,7 +55,9 @@ def issue_cards(claim, review, fade_help=True):
                 "level": level,
                 "level_label": HelpLevel(level).label,
                 "category_label": Category(issue["category"]).label if issue["category"] else "Claim",
-                "text": issue[level],
+                "text": plain_fields(issue[level]),
+                "minimal": plain_fields(issue["minimal"]),
+                "answer": plain_fields(issue["answer"]),
                 # An issue counts as handled once every field it names has been changed since the review.
                 "addressed": bool(fields) and all(name in edited for name in fields),
                 "answer_shown": str(index) in shown,

@@ -8,7 +8,11 @@ from core import ai
 from core.claims import ANSWER_KEY_FIELDS
 from core.models import AIReview, Category, Claim, ClaimEvent, EventAction, HelpLevel, SkillRecord, WorkStatus
 from core.tests.base import SeededTestCase, make_user
+from core.reviews import plain_fields
 from core.tests.test_ai_client import API_KEY, ISSUE, NEEDS_FIX, READY, api_error, reply
+
+# The issue text as a worker sees it, with form labels in place of field names.
+SHOWN = {key: plain_fields(ISSUE[key]) for key in ("full", "guided", "minimal", "answer")}
 
 
 class WorkspaceTestCase(SeededTestCase):
@@ -63,7 +67,7 @@ class OpenClaimTests(WorkspaceTestCase):
         self.assertEqual(event.new_value, "1 issue found")
         self.assertEqual(event.user, self.maria)
         # The panel, the status badge, the field hint, and the history all update.
-        self.assertContains(response, ISSUE["full"])
+        self.assertContains(response, SHOWN["full"])
         self.assertContains(response, 'id="claim-status" hx-swap-oob="true"')
         self.assertContains(response, 'id="hint-modifiers_1" hx-swap-oob="true"')
         self.assertContains(response, "ran the AI review")
@@ -81,7 +85,7 @@ class OpenClaimTests(WorkspaceTestCase):
         self.client.get(self.review_url)
         response = self.client.get(self.url)
         self.assertFalse(response.context["auto_review"])
-        self.assertContains(response, ISSUE["full"])
+        self.assertContains(response, SHOWN["full"])
         self.client.get(self.review_url)
         self.assertEqual(post.call_count, 1)
         self.assertEqual(ClaimEvent.objects.filter(claim=self.claim, action=EventAction.CHECK).count(), 1)
@@ -130,18 +134,18 @@ class HelpLevelTests(WorkspaceTestCase):
         self.review()
         response = self.client.get(self.url)
         self.assertContains(response, "Full help")
-        self.assertContains(response, ISSUE["full"], count=2)  # the card and under the field
+        self.assertContains(response, SHOWN["full"], count=2)  # the card and under the field
         self.assertNotContains(response, "Show answer")
-        self.assertEqual(response.context["groups"][2]["fields"][2]["hint"], ISSUE["full"])
+        self.assertEqual(response.context["groups"][2]["fields"][2]["hint"], SHOWN["full"])
 
     def test_guided_help_asks_a_question_and_hides_the_fix(self):
         self.set_level(HelpLevel.GUIDED)
         self.review()
         response = self.client.get(self.url)
         self.assertContains(response, "Guided")
-        self.assertContains(response, ISSUE["guided"], count=2)
-        self.assertNotContains(response, ISSUE["full"])
-        self.assertNotContains(response, ISSUE["answer"])
+        self.assertContains(response, SHOWN["guided"], count=2)
+        self.assertNotContains(response, SHOWN["full"])
+        self.assertNotContains(response, SHOWN["answer"])
         self.assertNotContains(response, "Suggested value")
         self.assertContains(response, "Show answer")
 
@@ -149,9 +153,9 @@ class HelpLevelTests(WorkspaceTestCase):
         self.set_level(HelpLevel.MINIMAL)
         self.review()
         response = self.client.get(self.url)
-        self.assertContains(response, ISSUE["minimal"])
-        self.assertNotContains(response, ISSUE["guided"])
-        self.assertNotContains(response, ISSUE["answer"])
+        self.assertContains(response, SHOWN["minimal"])
+        self.assertNotContains(response, SHOWN["guided"])
+        self.assertNotContains(response, SHOWN["answer"])
         self.assertContains(response, "Show answer")
 
     def test_levels_apply_per_category_so_cards_can_differ(self):
@@ -159,7 +163,7 @@ class HelpLevelTests(WorkspaceTestCase):
         other = {**ISSUE, "category": "code_matching", "field": "icd10_primary", "full": "Full text for the diagnosis.", "guided": "Guided text for the diagnosis."}
         self.review({**NEEDS_FIX, "issues": [ISSUE, other]})
         response = self.client.get(self.url)
-        self.assertContains(response, ISSUE["guided"])
+        self.assertContains(response, SHOWN["guided"])
         self.assertContains(response, "Full text for the diagnosis.")
         self.assertNotContains(response, "Guided text for the diagnosis.")
 
@@ -169,14 +173,14 @@ class HelpLevelTests(WorkspaceTestCase):
         answer_url = reverse("claim_answer", args=[self.claim.pk, 0])
         self.assertContains(self.client.get(self.url), f'hx-post="{answer_url}"')
         response = self.client.post(answer_url)
-        self.assertContains(response, ISSUE["answer"])
+        self.assertContains(response, SHOWN["answer"])
         self.assertContains(response, "Suggested value")
         self.client.post(answer_url)
         events = ClaimEvent.objects.filter(claim=self.claim, action=EventAction.ANSWER_SHOWN)
         self.assertEqual(events.count(), 1)
         self.assertEqual(events[0].field, "modifiers_1")
         # The answer stays open when the page is loaded again.
-        self.assertContains(self.client.get(self.url), ISSUE["answer"])
+        self.assertContains(self.client.get(self.url), SHOWN["answer"])
 
     def test_show_answer_needs_post_and_a_real_issue(self):
         self.review()
@@ -257,7 +261,7 @@ class SubmitAndCloseTests(WorkspaceTestCase):
         self.assertEqual(self.refresh().work_status, WorkStatus.NEW)
         page = self.client.get(response.url)
         self.assertContains(page, "Submit with open issues?")
-        self.assertContains(page, ISSUE["minimal"])
+        self.assertContains(page, SHOWN["minimal"])
         self.assertContains(page, 'value="submit_confirmed"')
 
     def test_confirming_submits_the_claim_and_the_payer_denies_it(self):
@@ -391,9 +395,28 @@ class ReviewFactsTests(WorkspaceTestCase):
 
     def test_a_flag_from_the_ai_shows_on_the_right_field(self):
         self.claim = Claim.objects.get(claim_id="CLM-1024")
-        flag = {**ISSUE, "category": "eligibility", "field": "member_id", "full": "member_id has the letter O. Use 3WK4E01RT57 from the card."}
+        flag = {**ISSUE, "category": "eligibility", "field": "member_id", "full": "Member ID has the letter O. Use 3WK4E01RT57 from the card."}
         self.review({**NEEDS_FIX, "issues": [flag]})
         response = self.client.get(reverse("claim", args=[self.claim.pk]))
         hints = {item["field"].name: item["hint"] for group in response.context["groups"] for item in group["fields"]}
         self.assertEqual(hints["member_id"], flag["full"])
         self.assertContains(response, "Eligibility")
+
+
+class PlainFieldNameTests(WorkspaceTestCase):
+    def test_field_names_become_form_labels(self):
+        text = plain_fields("icd10_primary and modifiers_1 need a fix; cpt_1 is fine. Not a field: icd10_primaryx")
+        self.assertEqual(text, "Primary ICD-10 and Modifiers (line 1) need a fix; CPT (line 1) is fine. Not a field: icd10_primaryx")
+
+    def test_the_review_panel_never_shows_a_raw_field_name(self):
+        issue = {**ISSUE, "category": "code_matching", "field": "icd10_primary", "full": "icd10_primary should be E78.5.",
+                 "guided": "icd10_primary: what is the lab monitoring?", "minimal": "Code matching: icd10_primary", "answer": "Set icd10_primary to E78.5."}
+        self.review({**NEEDS_FIX, "summary": "icd10_primary needs a change.", "issues": [issue]})
+        page = self.client.get(self.url)
+        self.assertContains(page, "Primary ICD-10 should be E78.5.")
+        self.assertContains(page, "Primary ICD-10 needs a change.")
+        # The raw name still appears in the HTML as the input's own name, but never in the review text.
+        self.assertNotIn("icd10_primary ", page.content.decode().split('id="review-panel"')[1].split("</aside>")[0].replace('id_icd10_primary', ''))
+        answer = self.client.post(reverse("claim_answer", args=[self.claim.pk, 0]))
+        self.assertContains(answer, "Set Primary ICD-10 to E78.5.")
+        self.assertNotContains(answer, "icd10_primary")

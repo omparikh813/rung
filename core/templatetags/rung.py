@@ -64,3 +64,11 @@ def category_icon(category):
 def category_tone(category):
     """The pastel background class for a skill category."""
     return f"tone-{category}" if category in CATEGORY_ICONS else "bg-sage-soft"
+
+
+@register.filter
+def plain_fields(text):
+    """Show form labels in place of field names such as icd10_primary."""
+    from ..reviews import plain_fields as swap
+
+    return swap(text)
