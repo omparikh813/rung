@@ -11,7 +11,7 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-only-not-for-production")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
-ALLOWED_HOSTS = ["rung-lime.vercel.app", "localhost", "127.0.0.1", "[::1]"]
+ALLOWED_HOSTS = [".vercel.app", "localhost", "127.0.0.1", "[::1]"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
